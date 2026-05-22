@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <%- include('partials/seo-head') %>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <%- themeCSS %>
+  <style>
+    <%- include('partials/vertical-styles') %>
+  </style>
+</head>
+<body>
+<div class="vertical-page">
+
+  <!-- NAV -->
+  <nav class="vertical-nav">
+    <a href="/" class="nav-brand">Autovyne</a>
+    <div class="nav-industries">
+      <button class="nav-dropdown-btn" onclick="toggleDropdown(this)">Industries ▾</button>
+      <div class="nav-dropdown-menu">
+        <a href="/hair-and-beauty" class="nav-dropdown-item">Hair &amp; Beauty</a>
+        <a href="/contractors" class="nav-dropdown-item nav-dropdown-item--active">Contractors</a>
+        <a href="/towing-and-automotive" class="nav-dropdown-item">Towing &amp; Automotive</a>
+        <a href="/restaurants-and-hospitality" class="nav-dropdown-item">Restaurants &amp; Hospitality</a>
+        <a href="/medical-and-dental" class="nav-dropdown-item">Medical &amp; Dental</a>
+        <a href="/hvac" class="nav-dropdown-item">HVAC</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="vertical-hero">
+    <div class="vertical-hero-inner">
+      <div class="vertical-badge">For Plumbers, Electricians, Roofers &amp; General Contractors</div>
+      <h1>Contractors: Stop Losing <span class="accent">$12K/Month</span> to Missed Estimates</h1>
+      <p class="vertical-hero-sub">Every missed call is a lost job worth $500–$10,000. Autovyne's AI captures every inquiry, qualifies leads instantly, and schedules estimates — even while you're on the job site.</p>
+      <div class="vertical-proof">
+        <div class="proof-item">
+          <span class="proof-num">78%</span>
+          <span class="proof-label">of homeowners choose the first contractor to respond</span>
+        </div>
+        <div class="proof-item">
+          <span class="proof-num">45%</span>
+          <span class="proof-label">of contractor calls go unanswered on job sites</span>
+        </div>
+        <div class="proof-item">
+          <span class="proof-num">$14,400</span>
+          <span class="proof-label">avg annual revenue lost per crew from missed estimates</span>
+        </div>
+      </div>
+      <div class="hero-cta-wrap">
+        <a href="/intake?vertical=contractors" class="btn-primary btn-large">Get Your Free Contractor Lead Audit →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- PAIN POINTS -->
+  <section class="pain-section">
+    <div class="pain-inner">
+      <div class="pain-header">
+        <h2>The Revenue Leaks Every Contractor Faces</h2>
+        <p>You're on the job — the phone rings — you can't answer. That job went to your competitor.</p>
+      </div>
+      <div class="pain-grid">
+        <div class="pain-card">
+          <div class="pain-icon">🔨</div>
+          <h3>On-Site Calls = Missed Opportunities</h3>
+          <p>When you're on a ladder or under a sink, you can't answer. Those callers don't wait — they move to the next contractor in Google Maps within 60 seconds.</p>
+          <div class="pain-stat">$500–$10,000 per missed estimate call</div>
+        </div>
+        <div class="pain-card">
+          <div class="pain-icon">📋</div>
+          <h3>Estimate Scheduling is Manual Hell</h3>
+          <p>Back-and-forth calls to schedule estimates waste 3–5 hours per week. Prospects go cold. Competitors with faster scheduling steal the job.</p>
+          <div class="pain-stat">3–5 hrs/week in scheduling overhead</div>
+        </div>
+        <div class="pain-card">
+          <div class="pain-icon">⭐</div>
+          <h3>Zero Follow-Up = Zero Reviews</h3>
+          <p>You do great work but forget to ask for reviews. Competitors with 200 Google reviews beat you in local search — even if your work is better.</p>
+          <div class="pain-stat">10× more leads from 4.8-star vs 4.1-star profile</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ROI CALCULATOR -->
+  <section class="calc-section">
+    <div class="calc-inner">
+      <div class="calc-header">
+        <h2>Calculate Your Revenue at Risk</h2>
+        <p>How many estimate calls are you losing to voicemail right now?</p>
+      </div>
+
+      <div class="calc-grid">
+        <div class="calc-card">
+          <h3>Your Numbers</h3>
+          <div class="calc-field">
+            <label>Missed estimate calls per week</label>
+            <input type="number" id="calc-missed" value="8" min="1" max="500">
+            <div class="calc-range"><span>1</span><span>500</span></div>
+            <p class="hint">Calls that go unanswered while you're on-site</p>
+          </div>
+          <div class="calc-field">
+            <label>Average job value ($)</label>
+            <input type="number" id="calc-ticket" value="2500" min="100" max="50000" step="100">
+            <div class="calc-range"><span>$100</span><span>$50,000</span></div>
+            <p class="hint">Plumbing $300–$5K, roofing $5K–$25K, electrical $200–$8K</p>
+          </div>
+          <div class="calc-field">
+            <label>Estimate-to-close rate (%)</label>
+            <input type="number" id="calc-conversion" value="35" min="5" max="100">
+            <div class="calc-range"><span>5%</span><span>100%</span></div>
+            <p class="hint">Industry avg: 25–50% of estimates become jobs</p>
+          </div>
+        </div>
+
+        <div class="calc-result-card">
+          <div class="result-header">
+            <h3>Monthly Revenue at Risk</h3>
+            <div class="result-big" id="result-monthly">$28,000</div>
+            <div class="result-period">from missed estimate calls this month</div>
+          </div>
+          <div class="result-divider"></div>
+          <div class="result-annual">
+            <div class="result-annual-label">Annual Revenue at Risk</div>
+            <div class="result-annual-val" id="result-annual">$336,000</div>
+            <div class="result-annual-sub">if nothing changes</div>
+          </div>
+          <p class="result-assumptions" id="calc-assumptions">
+            Based on <strong>8 missed calls/week</strong> × <strong>$2,500 avg job</strong> × <strong>35% close rate</strong> × 4 weeks
+          </p>
+        </div>
+      </div>
+
+      <div class="assumptions-bar">
+        <div class="assumption-item">
+          <span class="assumption-val">8 calls/week</span>
+          <span class="assumption-label">Avg missed on-site</span>
+        </div>
+        <div class="assumption-item">
+          <span class="assumption-val">$2,500/job</span>
+          <span class="assumption-label">Contractor avg ticket</span>
+        </div>
+        <div class="assumption-item">
+          <span class="assumption-val">35%</span>
+          <span class="assumption-label">Estimate close rate</span>
+        </div>
+        <div class="assumption-item">
+          <span class="assumption-val">60s</span>
+          <span class="assumption-label">Before caller moves on</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SERVICE TIERS -->
+  <section class="tiers-section">
+    <div class="tiers-inner">
+      <div class="tiers-header">
+        <h2>AI Automation Built for Contractors</h2>
+        <p>Everything your small business needs to stop missing leads — one simple package.</p>
+      </div>
+
+      <div class="packages-grid">
+        <!-- SMB BUNDLE — lead entry point, first position -->
+        <div class="package-card package-card--smb">
+          <div class="package-badge--smb">Best Value</div>
+          <div class="package-tier">SMB Bundle</div>
+          <div class="package-price">$299<span class="package-price-sub"> launch / $499 regular</span></div>
+          <div class="package-monthly">$149/mo launch / $199/mo regular</div>
+          <p class="package-desc">Everything your small business needs to stop missing leads — one simple package. No choosing between features.</p>
+          <ul class="package-features">
+            <li>AI chatbot (lead capture + qualification)</li>
+            <li>AI voice receptionist (call handling + routing)</li>
+            <li>Email auto-responders</li>
+            <li>Scheduling automation</li>
+            <li>Basic CRM workflows</li>
+            <li>3 integrations</li>
+            <li>Monthly performance report</li>
+          </ul>
+          <a href="/intake?plan=smb-bundle&vertical=contractors" class="package-cta package-cta--primary">Get Started →</a>
+        </div>
+
+        <div class="package-card">
+          <div class="package-tier">Starter</div>
+          <div class="package-price">$299<span class="package-price-sub">/month</span></div>
+          <p class="package-desc">Never miss another estimate call — AI answers, qualifies, and notifies you instantly while you're on-site.</p>
+          <ul class="package-features">
+            <li>AI voice receptionist — answers every missed call</li>
+            <li>Instant SMS reply to missed calls</li>
+            <li>Lead qualification (job type, urgency, location)</li>
+            <li>Instant notification to your phone</li>
+            <li>Call logging &amp; CRM entry</li>
+          </ul>
+          <a href="/intake?plan=starter&vertical=contractors" class="package-cta package-cta--outline">Start with Starter →</a>
+        </div>
+
+        <div class="package-card package-card--featured">
+          <div class="package-badge">Most Popular</div>
+          <div class="package-tier">Professional</div>
+          <div class="package-price">$599<span class="package-price-sub">/month</span></div>
+          <p class="package-desc">Everything in Starter plus automated estimate scheduling and post-job review requests that build your Google rating.</p>
+          <ul class="package-features">
+            <li>Everything in Starter, plus:</li>
+            <li>AI estimate scheduling — links to your calendar</li>
+            <li>Automated job reminders for homeowners</li>
+            <li>Post-job review request (Google, Yelp)</li>
+            <li>Google Business Message integration</li>
+            <li>Priority support &amp; monthly check-in</li>
+          </ul>
+          <a href="/intake?plan=professional&vertical=contractors" class="package-cta package-cta--primary">Get Your Free Audit →</a>
+        </div>
+
+        <div class="package-card">
+          <div class="package-tier">Enterprise</div>
+          <div class="package-price">$1,199<span class="package-price-sub">/month</span></div>
+          <p class="package-desc">Full AI system for multi-crew operations — handles inbound, scheduling, follow-up, and CRM at scale.</p>
+          <ul class="package-features">
+            <li>Everything in Professional, plus:</li>
+            <li>Multi-crew &amp; multi-location management</li>
+            <li>Custom CRM integration (Jobber, ServiceTitan)</li>
+            <li>AI-powered lead nurture sequences</li>
+            <li>Dedicated onboarding &amp; quarterly review</li>
+            <li>SLA guarantee — 99.5% response rate</li>
+          </ul>
+          <a href="/intake?plan=enterprise&vertical=contractors" class="package-cta package-cta--outline">Get Enterprise →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section">
+    <div class="cta-inner">
+      <h2>Get Your Free Contractor Lead Audit</h2>
+      <p>We'll analyze your call volume, identify exactly how many estimates you're missing, and show you the precise automation to fix it. Takes 10 minutes — no commitment.</p>
+      <div class="cta-actions">
+        <a href="/intake?vertical=contractors" class="btn-primary btn-large">Schedule Your Free Audit →</a>
+        <span class="cta-note">Takes 10 minutes. See your exact missed revenue.</span>
+      </div>
+      <div class="cta-trust">
+        <div class="trust-item"><span class="trust-dot"></span> No credit card required</div>
+        <div class="trust-item"><span class="trust-dot"></span> Custom for your business</div>
+        <div class="trust-item"><span class="trust-dot"></span> Results in 24 hours</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div>
+        <div class="footer-brand">Autovyne</div>
+        <div class="footer-tagline">AI automation for local businesses</div>
+      </div>
+      <div class="footer-contact">
+        <span class="footer-contact-item">autovyne@polsia.app</span>
+        <span class="footer-contact-item">autovyne.polsia.app</span>
+      </div>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+(function() {
+  window.toggleDropdown = function(btn) {
+    var menu = btn.nextElementSibling;
+    var isOpen = menu.classList.contains('open');
+    document.querySelectorAll('.nav-dropdown-menu.open').forEach(function(m) { m.classList.remove('open'); });
+    if (!isOpen) menu.classList.add('open');
+  };
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.nav-industries')) {
+      document.querySelectorAll('.nav-dropdown-menu.open').forEach(function(m) { m.classList.remove('open'); });
+    }
+  });
+
+  var missedEl = document.getElementById('calc-missed');
+  var ticketEl = document.getElementById('calc-ticket');
+  var convEl   = document.getElementById('calc-conversion');
+  var monthlyEl = document.getElementById('result-monthly');
+  var annualEl  = document.getElementById('result-annual');
+  var assumptionsEl = document.getElementById('calc-assumptions');
+
+  function fmt(n) { return '$' + Math.round(n).toLocaleString(); }
+
+  function calc() {
+    var missed  = parseFloat(missedEl.value) || 0;
+    var ticket  = parseFloat(ticketEl.value) || 0;
+    var conv    = (parseFloat(convEl.value) || 0) / 100;
+    var monthly = missed * ticket * conv * 4;
+    var annual  = monthly * 12;
+    monthlyEl.textContent = fmt(monthly);
+    annualEl.textContent  = fmt(annual);
+    assumptionsEl.innerHTML = 'Based on <strong>' + Math.round(missed) + ' missed calls/week</strong> × <strong>' + fmt(ticket) + ' avg job</strong> × <strong>' + Math.round(conv * 100) + '% close rate</strong> × 4 weeks';
+  }
+
+  [missedEl, ticketEl, convEl].forEach(function(el) { el.addEventListener('input', calc); });
+  calc();
+})();
+</script>
+
+<%- analyticsSnippet %>
+</body>
+</html>

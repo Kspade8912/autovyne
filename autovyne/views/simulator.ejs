@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <%- include('partials/seo-head') %>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/theme.css">
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --bg-subtle: #12121a;
+      --bg-card: #1a1a26;
+      --fg: #e8e8ed;
+      --fg-muted: #8888a0;
+      --accent: #00e87b;
+      --accent-dim: rgba(0, 232, 123, 0.12);
+      --accent-glow: rgba(0, 232, 123, 0.25);
+      --danger: #ff4d4d;
+      --font-display: 'Space Grotesk', sans-serif;
+      --font-body: 'DM Sans', sans-serif;
+      --max-w: 1120px;
+    }
+
+    /* ── PAGE SHELL ── */
+    .sim-page { min-height: 100vh; background: var(--bg); }
+    .sim-container { max-width: var(--max-w); margin: 0 auto; padding: 0 24px; }
+
+    /* ── NAV ── */
+    .sim-nav {
+      padding: 18px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      max-width: var(--max-w);
+      margin: 0 auto;
+    }
+    .nav-brand {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 1.25rem;
+      color: var(--fg);
+      text-decoration: none;
+    }
+    .nav-brand:hover { color: var(--accent); }
+    .nav-right { display: flex; align-items: center; gap: 12px; }
+    .nav-sim-badge {
+      font-family: var(--font-display);
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: var(--accent-dim);
+      padding: 4px 12px;
+      border-radius: 100px;
+    }
+    .nav-dropdown-wrap { position: relative; }
+    .nav-dropdown-btn {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 8px;
+      color: var(--fg);
+      font-family: var(--font-display);
+      font-size: 0.88rem;
+      font-weight: 600;
+      padding: 8px 16px;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .nav-dropdown-btn:hover { border-color: var(--accent); background: var(--accent-dim); }
+    .nav-dropdown-menu {
+      display: none;
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      background: var(--bg-card);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      min-width: 230px;
+      padding: 8px 0;
+      box-shadow: 0 16px 48px rgba(0,0,0,0.4);
+      z-index: 200;
+    }
+    .nav-dropdown-menu.open { display: block; }
+    .nav-dropdown-item {
+      display: block;
+      padding: 10px 20px;
+      color: var(--fg-muted);
+      text-decoration: none;
+      font-family: var(--font-display);
+      font-size: 0.88rem;
+      font-weight: 500;
+      transition: color 0.15s, background 0.15s;
+    }
+    .nav-dropdown-item:hover { color: var(--fg); background: rgba(255,255,255,0.04); }
+    .nav-dropdown-item--active { color: var(--accent); }
+
+    /* ── HEADER ── */
+    .sim-header {
+      padding: 80px 24px 60px;
+      background: linear-gradient(170deg, var(--bg) 0%, #0d1117 50%, var(--bg-subtle) 100%);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .sim-header::before {
+      content: '';
+      position: absolute;
+      top: -200px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 700px;
+      height: 700px;
+      background: radial-gradient(circle, rgba(0,232,123,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .sim-header-inner { max-width: 700px; margin: 0 auto; position: relative; }
+    .sim-badge {
+      display: inline-block;
+      font-family: var(--font-display);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: var(--accent-dim);
+      padding: 6px 18px;
+      border-radius: 100px;
+      margin-bottom: 28px;
+    }
+    .sim-header h1 {
+      font-family: var(--font-display);
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 700;
+      line-height: 1.1;
+      letter-spacing: -0.025em;
+      margin-bottom: 18px;
+    }
+    .sim-header h1 .accent { color: var(--accent); }
+    .sim-header-sub {
+      font-size: 1.05rem;
+      color: var(--fg-muted);
+      max-width: 560px;
+      margin: 0 auto;
+      line-height: 1.7;
+    }
+
+    /* ── INPUT SECTION ── */
+    .sim-inputs-section {
+      padding: 72px 24px;
+      background: var(--bg);
+    }
+    .sim-inputs-inner { max-width: var(--max-w); margin: 0 auto; }
+    .inputs-grid {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      gap: 40px;
+      align-items: start;
+    }
+
+    /* Vertical Selector */
+    .vertical-selector-card {
+      background: var(--bg-card);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 16px;
+      padding: 32px 28px;
+      position: sticky;
+      top: 24px;
+    }
+    .vertical-selector-card h3 {
+      font-family: var(--font-display);
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--fg-muted);
+      margin-bottom: 20px;
+    }
+    .vertical-options { display: flex; flex-direction: column; gap: 6px; }
+    .vertical-option {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.15s;
+      border: 1px solid transparent;
+    }
+    .vertical-option:hover { background: rgba(255,255,255,0.04); }
+    .vertical-option.selected {
+      background: var(--accent-dim);
+      border-color: var(--accent-glow);
+    }
+    .vertical-option-radio {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.2);
+      flex-shrink: 0;
+      position: relative;
+    }
+    .vertical-option.selected .vertical-option-radio {
+      border-color: var(--accent);
+    }
+    .vertical-option.selected .vertical-option-radio::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+    .vertical-option-label {
+      font-family: var(--font-display);
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: var(--fg);
+    }
+    .vertical-option-default {
+      font-size: 0.78rem;
+      color: var(--fg-muted);
+      margin-left: auto;
+    }
+
+    /* Business Inputs */
+    .inputs-card {
+      background: var(--bg-card);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 16px;
+      padding: 40px;
+    }
+    .inputs-card h3 {
+      font-family: var(--font-display);
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--fg-muted);
+      margin-bottom: 28px;
+    }
+    .input-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+    .input-field { display: flex; flex-direction: column; gap: 8px; }
+    .input-field label {
+      font-family: var(--font-display);
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--fg);
+    }
+    .input-field .field-hint {
+      font-size: 0.75rem;
+      color: var(--fg-muted);
+    }
+    .input-field input {
+      background: var(--bg-subtle);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      color: var(--fg);
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      font-weight: 600;
+      padding: 12px 14px;
+      outline: none;
+      transition: border-color 0.2s ease;
+      text-align: center;
+      width: 100%;
+    }
+    .input-field input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-dim);
+    }
+    .sim-divider {
+      height: 1px;
+      background: rgba(255,255,255,0.06);
+      margin: 28px 0;
+    }
+    .sim-vertical-note {
+      font-size: 0.82rem;
+      color: var(--fg-muted);
+      padding: 14px 16px;
+      background: var(--bg-subtle);
+      border-radius: 8px;
+      border-left: 3px solid var(--accent);
+      line-height: 1.5;
+    }
+    .sim-vertical-note strong { color: var(--fg); }
+
+    /* ── RESULTS SECTION ── */
+    .sim-results-section {
+      padding: 0 24px 80px;
+      background: var(--bg);
+    }
+    .sim-results-inner { max-width: var(--max-w); margin: 0 auto; }
+
+    /* KPI Cards */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      margin-bottom: 40px;
+    }
+    .kpi-card {
+      background: var(--bg-card);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 14px;
+      padding: 24px 20px;
+      text-align: center;
+    }
+    .kpi-card--accent {
+      background: linear-gradient(135deg, var(--bg-card) 0%, rgba(0,232,123,0.07) 100%);
+      border-color: var(--accent-glow);
+    }
+    .kpi-label {
+      font-family: var(--font-display);
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--fg-muted);
+      margin-bottom: 10px;
+    }
+    .kpi-value {
+      font-family: var(--font-display);
+      font-size: clamp(1.6rem, 2.5vw, 2.2rem);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-value--accent { color: var(--accent); }
+    .kpi-value--danger { color: var(--danger); }
+    .kpi-value--fg { color: var(--fg); }
+    .kpi-sub {
+      font-size: 0.78rem;
+      color: var(--fg-muted);
+      margin-top: 6px;
+      line-height: 1.4;
+    }
+    .kpi-badge {
+      display: inline-block;
+      font-family: var(--font-display);
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      background: var(--accent);
+      color: #0a0a0f;
+      padding: 3px 10px;
+      border-radius: 100px;
+      margin-top: 8px;
+    }
+
+    /* Chart Section */
+    .chart-section {
+      background: var(--bg-card);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 16px;
+      padding: 40px;
+      margin-bottom: 40px;
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .chart-header h3 {
+      font-family: var(--font-display);
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+    .chart-legend {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.85rem;
+      color: var(--fg-muted);
+      font-family: var(--font-display);
+      font-weight: 500;
+    }
+    .legend-bar {
+      width: 24px;
+      height: 10px;
+      border-radius: 3px;
+    }
+    .legend-bar--without { background: rgba(255,74,74,0.5); }
+    .legend-bar--with { background: var(--accent); }
+    .chart-canvas-wrap {
+      position: relative;
+      height: 320px;
+    }
+    #projectionChart { width: 100%; height: 100%; }
+
+    /* Table Section */
+    .table-section {
+      background: var(--bg-card);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 16px;
+      overflow: hidden;
+      margin-bottom: 40px;
+    }
+    .table-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 24px 32px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .table-header h3 {
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .table-scroll { overflow-x: auto; }
+    .sim-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 700px;
+    }
+    .sim-table th {
+      font-family: var(--font-display);
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--fg-muted);
+      padding: 14px 16px;
+      text-align: right;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .sim-table th:first-child { text-align: left; }
+    .sim-table td {
+      font-family: var(--font-display);
+      font-size: 0.9rem;
+      font-weight: 500;
+      padding: 12px 16px;
+      text-align: right;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+      color: var(--fg);
+    }
+    .sim-table td:first-child { text-align: left; color: var(--fg-muted); }
+    .sim-table tr:last-child td { border-bottom: none; }
+    .sim-table tr.total-row td {
+      font-weight: 700;
+      font-size: 1rem;
+      padding-top: 16px;
+      padding-bottom: 16px;
+      border-top: 2px solid rgba(255,255,255,0.08);
+      color: var(--fg);
+    }
+    .td-delta { color: var(--accent) !important; }
+    .td-danger { color: var(--danger) !important; }
+    .col-odd td:nth-child(odd) { background: rgba(255,255,255,0.015); }
+
+    /* Package CTA */
+    .sim-cta-section {
+      background: linear-gradient(135deg, var(--bg-card) 0%, rgba(0,232,123,0.06) 100%);
+      border: 1px solid var(--accent-glow);
+      border-radius: 16px;
+      padding: 48px 40px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 32px;
+      align-items: center;
+    }
+    .sim-cta-left h3 {
+      font-family: var(--font-display);
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .sim-cta-left p { font-size: 0.95rem; color: var(--fg-muted); line-height: 1.6; }
+    .sim-cta-right { text-align: right; }
+    .sim-cta-price {
+      font-family: var(--font-display);
+      font-size: 2.4rem;
+      font-weight: 700;
+      color: var(--accent);
+      line-height: 1;
+    }
+    .sim-cta-price-sub { font-size: 0.85rem; color: var(--fg-muted); margin-top: 4px; }
+    .sim-cta-link {
+      display: inline-block;
+      margin-top: 16px;
+      background: var(--accent);
+      color: #0a0a0f;
+      font-family: var(--font-display);
+      font-size: 0.95rem;
+      font-weight: 700;
+      padding: 12px 28px;
+      border-radius: 10px;
+      text-decoration: none;
+      transition: opacity 0.2s ease;
+    }
+    .sim-cta-link:hover { opacity: 0.85; }
+
+    /* Footer */
+    .sim-footer {
+      padding: 40px 24px;
+      border-top: 1px solid rgba(255,255,255,0.05);
+      text-align: center;
+    }
+    .sim-footer-inner {
+      max-width: var(--max-w);
+      margin: 0 auto;
+    }
+    .footer-brand {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: var(--fg);
+      margin-bottom: 6px;
+    }
+    .footer-tagline { font-size: 0.82rem; color: var(--fg-muted); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 1100px) {
+      .inputs-grid { grid-template-columns: 1fr; }
+      .vertical-selector-card { position: static; }
+      .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 768px) {
+      .sim-nav { padding: 14px 20px; }
+      .sim-header { padding: 60px 20px 40px; }
+      .sim-inputs-section { padding: 48px 20px; }
+      .sim-results-section { padding: 0 20px 60px; }
+      .inputs-card { padding: 28px 20px; }
+      .input-grid { grid-template-columns: 1fr; }
+      .kpi-grid { grid-template-columns: 1fr 1fr; }
+      .chart-section { padding: 24px 20px; }
+      .chart-canvas-wrap { height: 240px; }
+      .table-header { padding: 20px; }
+      .sim-table th, .sim-table td { padding: 10px 12px; }
+      .sim-cta-section { grid-template-columns: 1fr; text-align: center; }
+      .sim-cta-right { text-align: center; }
+    }
+  </style>
+</head>
+<body>
+<div class="sim-page">
+
+  <!-- NAV -->
+  <nav class="sim-nav">
+    <a href="/" class="nav-brand">Autovyne</a>
+    <div class="nav-right">
+      <span class="nav-sim-badge">Revenue Simulator</span>
+      <div class="nav-dropdown-wrap">
+        <button class="nav-dropdown-btn" onclick="toggleNavDropdown(this)">Industries ▾</button>
+        <div class="nav-dropdown-menu">
+          <a href="/hvac" class="nav-dropdown-item">HVAC</a>
+          <a href="/hair-and-beauty" class="nav-dropdown-item">Hair &amp; Beauty</a>
+          <a href="/contractors" class="nav-dropdown-item">Contractors</a>
+          <a href="/towing-and-automotive" class="nav-dropdown-item">Towing &amp; Automotive</a>
+          <a href="/restaurants-and-hospitality" class="nav-dropdown-item">Restaurants &amp; Hospitality</a>
+          <a href="/medical-and-dental" class="nav-dropdown-item">Medical &amp; Dental</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HEADER -->
+  <section class="sim-header">
+    <div class="sim-header-inner">
+      <div class="sim-badge">12-Month Projection Tool</div>
+      <h1>See Your <span class="accent">$100K+</span> Revenue Opportunity</h1>
+      <p class="sim-header-sub">Pick your industry, enter your numbers, and see exactly what AI automation recovers — month by month, for a full year.</p>
+    </div>
+  </section>
+
+  <!-- INPUTS -->
+  <section class="sim-inputs-section">
+    <div class="sim-inputs-inner">
+      <div class="inputs-grid">
+
+        <!-- Vertical Selector -->
+        <div class="vertical-selector-card">
+          <h3>Select Your Industry</h3>
+          <div class="vertical-options">
+            <div class="vertical-option selected" data-vertical="hvac" onclick="selectVertical('hvac')">
+              <div class="vertical-option-radio"></div>
+              <span class="vertical-option-label">HVAC &amp; Home Service</span>
+              <span class="vertical-option-default">~$350/ticket</span>
+            </div>
+            <div class="vertical-option" data-vertical="hair-and-beauty" onclick="selectVertical('hair-and-beauty')">
+              <div class="vertical-option-radio"></div>
+              <span class="vertical-option-label">Hair &amp; Beauty</span>
+              <span class="vertical-option-default">~$180/ticket</span>
+            </div>
+            <div class="vertical-option" data-vertical="contractors" onclick="selectVertical('contractors')">
+              <div class="vertical-option-radio"></div>
+              <span class="vertical-option-label">Contractors</span>
+              <span class="vertical-option-default">~$400/ticket</span>
+            </div>
+            <div class="vertical-option" data-vertical="towing-and-automotive" onclick="selectVertical('towing-and-automotive')">
+              <div class="vertical-option-radio"></div>
+              <span class="vertical-option-label">Towing &amp; Automotive</span>
+              <span class="vertical-option-default">~$275/ticket</span>
+            </div>
+            <div class="vertical-option" data-vertical="restaurants-and-hospitality" onclick="selectVertical('restaurants-and-hospitality')">
+              <div class="vertical-option-radio"></div>
+              <span class="vertical-option-label">Restaurants &amp; Hospitality</span>
+              <span class="vertical-option-default">~$95/ticket</span>
+            </div>
+            <div class="vertical-option" data-vertical="medical-and-dental" onclick="selectVertical('medical-and-dental')">
+              <div class="vertical-option-radio"></div>
+              <span class="vertical-option-label">Medical &amp; Dental</span>
+              <span class="vertical-option-default">~$220/ticket</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Business Inputs -->
+        <div class="inputs-card">
+          <h3>Your Business Numbers</h3>
+          <div class="input-grid">
+            <div class="input-field">
+              <label for="f-leads">Leads / Month</label>
+              <input type="number" id="f-leads" value="80" min="1" max="10000">
+              <span class="field-hint">Total inbound calls + web leads</span>
+            </div>
+            <div class="input-field">
+              <label for="f-ticket">Avg Ticket Value ($)</label>
+              <input type="number" id="f-ticket" value="350" min="10" max="50000">
+              <span class="field-hint">Average revenue per job</span>
+            </div>
+            <div class="input-field">
+              <label for="f-missed">Missed Call %</label>
+              <input type="number" id="f-missed" value="30" min="0" max="100" step="0.5">
+              <span class="field-hint">% of calls that go unanswered</span>
+            </div>
+            <div class="input-field">
+              <label for="f-conversion">Conversion Rate %</label>
+              <input type="number" id="f-conversion" value="30" min="1" max="100" step="0.5">
+              <span class="field-hint">% of callers who become customers</span>
+            </div>
+          </div>
+          <div class="sim-divider"></div>
+          <div class="sim-vertical-note" id="vertical-note">
+            <strong>Industry insight:</strong> HVAC businesses typically convert 25–35% of calls. A 30% missed call rate is common for businesses without 24/7 coverage. Autovyne captures 60–75% of missed leads with instant response.
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- RESULTS -->
+  <section class="sim-results-section">
+    <div class="sim-results-inner">
+
+      <!-- KPI Cards -->
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-label">Annual Revenue at Risk</div>
+          <div class="kpi-value kpi-value--danger" id="kpi-at-risk">$25,200</div>
+          <div class="kpi-sub">from missed calls, annualized</div>
+        </div>
+        <div class="kpi-card kpi-card--accent">
+          <div class="kpi-label">Additional Annual Revenue</div>
+          <div class="kpi-value kpi-value--accent" id="kpi-additional">$18,144</div>
+          <div class="kpi-sub">recovered with Autovyne</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Year 1 Cost (SMB Bundle)</div>
+          <div class="kpi-value kpi-value--fg" id="kpi-cost">$2,087</div>
+          <div class="kpi-sub">$299 setup + $149/mo × 12</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Year 1 ROI</div>
+          <div class="kpi-value kpi-value--accent" id="kpi-roi">769%</div>
+          <div class="kpi-sub">Net: <span id="kpi-net">$16,057</span> first year</div>
+          <span class="kpi-badge">Best Value</span>
+        </div>
+      </div>
+
+      <!-- Chart -->
+      <div class="chart-section">
+        <div class="chart-header">
+          <h3>12-Month Revenue Projection</h3>
+          <div class="chart-legend">
+            <div class="legend-item"><div class="legend-bar legend-bar--without"></div> Without Autovyne</div>
+            <div class="legend-item"><div class="legend-bar legend-bar--with"></div> With Autovyne</div>
+          </div>
+        </div>
+        <div class="chart-canvas-wrap">
+          <canvas id="projectionChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="table-section">
+        <div class="table-header">
+          <h3>Monthly Breakdown</h3>
+          <div style="font-size:0.85rem;color:var(--fg-muted);font-family:var(--font-display);">
+            Cumulative: <strong style="color:var(--accent)" id="cumulative-delta">$217,728</strong> additional
+          </div>
+        </div>
+        <div class="table-scroll">
+          <table class="sim-table">
+            <thead>
+              <tr>
+                <th>Month</th>
+                <th>Without Autovyne</th>
+                <th>With Autovyne</th>
+                <th>Delta</th>
+                <th>Cumulative Delta</th>
+              </tr>
+            </thead>
+            <tbody id="proj-tbody">
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- CTA -->
+      <div class="sim-cta-section">
+        <div class="sim-cta-left">
+          <h3>SMB Bundle — Everything You Need</h3>
+          <p>One price covers AI chatbot, voice receptionist, email automation, scheduling, and CRM — no feature tiers, no add-ons, no surprises.</p>
+        </div>
+        <div class="sim-cta-right">
+          <div class="sim-cta-price">$299 + $149/mo</div>
+          <div class="sim-cta-price-sub">Launch pricing — saves $600/yr vs. regular</div>
+          <a href="/intake?plan=smb-bundle" class="sim-cta-link">Get Started →</a>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="sim-footer">
+    <div class="sim-footer-inner">
+      <div class="footer-brand">Autovyne</div>
+      <div class="footer-tagline">AI automation for local businesses · autovyne@polsia.app</div>
+    </div>
+  </footer>
+
+</div><!-- .sim-page -->
+
+<%- analyticsSnippet %>
+
+<script>
+// ── INDUSTRY DEFAULTS ──────────────────────────────────────────────────────────
+const VERTICALS = {
+  'hvac': {
+    label: 'HVAC & Home Service',
+    note: '<strong>Industry insight:</strong> HVAC businesses typically convert 25–35% of calls. A 30% missed call rate is common for businesses without 24/7 coverage. Autovyne captures 60–75% of missed leads with instant response.',
+    defaults: { leads: 80, ticket: 350, missed: 30, conversion: 30 },
+    improvementRate: 0.65  // 65% of missed calls converted by Autovyne
+  },
+  'hair-and-beauty': {
+    label: 'Hair & Beauty',
+    note: '<strong>Industry insight:</strong> Salons see high no-show rates and missed appointments. Autovyne fills cancellations by capturing last-minute searchers and sending automated reminders to reduce gaps.',
+    defaults: { leads: 120, ticket: 180, missed: 25, conversion: 40 },
+    improvementRate: 0.55
+  },
+  'contractors': {
+    label: 'Contractors',
+    note: '<strong>Industry insight:</strong> Trade contractors typically have high ticket values but low lead capture rates. After-hours calls — estimate requests, bid calls — are often missed. Autovyne answers 24/7.',
+    defaults: { leads: 45, ticket: 400, missed: 35, conversion: 25 },
+    improvementRate: 0.60
+  },
+  'towing-and-automotive': {
+    label: 'Towing & Automotive',
+    note: '<strong>Industry insight:</strong> Towing calls are time-sensitive — callers dial 3-5 companies until one answers. Missing even 1 in 5 calls means losing the job to a competitor. Autovyne answers within 2 rings.',
+    defaults: { leads: 90, ticket: 275, missed: 28, conversion: 35 },
+    improvementRate: 0.70
+  },
+  'restaurants-and-hospitality': {
+    label: 'Restaurants & Hospitality',
+    note: '<strong>Industry insight:</strong> Reservation no-shows and missed calls for catering/private events cost thousands per month. Autovyne confirms bookings, fills cancellations, and captures group inquiries.',
+    defaults: { leads: 200, ticket: 95, missed: 18, conversion: 45 },
+    improvementRate: 0.50
+  },
+  'medical-and-dental': {
+    label: 'Medical & Dental',
+    note: '<strong>Industry insight:</strong> Medical offices miss 20–35% of calls during busy periods. Patients who can’t reach you call the next practice. Autovyne handles intake, appointment requests, and after-hours coverage — HIPAA-aware.',
+    defaults: { leads: 60, ticket: 220, missed: 30, conversion: 50 },
+    improvementRate: 0.60
+  }
+};
+
+// SMB Bundle pricing
+const SETUP_FEE = 299;
+const MONTHLY_FEE = 149;
+const MONTHS = 12;
+
+// ── SIMULATION ENGINE ──────────────────────────────────────────────────────────
+function simulate(leads, ticket, missedPct, conversion, improvementRate) {
+  // Monthly revenue without Autovyne (flat — no growth assumed)
+  const withoutMonthly = leads * (1 - missedPct / 100) * (conversion / 100) * ticket;
+
+  // Additional leads Autovyne captures from missed pool
+  const missedLeads = leads * (missedPct / 100);
+  const capturedLeads = missedLeads * improvementRate;
+  // Convert captured leads at same conversion rate
+  const additionalMonthly = capturedLeads * (conversion / 100) * ticket;
+
+  // With Autovyne: base + additional
+  const withMonthly = withoutMonthly + additionalMonthly;
+
+  // Build 12-month arrays
+  const withoutArr = Array(12).fill(withoutMonthly);
+  const withArr    = Array(12).fill(withMonthly);
+
+  // Cumulative
+  const deltaArr     = withArr.map((w, i) => w - withoutArr[i]);
+  const cumulArr     = deltaArr.map((d, i) => i === 0 ? d : cumulArr[i - 1] + d);
+
+  // Annual totals
+  const annualWithout = withoutMonthly * 12;
+  const annualWith    = withMonthly * 12;
+  const annualDelta   = annualWith - annualWithout;
+  const additionalAnnual = additionalMonthly * 12;
+  const annualCost    = SETUP_FEE + (MONTHLY_FEE * 12);
+  const netGain       = annualDelta - annualCost;
+  const roi           = annualCost > 0 ? Math.round((netGain / annualCost) * 100) : 0;
+
+  return { withoutArr, withArr, deltaArr, cumulArr, annualWithout, annualWith, annualDelta, additionalAnnual, annualCost, netGain, roi };
+}
+
+// ── CHART RENDERING (vanilla canvas) ───────────────────────────────────────────
+function drawChart(withoutArr, withArr) {
+  const canvas = document.getElementById('projectionChart');
+  if (!canvas) { console.error('[simulator] projectionChart canvas not found'); return; }
+  const ctx = canvas.getContext('2d');
+
+  // Guard: ensure canvas parent has non-zero dimensions
+  const rect = canvas.parentElement.getBoundingClientRect();
+  if (!rect || rect.width === 0 || rect.height === 0) {
+    console.error('[simulator] canvas parent has zero dimensions:', rect);
+    return;
+  }
+
+  // High-DPI support
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width  = rect.width  * dpr;
+  canvas.height = rect.height * dpr;
+  canvas.style.width  = rect.width  + 'px';
+  canvas.style.height = rect.height + 'px';
+  ctx.scale(dpr, dpr);
+
+  const W = rect.width;
+  const H = rect.height;
+  const padL = 64, padR = 24, padT = 24, padB = 40;
+  const chartW = W - padL - padR;
+  const chartH = H - padT - padB;
+
+  const months = 12;
+  const barW = (chartW / months) * 0.38;
+  const gap  = (chartW / months) * 0.24;
+
+  // Data ranges
+  const maxVal = Math.max(...withArr) * 1.15;
+  const minVal = 0;
+
+  function xPos(i, offset) { return padL + (i / months) * chartW + offset; }
+  function yPos(v) { return padT + chartH - ((v - minVal) / (maxVal - minVal)) * chartH; }
+
+  // Y-axis labels
+  ctx.font = '600 11px "Space Grotesk", sans-serif';
+  ctx.fillStyle = '#8888a0';
+  ctx.textAlign = 'right';
+  const gridSteps = 5;
+  for (let i = 0; i <= gridSteps; i++) {
+    const v = minVal + (maxVal - minVal) * (i / gridSteps);
+    const y = yPos(v);
+    ctx.fillText('$' + Math.round(v / 1000) + 'k', padL - 8, y + 4);
+    // Grid line
+    ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(padL, y);
+    ctx.lineTo(padL + chartW, y);
+    ctx.stroke();
+  }
+
+  // X-axis labels
+  ctx.textAlign = 'center';
+  ctx.fillStyle = '#8888a0';
+  ctx.font = '500 11px "Space Grotesk", sans-serif';
+  for (let i = 0; i < months; i++) {
+    const x = xPos(i + 0.5, 0) - (barW + gap) / 2;
+    ctx.fillText('M' + (i + 1), x + barW / 2, padT + chartH + 20);
+  }
+
+  // Draw bars (grouped pairs)
+  for (let i = 0; i < months; i++) {
+    const xWithout = xPos(i, 0);
+    const xWith    = xPos(i, barW + gap);
+
+    // Without Autovyne (red-ish, transparent)
+    const yW = yPos(withoutArr[i]);
+    ctx.fillStyle = 'rgba(255, 74, 74, 0.45)';
+    roundRect(ctx, xWithout, yW, barW, padT + chartH - yW, 4);
+    ctx.fill();
+
+    // With Autovyne (accent green)
+    const yC = yPos(withArr[i]);
+    ctx.fillStyle = '#00e87b';
+    roundRect(ctx, xWith, yC, barW, padT + chartH - yC, 4);
+    ctx.fill();
+  }
+
+  // Monthly revenue labels on last bar
+  ctx.font = '600 10px "Space Grotesk", sans-serif';
+  ctx.fillStyle = '#00e87b';
+  ctx.textAlign = 'center';
+  ctx.fillText('$' + Math.round(withArr[11] / 1000) + 'k', xPos(11, barW + gap) + barW / 2, yPos(withArr[11]) - 6);
+  ctx.fillStyle = 'rgba(255,74,74,0.7)';
+  ctx.fillText('$' + Math.round(withoutArr[11] / 1000) + 'k', xPos(11, 0) + barW / 2, yPos(withoutArr[11]) - 6);
+
+  // X-axis baseline
+  ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(padL, padT + chartH);
+  ctx.lineTo(padL + chartW, padT + chartH);
+  ctx.stroke();
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+}
+
+// ── TABLE RENDERING ─────────────────────────────────────────────────────────────
+function renderTable(withoutArr, withArr, deltaArr, cumulArr) {
+  const tbody = document.getElementById('proj-tbody');
+  const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+  let html = '';
+  for (let i = 0; i < 12; i++) {
+    const isOdd = i % 2 === 0;
+    html += '<tr class="' + (isOdd ? 'col-odd' : '') + '">';
+    html += '<td>' + monthNames[i] + '</td>';
+    html += '<td>' + fmt(withoutArr[i]) + '</td>';
+    html += '<td>' + fmt(withArr[i]) + '</td>';
+    html += '<td class="td-delta">+' + fmt(deltaArr[i]) + '</td>';
+    html += '<td class="td-delta">+' + fmt(cumulArr[i]) + '</td>';
+    html += '</tr>';
+  }
+  // Totals row
+  const totalWithout = withoutArr.reduce((a, b) => a + b, 0);
+  const totalWith    = withArr.reduce((a, b) => a + b, 0);
+  const totalDelta   = totalWith - totalWithout;
+  const totalCumul   = totalDelta; // same since it's cumulative
+  html += '<tr class="total-row">';
+  html += '<td>Year Total</td>';
+  html += '<td>' + fmt(totalWithout) + '</td>';
+  html += '<td>' + fmt(totalWith) + '</td>';
+  html += '<td class="td-delta">+' + fmt(totalDelta) + '</td>';
+  html += '<td class="td-delta">+' + fmt(totalCumul) + '</td>';
+  html += '</tr>';
+  tbody.innerHTML = html;
+  document.getElementById('cumulative-delta').textContent = fmt(totalDelta);
+}
+
+function fmt(n) {
+  return '$' + Math.round(n).toLocaleString();
+}
+
+// ── UPDATE ALL ─────────────────────────────────────────────────────────────────
+let currentVertical = 'hvac';
+
+function updateSim() {
+  const vdef = VERTICALS[currentVertical];
+  const impRate = vdef.improvementRate;
+
+  const leads     = parseFloat(document.getElementById('f-leads').value)     || 1;
+  const ticket    = parseFloat(document.getElementById('f-ticket').value)    || 100;
+  const missed    = parseFloat(document.getElementById('f-missed').value)     || 0;
+  const conversion= parseFloat(document.getElementById('f-conversion').value) || 1;
+
+  let r;
+  try {
+    r = simulate(leads, ticket, missed, conversion, impRate);
+  } catch (e) {
+    console.error('[simulator] simulate() error:', e);
+    return;
+  }
+
+  try {
+    // KPIs — at-risk = annual revenue lost (total missed leads × conversion × ticket)
+    // additional = revenue Autovyne actually recovers (annualDelta)
+    const atRisk = leads * (missed / 100) * (conversion / 100) * ticket * 12;
+    document.getElementById('kpi-at-risk').textContent   = fmt(atRisk);
+    document.getElementById('kpi-additional').textContent= fmt(r.annualDelta);
+    document.getElementById('kpi-cost').textContent      = fmt(r.annualCost);
+    document.getElementById('kpi-roi').textContent      = r.roi + '%';
+    document.getElementById('kpi-net').textContent      = fmt(r.netGain);
+  } catch (e) {
+    console.error('[simulator] KPI DOM update error:', e);
+  }
+
+  try {
+    drawChart(r.withoutArr, r.withArr);
+  } catch (e) {
+    console.error('[simulator] drawChart() error:', e);
+  }
+
+  try {
+    renderTable(r.withoutArr, r.withArr, r.deltaArr, r.cumulArr);
+  } catch (e) {
+    console.error('[simulator] renderTable() error:', e);
+  }
+}
+
+// ── VERTICAL SELECTION ─────────────────────────────────────────────────────────
+function selectVertical(key) {
+  currentVertical = key;
+  const vdef = VERTICALS[key];
+
+  // Update radio UI
+  document.querySelectorAll('.vertical-option').forEach(el => el.classList.remove('selected'));
+  document.querySelector('[data-vertical="' + key + '"]').classList.add('selected');
+
+  // Load defaults
+  const d = vdef.defaults;
+  document.getElementById('f-leads').value     = d.leads;
+  document.getElementById('f-ticket').value     = d.ticket;
+  document.getElementById('f-missed').value    = d.missed;
+  document.getElementById('f-conversion').value = d.conversion;
+
+  // Update note
+  document.getElementById('vertical-note').innerHTML = vdef.note;
+
+  // Recalculate
+  updateSim();
+}
+
+// ── NAV DROPDOWN ───────────────────────────────────────────────────────────────
+window.toggleNavDropdown = function(btn) {
+  var menu = btn.nextElementSibling;
+  var isOpen = menu.classList.contains('open');
+  document.querySelectorAll('.nav-dropdown-menu.open').forEach(function(m) { m.classList.remove('open'); });
+  if (!isOpen) menu.classList.add('open');
+};
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.nav-dropdown-wrap')) {
+    document.querySelectorAll('.nav-dropdown-menu.open').forEach(function(m) { m.classList.remove('open'); });
+  }
+});
+
+// ── INPUT LISTENERS ────────────────────────────────────────────────────────────
+['f-leads', 'f-ticket', 'f-missed', 'f-conversion'].forEach(function(id) {
+  document.getElementById(id).addEventListener('input', updateSim);
+});
+
+// ── INIT ───────────────────────────────────────────────────────────────────────
+(function() {
+  // Wait for fonts/layout
+  updateSim();
+  window.addEventListener('resize', updateSim);
+})();
+</script>
+</body>
+</html>

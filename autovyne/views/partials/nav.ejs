@@ -1,0 +1,35 @@
+<nav class="site-nav">
+  <div class="site-nav-inner">
+    <a href="/" class="site-nav-brand">Autovyne</a>
+    <div class="site-nav-industries">
+      <button class="site-nav-dropdown-btn" onclick="toggleSiteDropdown(this)" aria-haspopup="true" aria-expanded="false">Industries ▾</button>
+      <div class="site-nav-dropdown-menu">
+        <a href="/hair-and-beauty" class="site-nav-dropdown-item">Hair &amp; Beauty</a>
+        <a href="/contractors" class="site-nav-dropdown-item">Contractors</a>
+        <a href="/towing-and-automotive" class="site-nav-dropdown-item">Towing &amp; Automotive</a>
+        <a href="/restaurants-and-hospitality" class="site-nav-dropdown-item">Restaurants &amp; Hospitality</a>
+        <a href="/medical-and-dental" class="site-nav-dropdown-item">Medical &amp; Dental</a>
+      </div>
+    </div>
+    <a href="/simulator" class="site-nav-dropdown-btn" style="text-decoration:none;margin-left:4px;">Revenue Simulator →</a>
+    <a href="/demo" class="site-nav-dropdown-btn" style="text-decoration:none;margin-left:4px;color:var(--accent, #00e87b);">▶ Live Demo</a>
+  </div>
+</nav>
+<script>
+  function toggleSiteDropdown(btn) {
+    var menu = btn.nextElementSibling;
+    var open = menu.classList.toggle('open');
+    btn.setAttribute('aria-expanded', open);
+    if (open) {
+      // Close on outside click
+      var close = function(e) {
+        if (!btn.parentElement.contains(e.target)) {
+          menu.classList.remove('open');
+          btn.setAttribute('aria-expanded', 'false');
+          document.removeEventListener('click', close);
+        }
+      };
+      setTimeout(function() { document.addEventListener('click', close); }, 0);
+    }
+  }
+</script>

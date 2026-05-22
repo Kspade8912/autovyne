@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <%- include('partials/seo-head') %>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <%- themeCSS %>
+</head>
+<body>
+  <div class="results-page">
+
+    <nav class="intake-nav">
+      <a href="/" class="nav-brand">Autovyne</a>
+    </nav>
+
+    <div class="results-container">
+
+      <!-- Business header -->
+      <div class="results-header">
+        <div class="hero-badge">Your Report</div>
+        <h1><span class="highlight"><%= submission.business_name %></span> — Here's what AI automation can do for you.</h1>
+      </div>
+
+      <!-- ROI Stats -->
+      <div class="results-stats">
+        <div class="stat-card stat-card--danger">
+          <div class="stat-card-label">Missed leads / month</div>
+          <div class="stat-card-value"><%= submission.estimated_missed_leads %></div>
+          <div class="stat-card-sub">Based on <%= submission.monthly_call_volume %> calls &amp; <%= submission.miss_rate_pct %>% miss rate</div>
+        </div>
+        <div class="stat-card stat-card--accent">
+          <div class="stat-card-label">Leads recovered with AI</div>
+          <div class="stat-card-value"><%= Math.round(submission.estimated_missed_leads * 0.35) %><span class="stat-unit">/mo</span></div>
+          <div class="stat-card-sub">~35% recovery via missed-call text-back + AI voice</div>
+        </div>
+        <div class="stat-card stat-card--accent stat-card--glow">
+          <div class="stat-card-label">Estimated revenue recovered</div>
+          <div class="stat-card-value">$<%= submission.estimated_monthly_loss.toLocaleString() %><span class="stat-unit">/mo</span></div>
+          <div class="stat-card-sub">At ~$400 avg deal value for <%= submission.industry %></div>
+        </div>
+      </div>
+
+      <!-- What we fix -->
+      <div class="results-section">
+        <h2>What Autovyne builds for you</h2>
+        <div class="fix-grid">
+          <div class="fix-card">
+            <div class="fix-icon">📞</div>
+            <h3>AI Voice Receptionist</h3>
+            <p>Answers every call 24/7, qualifies leads, books appointments. No hold music, no voicemail.</p>
+          </div>
+          <div class="fix-card">
+            <div class="fix-icon">💬</div>
+            <h3>Missed Call Text-Back</h3>
+            <p>Every missed call triggers an instant "Hey, sorry I missed you" text within 30 seconds. Recovers 30-40% of lost leads.</p>
+          </div>
+          <div class="fix-card">
+            <div class="fix-icon">📅</div>
+            <h3>Smart Scheduling</h3>
+            <p>AI books, confirms, and reminds. Syncs with your calendar. Customers self-book at 2am if they want.</p>
+          </div>
+          <div class="fix-card">
+            <div class="fix-icon">⚡</div>
+            <h3>CRM Automation</h3>
+            <p>Every lead lands in your pipeline automatically. Follow-ups fire on schedule. Nothing slips.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Packages -->
+      <div class="results-section">
+        <h2>Service packages</h2>
+        <div class="packages-grid">
+          <div class="package-card">
+            <div class="package-tier">Starter</div>
+            <div class="package-price">$500 <span class="package-price-sub">setup</span></div>
+            <div class="package-monthly">+ $200/mo</div>
+            <ul class="package-features">
+              <li>✓ AI Chatbot</li>
+              <li>✓ Email Automation</li>
+              <li>✓ Lead capture &amp; follow-up</li>
+              <li>✓ Monthly reporting</li>
+            </ul>
+            <a href="mailto:hello@autovyne.com?subject=Starter Package Inquiry — <%= encodeURIComponent(submission.business_name) %>" class="btn-outline">Get Started</a>
+          </div>
+          <div class="package-card package-card--featured">
+            <div class="package-badge">Most Popular</div>
+            <div class="package-tier">Professional</div>
+            <div class="package-price">$1,500 <span class="package-price-sub">setup</span></div>
+            <div class="package-monthly">+ $500/mo</div>
+            <ul class="package-features">
+              <li>✓ Everything in Starter</li>
+              <li>✓ Appointment Scheduling</li>
+              <li>✓ CRM Setup &amp; Workflows</li>
+              <li>✓ Missed call text-back</li>
+              <li>✓ Review automation</li>
+            </ul>
+            <a href="mailto:hello@autovyne.com?subject=Professional Package Inquiry — <%= encodeURIComponent(submission.business_name) %>" class="btn-primary">Get Started</a>
+          </div>
+          <div class="package-card">
+            <div class="package-tier">Enterprise</div>
+            <div class="package-price">$3,000 <span class="package-price-sub">setup</span></div>
+            <div class="package-monthly">+ $1,000/mo</div>
+            <ul class="package-features">
+              <li>✓ Everything in Professional</li>
+              <li>✓ AI Voice Receptionist</li>
+              <li>✓ Custom AI workflows</li>
+              <li>✓ Dedicated account manager</li>
+              <li>✓ Priority support</li>
+            </ul>
+            <a href="mailto:hello@autovyne.com?subject=Enterprise Package Inquiry — <%= encodeURIComponent(submission.business_name) %>" class="btn-outline">Get Started</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- CTA -->
+      <div class="results-cta">
+        <h2>Ready to stop losing $<%= submission.estimated_monthly_loss.toLocaleString() %>/mo?</h2>
+        <p>Let's talk. No pitch, no pressure — just a 15-minute call to walk through your specific setup.</p>
+        <a href="mailto:hello@autovyne.com?subject=Strategy Call — <%= encodeURIComponent(submission.business_name) %>" class="btn-primary btn-large">Schedule Your Strategy Call →</a>
+      </div>
+
+    </div>
+  </div>
+  <%- analyticsSnippet %>
+</body>
+</html>

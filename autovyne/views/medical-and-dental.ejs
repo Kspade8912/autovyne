@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <%- include('partials/seo-head') %>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <%- themeCSS %>
+  <style>
+    <%- include('partials/vertical-styles') %>
+  </style>
+</head>
+<body>
+<div class="vertical-page">
+
+  <!-- NAV -->
+  <nav class="vertical-nav">
+    <a href="/" class="nav-brand">Autovyne</a>
+    <div class="nav-industries">
+      <button class="nav-dropdown-btn" onclick="toggleDropdown(this)">Industries ▾</button>
+      <div class="nav-dropdown-menu">
+        <a href="/hair-and-beauty" class="nav-dropdown-item">Hair &amp; Beauty</a>
+        <a href="/contractors" class="nav-dropdown-item">Contractors</a>
+        <a href="/towing-and-automotive" class="nav-dropdown-item">Towing &amp; Automotive</a>
+        <a href="/restaurants-and-hospitality" class="nav-dropdown-item">Restaurants &amp; Hospitality</a>
+        <a href="/medical-and-dental" class="nav-dropdown-item nav-dropdown-item--active">Medical &amp; Dental</a>
+        <a href="/hvac" class="nav-dropdown-item">HVAC</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="vertical-hero">
+    <div class="vertical-hero-inner">
+      <div class="vertical-badge">For Medical Practices, Dental Offices &amp; Clinics</div>
+      <h1>Medical &amp; Dental: Stop Losing <span class="accent">$15K/Month</span> to Missed Patient Calls</h1>
+      <p class="vertical-hero-sub">Every missed call is a new patient worth $300–$2,000 in lifetime value. Autovyne's AI handles scheduling, after-hours inquiries, and appointment reminders — HIPAA-aware and always on.</p>
+      <div class="vertical-proof">
+        <div class="proof-item">
+          <span class="proof-num">80%</span>
+          <span class="proof-label">of new patients choose the first practice to answer</span>
+        </div>
+        <div class="proof-item">
+          <span class="proof-num">25%</span>
+          <span class="proof-label">of practice calls go unanswered during appointment hours</span>
+        </div>
+        <div class="proof-item">
+          <span class="proof-num">$18,000</span>
+          <span class="proof-label">avg annual revenue lost per provider from missed new patients</span>
+        </div>
+      </div>
+      <div class="hero-cta-wrap">
+        <a href="/intake?vertical=medical-and-dental" class="btn-primary btn-large">Get Your Free Medical Lead Audit →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- PAIN POINTS -->
+  <section class="pain-section">
+    <div class="pain-inner">
+      <div class="pain-header">
+        <h2>The Patient Revenue Leaks Every Practice Faces</h2>
+        <p>Your front desk is handling 3 things at once — and the phone is always the one that loses.</p>
+      </div>
+      <div class="pain-grid">
+        <div class="pain-card">
+          <div class="pain-icon">🏥</div>
+          <h3>New Patients Choose the First Responder</h3>
+          <p>A new patient calling 3 dental offices will book with the first one that answers. If your front desk is checking in a patient, that caller is already calling your competitor.</p>
+          <div class="pain-stat">$500–$2,000 lifetime value per lost new patient</div>
+        </div>
+        <div class="pain-card">
+          <div class="pain-icon">📅</div>
+          <h3>No-Shows Drain Your Schedule</h3>
+          <p>Dental and medical no-show rates run 18–25%. At $200+ per slot, a practice with 20 appointments per day loses $720–$1,000 weekly to avoidable no-shows without automated reminders.</p>
+          <div class="pain-stat">$720–$1,000/week in preventable no-shows</div>
+        </div>
+        <div class="pain-card">
+          <div class="pain-icon">🌙</div>
+          <h3>After-Hours Calls Go Nowhere</h3>
+          <p>Patients with urgent dental pain or medical questions calling at 7pm are choosing urgent care or the ER instead of waiting for your office to open. That's lost revenue and lost relationships.</p>
+          <div class="pain-stat">35% of patient calls happen after hours</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ROI CALCULATOR -->
+  <section class="calc-section">
+    <div class="calc-inner">
+      <div class="calc-header">
+        <h2>Calculate Your Revenue at Risk</h2>
+        <p>How many new patient calls and scheduling opportunities are slipping through?</p>
+      </div>
+
+      <div class="calc-grid">
+        <div class="calc-card">
+          <h3>Your Numbers</h3>
+          <div class="calc-field">
+            <label>Missed calls per week</label>
+            <input type="number" id="calc-missed" value="12" min="1" max="500">
+            <div class="calc-range"><span>1</span><span>500</span></div>
+            <p class="hint">New patient inquiries, scheduling calls going unanswered</p>
+          </div>
+          <div class="calc-field">
+            <label>Average new patient value ($)</label>
+            <input type="number" id="calc-ticket" value="450" min="50" max="5000" step="25">
+            <div class="calc-range"><span>$50</span><span>$5,000</span></div>
+            <p class="hint">First visit: dental $200–$800, medical $150–$600</p>
+          </div>
+          <div class="calc-field">
+            <label>Call-to-appointment rate (%)</label>
+            <input type="number" id="calc-conversion" value="50" min="5" max="100">
+            <div class="calc-range"><span>5%</span><span>100%</span></div>
+            <p class="hint">New patient callers have strong intent — avg 45–65% book</p>
+          </div>
+        </div>
+
+        <div class="calc-result-card">
+          <div class="result-header">
+            <h3>Monthly Revenue at Risk</h3>
+            <div class="result-big" id="result-monthly">$10,800</div>
+            <div class="result-period">from missed calls this month alone</div>
+          </div>
+          <div class="result-divider"></div>
+          <div class="result-annual">
+            <div class="result-annual-label">Annual Revenue at Risk</div>
+            <div class="result-annual-val" id="result-annual">$129,600</div>
+            <div class="result-annual-sub">if nothing changes</div>
+          </div>
+          <p class="result-assumptions" id="calc-assumptions">
+            Based on <strong>12 missed calls/week</strong> × <strong>$450 avg value</strong> × <strong>50% conversion</strong> × 4 weeks
+          </p>
+        </div>
+      </div>
+
+      <div class="assumptions-bar">
+        <div class="assumption-item">
+          <span class="assumption-val">12 calls/week</span>
+          <span class="assumption-label">New patient calls missed</span>
+        </div>
+        <div class="assumption-item">
+          <span class="assumption-val">$450/visit</span>
+          <span class="assumption-label">Practice avg first visit</span>
+        </div>
+        <div class="assumption-item">
+          <span class="assumption-val">50%</span>
+          <span class="assumption-label">Call-to-appt rate</span>
+        </div>
+        <div class="assumption-item">
+          <span class="assumption-val">20%</span>
+          <span class="assumption-label">Avg no-show rate</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SERVICE TIERS -->
+  <section class="tiers-section">
+    <div class="tiers-inner">
+      <div class="tiers-header">
+        <h2>AI Automation Built for Medical &amp; Dental Practices</h2>
+        <p>Everything your small business needs to stop missing leads — one simple package.</p>
+      </div>
+
+      <div class="packages-grid">
+        <!-- SMB BUNDLE — lead entry point, first position -->
+        <div class="package-card package-card--smb">
+          <div class="package-badge--smb">Best Value</div>
+          <div class="package-tier">SMB Bundle</div>
+          <div class="package-price">$299<span class="package-price-sub"> launch / $499 regular</span></div>
+          <div class="package-monthly">$149/mo launch / $199/mo regular</div>
+          <p class="package-desc">Everything your small business needs to stop missing leads — one simple package. No choosing between features.</p>
+          <ul class="package-features">
+            <li>AI chatbot (lead capture + qualification)</li>
+            <li>AI voice receptionist (call handling + routing)</li>
+            <li>Email auto-responders</li>
+            <li>Scheduling automation</li>
+            <li>Basic CRM workflows</li>
+            <li>3 integrations</li>
+            <li>Monthly performance report</li>
+          </ul>
+          <a href="/intake?plan=smb-bundle&vertical=medical-and-dental" class="package-cta package-cta--primary">Get Started →</a>
+        </div>
+
+        <div class="package-card">
+          <div class="package-tier">Starter</div>
+          <div class="package-price">$299<span class="package-price-sub">/month</span></div>
+          <p class="package-desc">Never miss a new patient call — AI answers, captures intake info, and notifies your front desk instantly.</p>
+          <ul class="package-features">
+            <li>AI receptionist for new patient calls</li>
+            <li>Instant SMS reply to missed calls</li>
+            <li>Basic intake capture (name, insurance, reason)</li>
+            <li>Notification to front desk staff</li>
+            <li>Call logging &amp; patient lead tracking</li>
+          </ul>
+          <a href="/intake?plan=starter&vertical=medical-and-dental" class="package-cta package-cta--outline">Start with Starter →</a>
+        </div>
+
+        <div class="package-card package-card--featured">
+          <div class="package-badge">Most Popular</div>
+          <div class="package-tier">Professional</div>
+          <div class="package-price">$599<span class="package-price-sub">/month</span></div>
+          <p class="package-desc">Everything in Starter plus AI scheduling, automated reminders, and after-hours patient support.</p>
+          <ul class="package-features">
+            <li>Everything in Starter, plus:</li>
+            <li>AI appointment scheduling (24/7)</li>
+            <li>Automated reminder sequences (48h + 2h)</li>
+            <li>After-hours patient inquiry handling</li>
+            <li>Post-visit review requests (Google, Healthgrades)</li>
+            <li>Priority support &amp; monthly check-in</li>
+          </ul>
+          <a href="/intake?plan=professional&vertical=medical-and-dental" class="package-cta package-cta--primary">Get Your Free Audit →</a>
+        </div>
+
+        <div class="package-card">
+          <div class="package-tier">Enterprise</div>
+          <div class="package-price">$1,199<span class="package-price-sub">/month</span></div>
+          <p class="package-desc">Full AI patient intake for multi-provider practices — scheduling, intake forms, insurance verification, and recall campaigns.</p>
+          <ul class="package-features">
+            <li>Everything in Professional, plus:</li>
+            <li>Multi-provider &amp; multi-location support</li>
+            <li>Custom EHR/PMS integration (Dentrix, Athena)</li>
+            <li>AI-powered patient recall campaigns</li>
+            <li>Dedicated onboarding &amp; quarterly review</li>
+            <li>SLA guarantee — 99.5% call answer rate</li>
+          </ul>
+          <a href="/intake?plan=enterprise&vertical=medical-and-dental" class="package-cta package-cta--outline">Get Enterprise →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section">
+    <div class="cta-inner">
+      <h2>Get Your Free Medical &amp; Dental Lead Audit</h2>
+      <p>We'll analyze your call volume, identify exactly how many new patients you're losing, and show you the precise automation to capture them. Takes 10 minutes — no commitment.</p>
+      <div class="cta-actions">
+        <a href="/intake?vertical=medical-and-dental" class="btn-primary btn-large">Schedule Your Free Audit →</a>
+        <span class="cta-note">Takes 10 minutes. See your exact missed revenue.</span>
+      </div>
+      <div class="cta-trust">
+        <div class="trust-item"><span class="trust-dot"></span> No credit card required</div>
+        <div class="trust-item"><span class="trust-dot"></span> Custom for your practice</div>
+        <div class="trust-item"><span class="trust-dot"></span> Results in 24 hours</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div>
+        <div class="footer-brand">Autovyne</div>
+        <div class="footer-tagline">AI automation for local businesses</div>
+      </div>
+      <div class="footer-contact">
+        <span class="footer-contact-item">autovyne@polsia.app</span>
+        <span class="footer-contact-item">autovyne.polsia.app</span>
+      </div>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+(function() {
+  window.toggleDropdown = function(btn) {
+    var menu = btn.nextElementSibling;
+    var isOpen = menu.classList.contains('open');
+    document.querySelectorAll('.nav-dropdown-menu.open').forEach(function(m) { m.classList.remove('open'); });
+    if (!isOpen) menu.classList.add('open');
+  };
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.nav-industries')) {
+      document.querySelectorAll('.nav-dropdown-menu.open').forEach(function(m) { m.classList.remove('open'); });
+    }
+  });
+
+  var missedEl = document.getElementById('calc-missed');
+  var ticketEl = document.getElementById('calc-ticket');
+  var convEl   = document.getElementById('calc-conversion');
+  var monthlyEl = document.getElementById('result-monthly');
+  var annualEl  = document.getElementById('result-annual');
+  var assumptionsEl = document.getElementById('calc-assumptions');
+
+  function fmt(n) { return '$' + Math.round(n).toLocaleString(); }
+
+  function calc() {
+    var missed  = parseFloat(missedEl.value) || 0;
+    var ticket  = parseFloat(ticketEl.value) || 0;
+    var conv    = (parseFloat(convEl.value) || 0) / 100;
+    var monthly = missed * ticket * conv * 4;
+    var annual  = monthly * 12;
+    monthlyEl.textContent = fmt(monthly);
+    annualEl.textContent  = fmt(annual);
+    assumptionsEl.innerHTML = 'Based on <strong>' + Math.round(missed) + ' missed calls/week</strong> × <strong>' + fmt(ticket) + ' avg value</strong> × <strong>' + Math.round(conv * 100) + '% conversion</strong> × 4 weeks';
+  }
+
+  [missedEl, ticketEl, convEl].forEach(function(el) { el.addEventListener('input', calc); });
+  calc();
+})();
+</script>
+
+<%- analyticsSnippet %>
+</body>
+</html>

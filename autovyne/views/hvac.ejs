@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <%- include('partials/seo-head') %>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <%- themeCSS %>
+  <style>
+    /* ---- HVAC PAGE ---- */
+    .hvac-page { min-height: 100vh; background: var(--bg); }
+
+    .hvac-nav {
+      padding: 20px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .nav-brand {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 1.25rem;
+      color: var(--fg);
+      text-decoration: none;
+    }
+    .nav-badge {
+      font-family: var(--font-display);
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: var(--accent-dim);
+      padding: 4px 12px;
+      border-radius: 100px;
+    }
+    .nav-dropdown-btn {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 8px;
+      color: var(--fg);
+      font-family: var(--font-display);
+      font-size: 0.88rem;
+      font-weight: 600;
+      padding: 8px 16px;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .nav-dropdown-btn:hover { border-color: var(--accent); background: var(--accent-dim); }
+    .nav-dropdown-menu {
+      display: none;
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      background: var(--bg-card);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      min-width: 220px;
+      padding: 8px 0;
+      box-shadow: 0 16px 48px rgba(0,0,0,0.4);
+      z-index: 200;
+    }
+    .nav-dropdown-menu.open { display: block; }
+    .nav-dropdown-item {
+      display: block;
+      padding: 10px 20px;
+      color: var(--fg-muted);
+      text-decoration: none;
+      font-family: var(--font-display);
+      font-size: 0.88rem;
+      font-weight: 500;
+      transition: color 0.15s, background 0.15s;
+    }
+    .nav-dropdown-item:hover { color: var(--fg); background: rgba(255,255,255,0.04); }
+    .nav-dropdown-item--active { color: var(--accent); }
+
+    /* HERO */
+    .hvac-hero {
+      padding: 90px 24px 80px;
+      background: linear-gradient(170deg, var(--bg) 0%, #0d1117 50%, var(--bg-subtle) 100%);
+      position: relative;
+      overflow: hidden;
+      text-align: center;
+    }
+    .hvac-hero::before {
+      content: '';
+      position: absolute;
+      top: -200px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 700px;
+      height: 700px;
+      background: radial-gradient(circle, rgba(0,232,123,0.15) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hvac-hero-inner {
+      max-width: 800px;
+      margin: 0 auto;
+      position: relative;
+    }
+    .hvac-badge {
+      display: inline-block;
+      font-family: var(--font-display);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: var(--accent-dim);
+      padding: 6px 18px;
+      border-radius: 100px;
+      margin-bottom: 28px;
+    }
+    .hvac-hero h1 {
+      font-family: var(--font-display);
+      font-size: clamp(2rem, 5.5vw, 3.8rem);
+      font-weight: 700;
+      line-height: 1.12;
+      letter-spacing: -0.025em;
+      margin-bottom: 24px;
+    }
+    .hvac-hero h1 .accent { color: var(--accent); }
+    .hvac-hero-sub {
+      font-size: 1.1rem;
+      color: var(--fg-muted);
+      max-width: 580px;
+      margin: 0 auto 20px;
+      line-height: 1.7;
+    }
+    .hvac-proof {
+      display: flex;
+      gap: 32px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 36px;
+    }
+    .proof-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+    .proof-num {
+      font-family: var(--font-display);
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+    .proof-label {
+      font-size: 0.8rem;
+      color: var(--fg-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+    }
+
+    /* CALCULATOR */
+    .calc-section {
+      padding: 100px 24px;
+      background: var(--bg-subtle);
+    }
+    .calc-inner {
+      max-width: var(--max-w);
+      margin: 0 auto;
+    }
+    .calc-header { text-align: center; margin-bottom: 56px; }
+    .calc-header h2 {
+      font-family: var(--font-display);
+      font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+      font-weight: 700;
+      margin-bottom: 16px;
+      letter-spacing: -0.01em;
+    }
+    .calc-header p {
+      font-size: 1.05rem;
+      color: var(--fg-muted);
+    }
+    .calc-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+      align-items: start;
+    }
+    .calc-card {
+      background: var(--bg-card);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 16px;
+      padding: 40px;
+    }
+    .calc-card h3 {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--fg-muted);
+      margin-bottom: 28px;
+    }
+    .calc-field { margin-bottom: 24px; }
+    .calc-field label {
+      display: block;
+      font-family: var(--font-display);
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--fg);
+      margin-bottom: 8px;
+    }
+    .calc-field input {
+      width: 100%;
+      background: var(--bg-subtle);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      color: var(--fg);
+      font-family: var(--font-body);
+      font-size: 1.05rem;
+      font-weight: 600;
+      padding: 12px 14px;
+      outline: none;
+      transition: border-color 0.2s ease;
+      appearance: none;
+      -webkit-appearance: none;
+      text-align: center;
+    }
+    .calc-field input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-dim);
+    }
+    .calc-field .hint {
+      font-size: 0.78rem;
+      color: var(--fg-muted);
+      margin-top: 6px;
+    }
+    .calc-range {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 8px;
+    }
+    .calc-range span { font-size: 0.75rem; color: var(--fg-muted); }
+    .calc-result-card {
+      background: linear-gradient(135deg, var(--bg-card) 0%, rgba(0,232,123,0.07) 100%);
+      border: 1px solid var(--accent-glow);
+      border-radius: 16px;
+      padding: 40px;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+    .result-header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    .result-header h3 {
+      font-family: var(--font-display);
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--fg-muted);
+      margin-bottom: 6px;
+    }
+    .result-big {
+      font-family: var(--font-display);
+      font-size: clamp(2.4rem, 4.5vw, 3.6rem);
+      font-weight: 700;
+      color: var(--danger);
+      line-height: 1;
+    }
+    .result-period {
+      font-size: 0.9rem;
+      color: var(--fg-muted);
+      margin-top: 4px;
+    }
+    .result-divider {
+      height: 1px;
+      background: rgba(255,255,255,0.07);
+      margin: 24px 0;
+    }
+    .result-annual {
+      text-align: center;
+      padding: 20px;
+      background: var(--bg-card);
+      border-radius: 12px;
+    }
+    .result-annual-label {
+      font-size: 0.78rem;
+      font-family: var(--font-display);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--fg-muted);
+      margin-bottom: 6px;
+    }
+    .result-annual-val {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+    .result-annual-sub {
+      font-size: 0.8rem;
+      color: var(--fg-muted);
+      margin-top: 4px;
+    }
+    .result-assumptions {
+      margin-top: 20px;
+      font-size: 0.78rem;
+      color: var(--fg-muted);
+      line-height: 1.5;
+    }
+    .result-assumptions strong { color: var(--fg); }
+
+    /* ASSUMPTION BAR */
+    .assumptions-bar {
+      max-width: var(--max-w);
+      margin: 24px auto 0;
+      padding: 20px 24px;
+      background: var(--bg-card);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 12px;
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      flex-wrap: wrap;
+    }
+    .assumption-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      align-items: center;
+    }
+    .assumption-val {
+      font-family: var(--font-display);
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--fg);
+    }
+    .assumption-label {
+      font-size: 0.75rem;
+      color: var(--fg-muted);
+    }
+
+    /* TIERS */
+    .tiers-section {
+      padding: 100px 24px;
+      background: var(--bg);
+    }
+    .tiers-inner {
+      max-width: var(--max-w);
+      margin: 0 auto;
+    }
+    .tiers-header { text-align: center; margin-bottom: 56px; }
+    .tiers-header h2 {
+      font-family: var(--font-display);
+      font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+      font-weight: 700;
+      margin-bottom: 16px;
+      letter-spacing: -0.01em;
+    }
+    .tiers-header p {
+      font-size: 1.05rem;
+      color: var(--fg-muted);
+    }
+    .packages-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+    }
+    .package-card--smb {
+      border-color: var(--accent-glow);
+      background: linear-gradient(160deg, var(--bg-card) 0%, rgba(0,232,123,0.06) 100%);
+    }
+    .package-badge--smb {
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--accent);
+      color: #0a0a0f;
+      font-family: var(--font-display);
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      padding: 4px 14px;
+      border-radius: 100px;
+      white-space: nowrap;
+    }
+    .package-card {
+      background: var(--bg-card);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 14px;
+      padding: 32px 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      position: relative;
+      transition: border-color 0.2s;
+    }
+    .package-card:hover { border-color: rgba(255,255,255,0.15); }
+    .package-card--featured {
+      border-color: var(--accent-glow);
+      background: linear-gradient(160deg, var(--bg-card) 0%, rgba(0,232,123,0.05) 100%);
+    }
+    .package-badge {
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--accent);
+      color: #0a0a0f;
+      font-family: var(--font-display);
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      padding: 4px 14px;
+      border-radius: 100px;
+      white-space: nowrap;
+    }
+    .package-tier {
+      font-family: var(--font-display);
+      font-size: 0.82rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--fg-muted);
+    }
+    .package-price {
+      font-family: var(--font-display);
+      font-size: 1.8rem;
+      font-weight: 700;
+      line-height: 1;
+      color: var(--fg);
+    }
+    .package-price-sub {
+      font-size: 0.82rem;
+      color: var(--fg-muted);
+    }
+    .package-monthly {
+      font-size: 0.88rem;
+      color: var(--accent);
+      font-weight: 600;
+      margin-top: -6px;
+    }
+    .package-desc {
+      font-size: 0.9rem;
+      color: var(--fg-muted);
+      line-height: 1.5;
+    }
+    .package-features {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex: 1;
+    }
+    .package-features li {
+      font-size: 0.86rem;
+      color: var(--fg-muted);
+      line-height: 1.4;
+      padding-left: 20px;
+      position: relative;
+    }
+    .package-features li::before {
+      content: '✓';
+      position: absolute;
+      left: 0;
+      color: var(--accent);
+      font-weight: 700;
+      font-size: 0.75rem;
+    }
+    .package-cta {
+      display: block;
+      text-align: center;
+      padding: 12px;
+      border-radius: 10px;
+      text-decoration: none;
+      font-family: var(--font-display);
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-top: 4px;
+      transition: opacity 0.2s ease, transform 0.15s ease;
+    }
+    .package-cta:hover { opacity: 0.85; transform: translateY(-1px); }
+    .package-cta--primary { background: var(--accent); color: #0a0a0f; }
+    .package-cta--outline { background: transparent; color: var(--accent); border: 1px solid var(--accent-glow); }
+
+    /* CTA SECTION */
+    .cta-section {
+      padding: 120px 24px;
+      background: linear-gradient(180deg, var(--bg) 0%, #0d1117 100%);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .cta-section::before {
+      content: '';
+      position: absolute;
+      bottom: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+      pointer-events: none;
+      opacity: 0.3;
+    }
+    .cta-inner {
+      max-width: 640px;
+      margin: 0 auto;
+      position: relative;
+    }
+    .cta-section h2 {
+      font-family: var(--font-display);
+      font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 18px;
+      letter-spacing: -0.01em;
+    }
+    .cta-section p {
+      font-size: 1.05rem;
+      color: var(--fg-muted);
+      margin-bottom: 36px;
+      line-height: 1.7;
+    }
+    .cta-actions {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+    }
+    .cta-note {
+      font-size: 0.82rem;
+      color: var(--fg-muted);
+    }
+    .cta-trust {
+      margin-top: 32px;
+      display: flex;
+      gap: 24px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .trust-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.85rem;
+      color: var(--fg-muted);
+    }
+    .trust-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--accent);
+      border-radius: 50%;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 1100px) {
+      .packages-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 768px) {
+      .hvac-hero { padding: 72px 20px 60px; }
+      .hvac-proof { gap: 20px; }
+      .calc-section, .tiers-section { padding: 72px 20px; }
+      .calc-grid { grid-template-columns: 1fr; }
+      .calc-card, .calc-result-card { padding: 28px 20px; }
+      .packages-grid { grid-template-columns: 1fr; }
+      .cta-section { padding: 80px 20px; }
+      .assumptions-bar { gap: 20px; }
+      .cta-trust { flex-direction: column; align-items: center; }
+    }
+  </style>
+</head>
+<body>
+<div class="hvac-page">
+
+  <!-- NAV -->
+  <nav class="hvac-nav">
+    <a href="/" class="nav-brand">Autovyne</a>
+    <div class="nav-industries" style="position:relative;">
+      <button class="nav-dropdown-btn" onclick="toggleDropdown(this)">Industries ▾</button>
+      <div class="nav-dropdown-menu">
+        <a href="/hair-and-beauty" class="nav-dropdown-item">Hair &amp; Beauty</a>
+        <a href="/contractors" class="nav-dropdown-item">Contractors</a>
+        <a href="/towing-and-automotive" class="nav-dropdown-item">Towing &amp; Automotive</a>
+        <a href="/restaurants-and-hospitality" class="nav-dropdown-item">Restaurants &amp; Hospitality</a>
+        <a href="/medical-and-dental" class="nav-dropdown-item">Medical &amp; Dental</a>
+        <a href="/hvac" class="nav-dropdown-item nav-dropdown-item--active">HVAC</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hvac-hero">
+    <div class="hvac-hero-inner">
+      <div class="hvac-badge">For HVAC &amp; Home Service Businesses</div>
+      <h1>HVAC Companies: Stop Losing <span class="accent">$7K/Month</span> to Missed Calls</h1>
+      <p class="hvac-hero-sub">Every missed call is a lost job worth $300–$2,500. Autovyne's AI automation captures every lead, responds instantly, and books appointments — even at 2am.</p>
+      <div class="hvac-proof">
+        <div class="proof-item">
+          <span class="proof-num">67%</span>
+          <span class="proof-label">of callers choose the first company that answers</span>
+        </div>
+        <div class="proof-item">
+          <span class="proof-num">35%</span>
+          <span class="proof-label">of HVAC calls go to voicemail — permanently lost</span>
+        </div>
+        <div class="proof-item">
+          <span class="proof-num">$8,400</span>
+          <span class="proof-label">avg annual revenue lost by a single-missed call</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ROI CALCULATOR -->
+  <section class="calc-section">
+    <div class="calc-inner">
+      <div class="calc-header">
+        <h2>Calculate Your Revenue at Risk</h2>
+        <p>Enter your actual numbers. We'll show you what missed calls are costing you.</p>
+      </div>
+
+      <div class="calc-grid">
+        <!-- INPUT CARD -->
+        <div class="calc-card">
+          <h3>Your Numbers</h3>
+          <div class="calc-field">
+            <label>Missed calls per week</label>
+            <input type="number" id="calc-missed" value="12" min="1" max="500">
+            <div class="calc-range"><span>1</span><span>500</span></div>
+            <p class="hint">How many calls go unanswered or to voicemail?</p>
+          </div>
+          <div class="calc-field">
+            <label>Average service ticket ($)</label>
+            <input type="number" id="calc-ticket" value="350" min="50" max="10000" step="10">
+            <div class="calc-range"><span>$50</span><span>$10,000</span></div>
+            <p class="hint">Typical HVAC jobs range $150–$2,500</p>
+          </div>
+          <div class="calc-field">
+            <label>Conversion rate (calls → jobs)</label>
+            <input type="number" id="calc-conversion" value="30" min="5" max="100">
+            <div class="calc-range"><span>5%</span><span>100%</span></div>
+            <p class="hint">What % of callers actually book? Industry avg: 25–40%</p>
+          </div>
+        </div>
+
+        <!-- RESULT CARD -->
+        <div class="calc-result-card">
+          <div class="result-header">
+            <h3>Monthly Revenue at Risk</h3>
+            <div class="result-big" id="result-monthly">$1,260</div>
+            <div class="result-period">from missed calls this month alone</div>
+          </div>
+          <div class="result-divider"></div>
+          <div class="result-annual">
+            <div class="result-annual-label">Annual Revenue at Risk</div>
+            <div class="result-annual-val" id="result-annual">$15,120</div>
+            <div class="result-annual-sub">if nothing changes</div>
+          </div>
+          <p class="result-assumptions" id="calc-assumptions">
+            Based on <strong>12 missed calls/week</strong> × <strong>$350 avg ticket</strong> × <strong>30% conversion</strong> × 4 weeks
+          </p>
+        </div>
+      </div>
+
+      <div class="assumptions-bar">
+        <div class="assumption-item">
+          <span class="assumption-val">4.3 calls/week</span>
+          <span class="assumption-label">Industry avg missed</span>
+        </div>
+        <div class="assumption-item">
+          <span class="assumption-val">$350/job</span>
+          <span class="assumption-label">HVAC avg ticket</span>
+        </div>
+        <div class="assumption-item">
+          <span class="assumption-val">30%</span>
+          <span class="assumption-label">Call-to-book rate</span>
+        </div>
+        <div class="assumption-item">
+          <span class="assumption-val">73%</span>
+          <span class="assumption-label">Go to competitor first</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SERVICE TIERS -->
+  <section class="tiers-section">
+    <div class="tiers-inner">
+      <div class="tiers-header">
+        <h2>AI Automation Built for HVAC</h2>
+        <p>Everything your small business needs to stop missing leads — starting with one simple package.</p>
+      </div>
+
+      <div class="packages-grid">
+        <!-- SMB BUNDLE — lead entry point, first position -->
+        <div class="package-card package-card--smb">
+          <div class="package-badge--smb">Best Value</div>
+          <div class="package-tier">SMB Bundle</div>
+          <div class="package-price">$299<span class="package-price-sub"> launch / $499 regular</span></div>
+          <div class="package-monthly">$149/mo launch / $199/mo regular</div>
+          <p class="package-desc">Everything your small business needs to stop missing leads — one simple package. No choosing between features.</p>
+          <ul class="package-features">
+            <li>AI chatbot (lead capture + qualification)</li>
+            <li>AI voice receptionist (call handling + routing)</li>
+            <li>Email auto-responders</li>
+            <li>Scheduling automation</li>
+            <li>Basic CRM workflows</li>
+            <li>3 integrations</li>
+            <li>Monthly performance report</li>
+          </ul>
+          <a href="/intake?plan=smb-bundle&vertical=hvac" class="package-cta package-cta--primary">Get Started →</a>
+        </div>
+
+        <!-- STARTER -->
+        <div class="package-card">
+          <div class="package-tier">Starter</div>
+          <div class="package-price">$299<span class="package-price-sub">/month</span></div>
+          <div class="package-monthly">$299/mo — captures leads, no missed calls</div>
+          <p class="package-desc">Instantly captures every web lead and missed call — never lose a prospect to voicemail again.</p>
+          <ul class="package-features">
+            <li>AI voice receptionist (answers, responds, qualifies)</li>
+            <li>Instant SMS reply to missed calls</li>
+            <li>Web chat widget — captures visitors 24/7</li>
+            <li>Lead notification to your phone</li>
+            <li>Call logging &amp; CRM entry</li>
+          </ul>
+          <a href="/intake?plan=starter&vertical=hvac" class="package-cta package-cta--outline">Start with Starter →</a>
+        </div>
+
+        <!-- PROFESSIONAL -->
+        <div class="package-card package-card--featured">
+          <div class="package-badge">Most Popular</div>
+          <div class="package-tier">Professional</div>
+          <div class="package-price">$599<span class="package-price-sub">/month</span></div>
+          <div class="package-monthly">$599/mo — books jobs automatically</div>
+          <p class="package-desc">Everything in Starter, plus AI-powered scheduling and follow-up that turns leads into booked jobs.</p>
+          <ul class="package-features">
+            <li>Everything in Starter, plus:</li>
+            <li>AI booking — links into your calendar</li>
+            <li>Automated appointment reminders (SMS/email)</li>
+            <li>Post-job follow-up &amp; review request</li>
+            <li>Google Business Message integration</li>
+            <li>Priority support &amp; monthly check-in</li>
+          </ul>
+          <a href="/intake?plan=professional&vertical=hvac" class="package-cta package-cta--primary">Get Your Free Audit →</a>
+        </div>
+
+        <!-- ENTERPRISE -->
+        <div class="package-card">
+          <div class="package-tier">Enterprise</div>
+          <div class="package-price">$1,199<span class="package-price-sub">/month</span></div>
+          <div class="package-monthly">$1,199/mo — full AI receptionist</div>
+          <p class="package-desc">Full AI voice agent that handles scheduling, rescheduling, and customer questions — zero missed calls.</p>
+          <ul class="package-features">
+            <li>Everything in Professional, plus:</li>
+            <li>Full AI voice agent (no call flows, no menus)</li>
+            <li>Multi-location support</li>
+            <li>Custom CRM integration (ServiceTitan, etc.)</li>
+            <li>Dedicated onboarding &amp; quarterly review</li>
+            <li>SLA guarantee — 99.5% call answer rate</li>
+          </ul>
+          <a href="/intake?plan=enterprise&vertical=hvac" class="package-cta package-cta--outline">Get Enterprise →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section">
+    <div class="cta-inner">
+      <h2>Get Your Free Missed Call Audit</h2>
+      <p>We'll analyze your call volume, identify exactly how much revenue you're leaving on the table, and show you the exact automation that fixes it. Takes 10 minutes — no commitment.</p>
+      <div class="cta-actions">
+        <a href="/intake?vertical=hvac" class="btn-primary btn-large">Schedule Your Free Audit →</a>
+        <span class="cta-note">Takes 10 minutes. See your exact missed revenue.</span>
+      </div>
+      <div class="cta-trust">
+        <div class="trust-item"><span class="trust-dot"></span> No credit card required</div>
+        <div class="trust-item"><span class="trust-dot"></span> Custom for your business</div>
+        <div class="trust-item"><span class="trust-dot"></span> Results in 24 hours</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div>
+        <div class="footer-brand">Autovyne</div>
+        <div class="footer-tagline">AI automation for local businesses</div>
+      </div>
+      <div class="footer-contact">
+        <span class="footer-contact-item">autovyne@polsia.app</span>
+        <span class="footer-contact-item">autovyne.polsia.app</span>
+      </div>
+    </div>
+  </footer>
+
+</div><!-- .hvac-page -->
+
+<script>
+(function() {
+  // Dropdown toggle
+  window.toggleDropdown = function(btn) {
+    var menu = btn.nextElementSibling;
+    var isOpen = menu.classList.contains('open');
+    document.querySelectorAll('.nav-dropdown-menu.open').forEach(function(m) { m.classList.remove('open'); });
+    if (!isOpen) menu.classList.add('open');
+  };
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.nav-industries')) {
+      document.querySelectorAll('.nav-dropdown-menu.open').forEach(function(m) { m.classList.remove('open'); });
+    }
+  });
+
+  var missedEl = document.getElementById('calc-missed');
+  var ticketEl = document.getElementById('calc-ticket');
+  var convEl   = document.getElementById('calc-conversion');
+  var monthlyEl = document.getElementById('result-monthly');
+  var annualEl  = document.getElementById('result-annual');
+  var assumptionsEl = document.getElementById('calc-assumptions');
+
+  function fmt(n) {
+    return '$' + Math.round(n).toLocaleString();
+  }
+
+  function calc() {
+    var missed    = parseFloat(missedEl.value)  || 0;
+    var ticket   = parseFloat(ticketEl.value) || 0;
+    var conv     = (parseFloat(convEl.value)   || 0) / 100;
+    var monthly  = missed * ticket * conv * 4;
+    var annual   = monthly * 12;
+
+    monthlyEl.textContent = fmt(monthly);
+    annualEl.textContent  = fmt(annual);
+    assumptionsEl.innerHTML =
+      'Based on <strong>' + Math.round(missed) + ' missed calls/week</strong> × <strong>' + fmt(ticket) + ' avg ticket</strong> × <strong>' + Math.round(conv * 100) + '% conversion</strong> × 4 weeks';
+  }
+
+  [missedEl, ticketEl, convEl].forEach(function(el) {
+    el.addEventListener('input', calc);
+  });
+
+  calc();
+})();
+</script>
+
+<%- analyticsSnippet %>
+</body>
+</html>

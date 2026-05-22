@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+  <rect width="32" height="32" rx="8" fill="#080810"/>
+  <!-- Abstract circuit/node mark — stylized A -->
+  <circle cx="16" cy="10" r="3" fill="#00e87b"/>
+  <line x1="16" y1="13" x2="10" y2="22" stroke="#00e87b" stroke-width="2" stroke-linecap="round"/>
+  <line x1="16" y1="13" x2="22" y2="22" stroke="#00e87b" stroke-width="2" stroke-linecap="round"/>
+  <line x1="11.5" y1="19" x2="20.5" y2="19" stroke="#00e87b" stroke-width="2" stroke-linecap="round"/>
+  <!-- Small dots -->
+  <circle cx="8" cy="12" r="1" fill="#00e87b" opacity="0.5"/>
+  <circle cx="24" cy="12" r="1" fill="#00e87b" opacity="0.5"/>
+  <circle cx="8" cy="20" r="1" fill="#00e87b" opacity="0.3"/>
+  <circle cx="24" cy="20" r="1" fill="#00e87b" opacity="0.3"/>
+</svg>

@@ -1,0 +1,1590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <%- include('partials/seo-head') %>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/theme.css">
+  <style>
+    :root {
+      --bg: #080810;
+      --bg-subtle: #0f0f1a;
+      --bg-card: #14141f;
+      --bg-card2: #1a1a2a;
+      --fg: #e8e8ed;
+      --fg-muted: #7878a0;
+      --accent: #00e87b;
+      --accent-dim: rgba(0,232,123,0.10);
+      --accent-glow: rgba(0,232,123,0.22);
+      --danger: #ff4444;
+      --danger-dim: rgba(255,68,68,0.10);
+      --danger-glow: rgba(255,68,68,0.22);
+      --warn: #ffd166;
+      --font-display: 'Space Grotesk', sans-serif;
+      --font-body: 'DM Sans', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      --max-w: 1280px;
+      --radius: 14px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--fg); font-family: var(--font-body); line-height: 1.6; }
+
+    /* ── NAV ── */
+    .demo-nav {
+      padding: 16px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(8,8,16,0.95);
+      backdrop-filter: blur(12px);
+    }
+    .nav-brand {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 1.2rem;
+      color: var(--fg);
+      text-decoration: none;
+    }
+    .nav-brand:hover { color: var(--accent); }
+    .nav-center {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-display);
+      font-size: 0.88rem;
+      font-weight: 600;
+    }
+    .nav-badge {
+      background: var(--accent-dim);
+      color: var(--accent);
+      border: 1px solid var(--accent-glow);
+      border-radius: 100px;
+      padding: 4px 14px;
+      font-size: 0.75rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+    .nav-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: 8px;
+      color: var(--fg-muted);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 500;
+      transition: color 0.15s;
+    }
+    .nav-pill:hover { color: var(--fg); }
+    .btn-cta-sm {
+      background: var(--accent);
+      color: #080810;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 0.85rem;
+      padding: 8px 20px;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: opacity 0.15s;
+    }
+    .btn-cta-sm:hover { opacity: 0.85; }
+
+    /* ── HERO ── */
+    .demo-hero {
+      padding: 72px 32px 56px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .demo-hero::before {
+      content: '';
+      position: absolute;
+      top: -150px; left: 50%; transform: translateX(-50%);
+      width: 800px; height: 800px;
+      background: radial-gradient(circle, rgba(0,232,123,0.08) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-display);
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: var(--accent-dim);
+      border: 1px solid var(--accent-glow);
+      padding: 6px 18px;
+      border-radius: 100px;
+      margin-bottom: 28px;
+    }
+    .hero-badge .dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.8); }
+    }
+    .demo-hero h1 {
+      font-family: var(--font-display);
+      font-size: clamp(2.2rem, 5vw, 4rem);
+      font-weight: 700;
+      line-height: 1.08;
+      letter-spacing: -0.03em;
+      margin-bottom: 20px;
+    }
+    .demo-hero h1 .accent { color: var(--accent); }
+    .demo-hero h1 .danger { color: var(--danger); }
+    .demo-hero p {
+      color: var(--fg-muted);
+      font-size: 1.05rem;
+      max-width: 560px;
+      margin: 0 auto 40px;
+      line-height: 1.7;
+    }
+
+    /* ── CONTROLS BAR ── */
+    .controls-bar {
+      max-width: var(--max-w);
+      margin: 0 auto 32px;
+      padding: 0 32px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .industry-select-wrap {
+      flex: 1;
+      min-width: 200px;
+    }
+    .industry-select-label {
+      font-family: var(--font-display);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--fg-muted);
+      margin-bottom: 6px;
+    }
+    .industry-select {
+      background: var(--bg-card);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px;
+      color: var(--fg);
+      font-family: var(--font-display);
+      font-size: 0.9rem;
+      font-weight: 600;
+      padding: 10px 16px;
+      cursor: pointer;
+      width: 100%;
+      outline: none;
+      transition: border-color 0.2s;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%238888a0' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 36px;
+    }
+    .industry-select:focus { border-color: var(--accent); }
+    .industry-select option { background: var(--bg-card); }
+
+    .speed-wrap { display: flex; flex-direction: column; gap: 6px; }
+    .speed-label {
+      font-family: var(--font-display);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--fg-muted);
+    }
+    .speed-btns { display: flex; gap: 6px; }
+    .speed-btn {
+      background: var(--bg-card);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      color: var(--fg-muted);
+      font-family: var(--font-display);
+      font-size: 0.85rem;
+      font-weight: 700;
+      padding: 8px 16px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .speed-btn:hover { color: var(--fg); border-color: rgba(255,255,255,0.2); }
+    .speed-btn.active {
+      background: var(--accent-dim);
+      border-color: var(--accent-glow);
+      color: var(--accent);
+    }
+
+    .play-wrap { display: flex; flex-direction: column; gap: 6px; }
+    .play-label {
+      font-family: var(--font-display);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--fg-muted);
+    }
+    .play-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--accent);
+      color: #080810;
+      font-family: var(--font-display);
+      font-size: 0.95rem;
+      font-weight: 700;
+      padding: 10px 28px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+    .play-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+    .play-btn:active { transform: translateY(0); }
+    .play-btn.playing { background: var(--bg-card2); color: var(--fg); border: 1px solid rgba(255,255,255,0.1); }
+    .play-btn .play-icon { font-size: 1rem; }
+
+    .reset-btn {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px;
+      color: var(--fg-muted);
+      font-family: var(--font-display);
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 10px 18px;
+      cursor: pointer;
+      transition: all 0.15s;
+      margin-top: 20px;
+    }
+    .reset-btn:hover { color: var(--fg); border-color: rgba(255,255,255,0.2); }
+
+    /* ── TIMELINE SCRUBBER ── */
+    .scrubber-wrap {
+      max-width: var(--max-w);
+      margin: 0 auto 32px;
+      padding: 0 32px;
+    }
+    .scrubber-inner {
+      background: var(--bg-card);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+    }
+    .scrubber-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .scrubber-title {
+      font-family: var(--font-display);
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--fg-muted);
+    }
+    .scrubber-month-display {
+      font-family: var(--font-display);
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+    .scrubber-track {
+      position: relative;
+      height: 4px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 2px;
+      margin-bottom: 10px;
+    }
+    .scrubber-fill {
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      background: var(--accent);
+      border-radius: 2px;
+      transition: width 0.3s ease;
+      width: 0%;
+    }
+    .scrubber-input {
+      width: 100%;
+      appearance: none;
+      background: transparent;
+      cursor: pointer;
+      position: absolute;
+      top: -8px; left: 0;
+      height: 20px;
+      margin: 0;
+    }
+    .scrubber-input::-webkit-slider-thumb {
+      appearance: none;
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      background: var(--accent);
+      cursor: pointer;
+      box-shadow: 0 0 0 3px var(--accent-dim);
+    }
+    .scrubber-months {
+      display: flex;
+      justify-content: space-between;
+    }
+    .scrubber-month-label {
+      font-family: var(--font-display);
+      font-size: 0.7rem;
+      color: var(--fg-muted);
+      font-weight: 500;
+    }
+    .scrubber-month-label.current { color: var(--accent); font-weight: 700; }
+
+    /* ── SPLIT SCREEN ── */
+    .sim-stage {
+      max-width: var(--max-w);
+      margin: 0 auto 32px;
+      padding: 0 32px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .sim-panel {
+      background: var(--bg-card);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: var(--radius);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .sim-panel--without {
+      border-color: var(--danger-glow);
+      background: linear-gradient(170deg, #14141f 0%, #1a0e0e 100%);
+    }
+    .sim-panel--with {
+      border-color: var(--accent-glow);
+      background: linear-gradient(170deg, #14141f 0%, #0e1a12 100%);
+    }
+
+    .panel-header {
+      padding: 18px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .panel-header-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .panel-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+    }
+    .panel-dot--danger { background: var(--danger); box-shadow: 0 0 8px var(--danger); }
+    .panel-dot--accent { background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+    .panel-title {
+      font-family: var(--font-display);
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+    }
+    .panel-title--danger { color: var(--danger); }
+    .panel-title--accent { color: var(--accent); }
+    .panel-status {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--fg-muted);
+    }
+
+    /* Stats inside each panel */
+    .panel-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: rgba(255,255,255,0.04);
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .panel-stat {
+      padding: 16px 14px;
+      background: var(--bg-card);
+      text-align: center;
+    }
+    .sim-panel--without .panel-stat { background: #14141f; }
+    .sim-panel--with .panel-stat { background: #14141f; }
+    .panel-stat-label {
+      font-family: var(--font-display);
+      font-size: 0.65rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--fg-muted);
+      margin-bottom: 6px;
+    }
+    .panel-stat-value {
+      font-family: var(--font-display);
+      font-size: 1.4rem;
+      font-weight: 700;
+      line-height: 1;
+    }
+    .panel-stat-value--danger { color: var(--danger); }
+    .panel-stat-value--accent { color: var(--accent); }
+    .panel-stat-value--warn { color: var(--warn); }
+    .panel-stat-value--fg { color: var(--fg); }
+
+    /* Activity Feed */
+    .panel-feed {
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+      min-height: 280px;
+    }
+    .feed-inner {
+      height: 100%;
+      overflow: hidden;
+      padding: 12px 16px;
+      display: flex;
+      flex-direction: column-reverse;
+      gap: 6px;
+    }
+    .feed-event {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-family: var(--font-body);
+      line-height: 1.4;
+      opacity: 0;
+      transform: translateY(8px);
+      animation: slideIn 0.3s ease forwards;
+    }
+    @keyframes slideIn {
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .feed-event--danger {
+      background: rgba(255,68,68,0.07);
+      border: 1px solid rgba(255,68,68,0.12);
+    }
+    .feed-event--accent {
+      background: rgba(0,232,123,0.07);
+      border: 1px solid rgba(0,232,123,0.12);
+    }
+    .feed-event--neutral {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    .feed-icon { font-size: 1rem; flex-shrink: 0; margin-top: 1px; }
+    .feed-text { flex: 1; }
+    .feed-name { font-weight: 600; color: var(--fg); }
+    .feed-detail { color: var(--fg-muted); font-size: 0.78rem; margin-top: 2px; }
+    .feed-time {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      color: var(--fg-muted);
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .feed-empty {
+      text-align: center;
+      color: var(--fg-muted);
+      font-size: 0.82rem;
+      padding: 40px 20px;
+      font-family: var(--font-display);
+    }
+    .feed-empty .empty-icon { font-size: 2rem; margin-bottom: 10px; }
+
+    /* ── LIVE REVENUE TRACKER ── */
+    .revenue-tracker {
+      max-width: var(--max-w);
+      margin: 0 auto 32px;
+      padding: 0 32px;
+    }
+    .tracker-inner {
+      background: var(--bg-card);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: var(--radius);
+      padding: 28px 32px;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 32px;
+      align-items: center;
+    }
+    .tracker-side { text-align: center; }
+    .tracker-label {
+      font-family: var(--font-display);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      color: var(--fg-muted);
+      margin-bottom: 10px;
+    }
+    .tracker-value {
+      font-family: var(--font-display);
+      font-size: clamp(2rem, 3vw, 3rem);
+      font-weight: 700;
+      line-height: 1;
+      transition: all 0.3s ease;
+    }
+    .tracker-value--danger { color: var(--danger); }
+    .tracker-value--accent { color: var(--accent); }
+    .tracker-sub { font-size: 0.78rem; color: var(--fg-muted); margin-top: 6px; }
+    .tracker-divider {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+    .tracker-vs {
+      font-family: var(--font-display);
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--fg-muted);
+    }
+    .tracker-delta-badge {
+      background: var(--accent-dim);
+      border: 1px solid var(--accent-glow);
+      border-radius: 100px;
+      padding: 6px 16px;
+      font-family: var(--font-display);
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--accent);
+      text-align: center;
+    }
+    .tracker-delta-badge.hide { opacity: 0.3; }
+
+    /* ── MONTH PROGRESS BAR ── */
+    .month-progress {
+      max-width: var(--max-w);
+      margin: 0 auto 32px;
+      padding: 0 32px;
+    }
+    .month-progress-inner {
+      background: var(--bg-card);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+    }
+    .month-progress-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 14px;
+      align-items: center;
+    }
+    .month-progress-title {
+      font-family: var(--font-display);
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--fg-muted);
+    }
+    .month-progress-detail {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--fg-muted);
+    }
+    .months-row {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 6px;
+    }
+    .month-cell {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+    .month-cell-bar {
+      width: 100%;
+      height: 28px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 6px;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s;
+    }
+    .month-cell-bar.done {
+      background: var(--accent-dim);
+      border: 1px solid var(--accent-glow);
+    }
+    .month-cell-bar.active {
+      background: var(--accent-dim);
+      border: 1px solid var(--accent);
+      box-shadow: 0 0 12px var(--accent-dim);
+    }
+    .month-cell-bar.active::after {
+      content: '';
+      position: absolute;
+      top: 0; left: -100%;
+      width: 60%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(0,232,123,0.3), transparent);
+      animation: shimmer 1.2s linear infinite;
+    }
+    @keyframes shimmer { to { left: 200%; } }
+    .month-cell-label {
+      font-family: var(--font-display);
+      font-size: 0.65rem;
+      font-weight: 600;
+      color: var(--fg-muted);
+    }
+    .month-cell-label.active { color: var(--accent); }
+    .month-cell-label.done { color: var(--accent); }
+    .month-check { color: var(--accent); font-size: 0.7rem; }
+
+    /* ── FINAL SUMMARY ── */
+    .final-summary {
+      max-width: var(--max-w);
+      margin: 0 auto 40px;
+      padding: 0 32px;
+      display: none;
+    }
+    .final-summary.visible { display: block; }
+    .final-summary-inner {
+      background: linear-gradient(135deg, var(--bg-card) 0%, rgba(0,232,123,0.06) 100%);
+      border: 1px solid var(--accent-glow);
+      border-radius: var(--radius);
+      padding: 48px 40px;
+    }
+    .final-summary h2 {
+      font-family: var(--font-display);
+      font-size: 1.8rem;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 8px;
+    }
+    .final-summary h2 .accent { color: var(--accent); }
+    .final-summary-sub {
+      text-align: center;
+      color: var(--fg-muted);
+      font-size: 0.92rem;
+      margin-bottom: 40px;
+    }
+    .final-stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      margin-bottom: 40px;
+    }
+    .final-stat {
+      background: rgba(0,0,0,0.3);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 12px;
+      padding: 24px 16px;
+      text-align: center;
+    }
+    .final-stat-label {
+      font-family: var(--font-display);
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--fg-muted);
+      margin-bottom: 10px;
+    }
+    .final-stat-value {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      font-weight: 700;
+      line-height: 1;
+    }
+    .final-stat-value--accent { color: var(--accent); }
+    .final-stat-value--danger { color: var(--danger); }
+    .final-stat-value--warn { color: var(--warn); }
+    .final-cta {
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--accent);
+      color: #080810;
+      font-family: var(--font-display);
+      font-size: 1rem;
+      font-weight: 700;
+      padding: 14px 32px;
+      border-radius: 12px;
+      text-decoration: none;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+    .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: transparent;
+      color: var(--fg);
+      font-family: var(--font-display);
+      font-size: 0.95rem;
+      font-weight: 600;
+      padding: 13px 28px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.12);
+      text-decoration: none;
+      transition: border-color 0.15s;
+    }
+    .btn-secondary:hover { border-color: rgba(255,255,255,0.25); }
+
+    /* ── FOOTER ── */
+    .demo-footer {
+      padding: 40px 32px;
+      border-top: 1px solid rgba(255,255,255,0.05);
+      text-align: center;
+    }
+    .footer-brand {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 1.1rem;
+      margin-bottom: 6px;
+    }
+    .footer-tag { font-size: 0.82rem; color: var(--fg-muted); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      .sim-stage { grid-template-columns: 1fr; }
+      .tracker-inner { grid-template-columns: 1fr; gap: 20px; }
+      .tracker-divider { flex-direction: row; }
+      .final-stats { grid-template-columns: repeat(2, 1fr); }
+      .months-row { gap: 4px; }
+    }
+    @media (max-width: 640px) {
+      .demo-nav { padding: 14px 20px; }
+      .demo-hero { padding: 56px 20px 40px; }
+      .controls-bar, .scrubber-wrap, .sim-stage, .revenue-tracker, .month-progress, .final-summary { padding-left: 20px; padding-right: 20px; }
+      .panel-stats { grid-template-columns: repeat(2, 1fr); }
+      .final-stats { grid-template-columns: 1fr 1fr; }
+      .months-row { grid-template-columns: repeat(6, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="demo-nav">
+  <a href="/" class="nav-brand">Autovyne</a>
+  <div>
+    <span class="nav-badge">Live Demo</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:8px;">
+    <a href="/roi" class="nav-pill">ROI Calculator</a>
+    <a href="/intake" class="btn-cta-sm">Get Started →</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="demo-hero">
+  <div class="hero-badge"><span class="dot"></span> Simulated in Real Time</div>
+  <h1>Watch a Year of Revenue<br><span class="danger">Disappear</span> — or <span class="accent">Get Captured</span></h1>
+  <p>Pick an industry. Hit Play. Watch 12 months of business unfold side by side — one without Autovyne, one with. Every missed call. Every booked appointment. Every dollar.</p>
+</section>
+
+<!-- CONTROLS BAR -->
+<div class="controls-bar">
+  <div class="industry-select-wrap">
+    <div class="industry-select-label">Industry Vertical</div>
+    <select class="industry-select" id="industry-select">
+      <option value="hvac">HVAC &amp; Home Service</option>
+      <option value="hair-and-beauty">Hair &amp; Beauty</option>
+      <option value="contractors">Contractors</option>
+      <option value="towing-and-automotive">Towing &amp; Automotive</option>
+      <option value="restaurants-and-hospitality">Restaurants &amp; Hospitality</option>
+      <option value="medical-and-dental">Medical &amp; Dental</option>
+    </select>
+  </div>
+  <div class="speed-wrap">
+    <div class="speed-label">Speed</div>
+    <div class="speed-btns">
+      <button class="speed-btn active" data-speed="1" onclick="setSpeed(1)">1×</button>
+      <button class="speed-btn" data-speed="2" onclick="setSpeed(2)">2×</button>
+      <button class="speed-btn" data-speed="5" onclick="setSpeed(5)">5×</button>
+    </div>
+  </div>
+  <div class="play-wrap">
+    <div class="play-label">Simulation</div>
+    <button class="play-btn" id="play-btn" onclick="togglePlay()">
+      <span class="play-icon">▶</span>
+      <span class="play-text">Play Year</span>
+    </button>
+  </div>
+  <button class="reset-btn" onclick="resetSim()">↺ Reset</button>
+</div>
+
+<!-- MONTH SCRUBBER -->
+<div class="scrubber-wrap">
+  <div class="scrubber-inner">
+    <div class="scrubber-top">
+      <span class="scrubber-title">Timeline</span>
+      <span class="scrubber-month-display" id="scrubber-label">Month 0 of 12</span>
+    </div>
+    <div class="scrubber-track">
+      <div class="scrubber-fill" id="scrubber-fill"></div>
+      <input type="range" min="0" max="12" value="0" step="1" class="scrubber-input" id="scrubber-input" oninput="scrubTo(this.value)">
+    </div>
+    <div class="scrubber-months">
+      <span class="scrubber-month-label" id="sm-0">Start</span>
+      <span class="scrubber-month-label" id="sm-1">M1</span>
+      <span class="scrubber-month-label" id="sm-2">M2</span>
+      <span class="scrubber-month-label" id="sm-3">M3</span>
+      <span class="scrubber-month-label" id="sm-4">M4</span>
+      <span class="scrubber-month-label" id="sm-5">M5</span>
+      <span class="scrubber-month-label" id="sm-6">M6</span>
+      <span class="scrubber-month-label" id="sm-7">M7</span>
+      <span class="scrubber-month-label" id="sm-8">M8</span>
+      <span class="scrubber-month-label" id="sm-9">M9</span>
+      <span class="scrubber-month-label" id="sm-10">M10</span>
+      <span class="scrubber-month-label" id="sm-11">M11</span>
+      <span class="scrubber-month-label" id="sm-12">Year End</span>
+    </div>
+  </div>
+</div>
+
+<!-- SPLIT SCREEN PANELS -->
+<div class="sim-stage">
+
+  <!-- LEFT: Without Autovyne -->
+  <div class="sim-panel sim-panel--without">
+    <div class="panel-header">
+      <div class="panel-header-left">
+        <div class="panel-dot panel-dot--danger"></div>
+        <span class="panel-title panel-title--danger">Without Autovyne</span>
+      </div>
+      <span class="panel-status" id="status-without">● IDLE</span>
+    </div>
+    <div class="panel-stats">
+      <div class="panel-stat">
+        <div class="panel-stat-label">Missed Calls</div>
+        <div class="panel-stat-value panel-stat-value--danger" id="stat-missed">0</div>
+      </div>
+      <div class="panel-stat">
+        <div class="panel-stat-label">Lost Leads</div>
+        <div class="panel-stat-value panel-stat-value--warn" id="stat-lost-leads">0</div>
+      </div>
+      <div class="panel-stat">
+        <div class="panel-stat-label">Revenue Lost</div>
+        <div class="panel-stat-value panel-stat-value--danger" id="stat-lost-revenue">$0</div>
+      </div>
+    </div>
+    <div class="panel-feed">
+      <div class="feed-inner" id="feed-without">
+        <div class="feed-empty">
+          <div class="empty-icon">📵</div>
+          <div>Hit Play to start the simulation</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: With Autovyne -->
+  <div class="sim-panel sim-panel--with">
+    <div class="panel-header">
+      <div class="panel-header-left">
+        <div class="panel-dot panel-dot--accent"></div>
+        <span class="panel-title panel-title--accent">With Autovyne</span>
+      </div>
+      <span class="panel-status" id="status-with">● IDLE</span>
+    </div>
+    <div class="panel-stats">
+      <div class="panel-stat">
+        <div class="panel-stat-label">Calls Answered</div>
+        <div class="panel-stat-value panel-stat-value--accent" id="stat-answered">0</div>
+      </div>
+      <div class="panel-stat">
+        <div class="panel-stat-label">Appts Booked</div>
+        <div class="panel-stat-value panel-stat-value--accent" id="stat-booked">0</div>
+      </div>
+      <div class="panel-stat">
+        <div class="panel-stat-label">Revenue Captured</div>
+        <div class="panel-stat-value panel-stat-value--accent" id="stat-captured-revenue">$0</div>
+      </div>
+    </div>
+    <div class="panel-feed">
+      <div class="feed-inner" id="feed-with">
+        <div class="feed-empty">
+          <div class="empty-icon">🤖</div>
+          <div>AI is standing by...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- LIVE REVENUE TRACKER -->
+<div class="revenue-tracker">
+  <div class="tracker-inner">
+    <div class="tracker-side">
+      <div class="tracker-label">Revenue Without Autovyne</div>
+      <div class="tracker-value tracker-value--danger" id="tracker-without">$0</div>
+      <div class="tracker-sub" id="tracker-without-sub">—</div>
+    </div>
+    <div class="tracker-divider">
+      <div class="tracker-vs">VS</div>
+      <div class="tracker-delta-badge hide" id="tracker-delta">+$0 difference</div>
+    </div>
+    <div class="tracker-side">
+      <div class="tracker-label">Revenue With Autovyne</div>
+      <div class="tracker-value tracker-value--accent" id="tracker-with">$0</div>
+      <div class="tracker-sub" id="tracker-with-sub">—</div>
+    </div>
+  </div>
+</div>
+
+<!-- MONTH PROGRESS TRACKER -->
+<div class="month-progress">
+  <div class="month-progress-inner">
+    <div class="month-progress-header">
+      <span class="month-progress-title">Year Progress</span>
+      <span class="month-progress-detail" id="progress-detail">Click Play to begin</span>
+    </div>
+    <div class="months-row">
+      <div class="month-cell"><div class="month-cell-bar" id="mcb-1"></div><div class="month-cell-label" id="mcl-1">Jan</div></div>
+      <div class="month-cell"><div class="month-cell-bar" id="mcb-2"></div><div class="month-cell-label" id="mcl-2">Feb</div></div>
+      <div class="month-cell"><div class="month-cell-bar" id="mcb-3"></div><div class="month-cell-label" id="mcl-3">Mar</div></div>
+      <div class="month-cell"><div class="month-cell-bar" id="mcb-4"></div><div class="month-cell-label" id="mcl-4">Apr</div></div>
+      <div class="month-cell"><div class="month-cell-bar" id="mcb-5"></div><div class="month-cell-label" id="mcl-5">May</div></div>
+      <div class="month-cell"><div class="month-cell-bar" id="mcb-6"></div><div class="month-cell-label" id="mcl-6">Jun</div></div>
+      <div class="month-cell"><div class="month-cell-bar" id="mcb-7"></div><div class="month-cell-label" id="mcb-7-wrap" id="mcb-7"></div><div class="month-cell-label" id="mcl-7">Jul</div></div>
+      <div class="month-cell"><div class="month-cell-bar" id="mcb-8"></div><div class="month-cell-label" id="mcl-8">Aug</div></div>
+      <div class="month-cell"><div class="month-cell-bar" id="mcb-9"></div><div class="month-cell-label" id="mcl-9">Sep</div></div>
+      <div class="month-cell"><div class="month-cell-bar" id="mcb-10"></div><div class="month-cell-label" id="mcl-10">Oct</div></div>
+      <div class="month-cell"><div class="month-cell-bar" id="mcb-11"></div><div class="month-cell-label" id="mcl-11">Nov</div></div>
+      <div class="month-cell"><div class="month-cell-bar" id="mcb-12"></div><div class="month-cell-label" id="mcl-12">Dec</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- FINAL SUMMARY (shown at month 12) -->
+<div class="final-summary" id="final-summary">
+  <div class="final-summary-inner">
+    <h2>Year Complete — <span class="accent">Here's What Happened</span></h2>
+    <p class="final-summary-sub" id="final-industry-note">HVAC business, 12-month simulation</p>
+    <div class="final-stats">
+      <div class="final-stat">
+        <div class="final-stat-label">Total Missed Calls</div>
+        <div class="final-stat-value final-stat-value--danger" id="final-missed">0</div>
+      </div>
+      <div class="final-stat">
+        <div class="final-stat-label">Calls Answered by AI</div>
+        <div class="final-stat-value final-stat-value--accent" id="final-answered">0</div>
+      </div>
+      <div class="final-stat">
+        <div class="final-stat-label">Appointments Booked</div>
+        <div class="final-stat-value final-stat-value--accent" id="final-booked">0</div>
+      </div>
+      <div class="final-stat">
+        <div class="final-stat-label">Revenue Recovered</div>
+        <div class="final-stat-value final-stat-value--accent" id="final-recovered">$0</div>
+      </div>
+    </div>
+    <div class="final-cta">
+      <a href="/intake" class="btn-primary">Start Capturing Revenue →</a>
+      <a href="/roi" class="btn-secondary">Run ROI Calculator</a>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="demo-footer">
+  <div class="footer-brand">Autovyne</div>
+  <div class="footer-tag">AI automation for local businesses · autovyne@polsia.app</div>
+</footer>
+
+<%- analyticsSnippet %>
+
+<script>
+// ── VERTICAL DATA ─────────────────────────────────────────────────────────────
+const VERTICALS = {
+  'hvac': {
+    label: 'HVAC & Home Service',
+    callerNames: ['Mike T.','Sarah M.','Dave P.','Jennifer L.','Carlos R.','Amy K.','Tom B.','Rachel S.','Luis F.','Diane H.','Kevin O.','Maria C.','Brian N.','Lisa A.','Steve W.','Nancy G.','Paul D.','Helen J.','Chris E.','Donna M.'],
+    missedReasons: ['after hours — went to voicemail','during job — phone unanswered','busy line — no answer','lunch break — missed','overwhelmed with calls'],
+    captureActions: ['AI answered — scheduled tune-up','AI answered — booked AC repair','AI answered — emergency dispatch initiated','AI answered — quote request captured','AI answered — maintenance plan sold'],
+    leads: 80,
+    ticket: 350,
+    missedPct: 30,
+    conversion: 30,
+    captureRate: 0.65,
+    callerType: 'Homeowner'
+  },
+  'hair-and-beauty': {
+    label: 'Hair & Beauty Salon',
+    callerNames: ['Emma W.','Priya S.','Jordan K.','Alexis T.','Mia R.','Chloe B.','Taylor F.','Isabella M.','Zoe C.','Lily P.','Nadia H.','Grace L.','Ava D.','Sophie A.','Haley E.','Jade N.','Luna V.','Reese O.','Brooke J.','Destiny Q.'],
+    missedReasons: ['styling client — missed','all chairs booked — no answer','Saturday rush — overwhelmed','closing time — went to voicemail','no staff available'],
+    captureActions: ['AI answered — booked blowout next Tuesday','AI answered — color appointment confirmed','AI answered — wedding party package booked','AI answered — added to waitlist + booked next slot','AI answered — balayage consultation scheduled'],
+    leads: 120,
+    ticket: 180,
+    missedPct: 25,
+    conversion: 40,
+    captureRate: 0.55,
+    callerType: 'Client'
+  },
+  'contractors': {
+    label: 'Contractors',
+    callerNames: ['Frank D.','Scott H.','Rob M.','Larry T.','Gary N.','Wayne B.','Dale C.','Earl P.','Barry R.','Dennis L.','Keith S.','Roger A.','Jerry F.','Craig W.','Glen K.','Floyd J.','Lester O.','Neil E.','Sherman V.','Clyde M.'],
+    missedReasons: ['on a job site — phone off','no signal on site','after business hours','in permit office — unavailable','driving between jobs'],
+    captureActions: ['AI answered — estimate request logged','AI answered — site visit scheduled','AI answered — quote sent + follow-up booked','AI answered — contract inquiry captured','AI answered — project consultation booked'],
+    leads: 45,
+    ticket: 400,
+    missedPct: 35,
+    conversion: 25,
+    captureRate: 0.60,
+    callerType: 'Client'
+  },
+  'towing-and-automotive': {
+    label: 'Towing & Automotive',
+    callerNames: ['Jake M.','Tyler S.','Brandon F.','Cody B.','Travis L.','Hunter G.','Blake N.','Dustin P.','Colton R.','Wyatt T.','Austin K.','Tanner H.','Chase O.','Logan D.','Dylan A.','Cameron E.','Brody C.','Zack W.','Seth J.','Cole V.'],
+    missedReasons: ['driver on a call — busy','all trucks dispatched','after hours — no coverage','dispatcher on another line','no driver available in area'],
+    captureActions: ['AI answered — driver dispatched in 8 min','AI answered — tow booked + ETA confirmed','AI answered — roadside assistance en route','AI answered — service call logged + dispatched','AI answered — jump start scheduled + confirmed'],
+    leads: 90,
+    ticket: 275,
+    missedPct: 28,
+    conversion: 35,
+    captureRate: 0.70,
+    callerType: 'Driver'
+  },
+  'restaurants-and-hospitality': {
+    label: 'Restaurant & Hospitality',
+    callerNames: ['Anna K.','Michael B.','Sophie T.','David R.','Laura M.','James P.','Nicole S.','Robert F.','Emily H.','Charles L.','Samantha N.','William G.','Jessica C.','Thomas A.','Amanda W.','Daniel E.','Ashley O.','Mark D.','Melissa J.','Steven V.'],
+    missedReasons: ['dinner rush — phones overwhelmed','host busy seating guests','kitchen emergency — all hands','nobody answered the reservation line','too busy to take call during service'],
+    captureActions: ['AI answered — table for 4 booked Friday 7pm','AI answered — private event inquiry captured','AI answered — birthday reservation confirmed','AI answered — takeout order placed + confirmed','AI answered — catering inquiry logged for callback'],
+    leads: 200,
+    ticket: 95,
+    missedPct: 18,
+    conversion: 45,
+    captureRate: 0.50,
+    callerType: 'Guest'
+  },
+  'medical-and-dental': {
+    label: 'Medical & Dental',
+    callerNames: ['Patricia H.','Barbara C.','Linda W.','Susan M.','Dorothy T.','Sandra L.','Carol F.','Ruth S.','Sharon B.','Margaret P.','Kathleen N.','Christine G.','Deborah A.','Virginia E.','Joyce O.','Evelyn D.','Frances J.','Helen R.','Shirley K.','Anna V.'],
+    missedReasons: ['in with a patient — unavailable','front desk overwhelmed','after clinic hours','all lines busy','nobody at the desk'],
+    captureActions: ['AI answered — new patient intake started','AI answered — cleaning appointment booked','AI answered — check-up scheduled next week','AI answered — pain consult — same-day slot given','AI answered — X-ray appointment confirmed'],
+    leads: 60,
+    ticket: 220,
+    missedPct: 30,
+    conversion: 50,
+    captureRate: 0.60,
+    callerType: 'Patient'
+  }
+};
+
+const MONTH_NAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+// Duration for a full 12-month simulation at 1x speed (ms)
+const BASE_DURATION_MS = 60000; // 60 seconds at 1x
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let state = {
+  playing: false,
+  speed: 1,
+  currentMonth: 0,          // 0..12
+  startTime: null,
+  pausedElapsed: 0,
+  totalDurationMs: BASE_DURATION_MS,
+  // Cumulative counters
+  missedCalls: 0,
+  lostLeads: 0,
+  lostRevenue: 0,
+  answeredCalls: 0,
+  bookedAppts: 0,
+  capturedRevenue: 0,
+  // Event queues (pre-generated at start)
+  events: [],
+  eventIndex: 0,
+  // Per-month stats for final summary
+  monthlyStats: []
+};
+
+let rafId = null;
+let lastEventTime = 0;
+
+// ── GENERATE EVENTS ───────────────────────────────────────────────────────────
+function generateEvents(vertical) {
+  const v = VERTICALS[vertical];
+  const events = [];
+  const totalMs = BASE_DURATION_MS; // always generate at 1x time scale
+
+  // Spread events across 12 months (each month is totalMs/12 ms)
+  const monthDuration = totalMs / 12;
+  let nameIndex = 0;
+
+  for (let m = 0; m < 12; m++) {
+    const monthStart = m * monthDuration;
+    // Events per month ≈ leads per month (scaled for readability, max 15 visible)
+    const callsThisMonth = v.leads + Math.floor((Math.random() - 0.5) * v.leads * 0.2);
+    const displayCalls = Math.min(callsThisMonth, 14); // cap for feed readability
+
+    // Spread within the month
+    for (let i = 0; i < displayCalls; i++) {
+      const t = monthStart + (i / displayCalls) * monthDuration * 0.9 + Math.random() * monthDuration * 0.05;
+      const name = v.callerNames[nameIndex % v.callerNames.length];
+      nameIndex++;
+      const isMissed = Math.random() * 100 < v.missedPct;
+
+      events.push({
+        time: t,
+        month: m + 1,
+        name,
+        isMissed,
+        missedReason: v.missedReasons[Math.floor(Math.random() * v.missedReasons.length)],
+        captureAction: v.captureActions[Math.floor(Math.random() * v.captureActions.length)],
+        ticket: v.ticket * (0.85 + Math.random() * 0.30),
+        converted: Math.random() * 100 < v.conversion,
+        callerType: v.callerType
+      });
+    }
+  }
+  events.sort((a, b) => a.time - b.time);
+  return events;
+}
+
+function simTime() {
+  // Returns elapsed simulation time (at 1x) in ms
+  if (!state.playing || !state.startTime) return state.pausedElapsed;
+  return state.pausedElapsed + (performance.now() - state.startTime) * state.speed;
+}
+
+// ── RENDER LOOP ───────────────────────────────────────────────────────────────
+function tick() {
+  if (!state.playing) return;
+
+  const elapsed = simTime(); // ms at 1x scale
+  const month = Math.min(12, Math.floor((elapsed / BASE_DURATION_MS) * 12));
+
+  // Process events
+  while (state.eventIndex < state.events.length && state.events[state.eventIndex].time <= elapsed) {
+    processEvent(state.events[state.eventIndex]);
+    state.eventIndex++;
+  }
+
+  // Update month display
+  if (month !== state.currentMonth) {
+    for (let m = state.currentMonth + 1; m <= month; m++) {
+      activateMonth(m);
+    }
+    state.currentMonth = month;
+  }
+
+  // Update scrubber
+  const progress = Math.min(1, elapsed / BASE_DURATION_MS);
+  updateScrubber(Math.round(progress * 12));
+
+  // Update status indicators
+  const v = VERTICALS[document.getElementById('industry-select').value];
+  const simHour = Math.floor((elapsed / BASE_DURATION_MS) * 8760); // hours in year
+  document.getElementById('status-without').textContent = month < 12 ? `● RUNNING — Month ${month || 1}` : '● COMPLETE';
+  document.getElementById('status-with').textContent    = month < 12 ? `● AI ACTIVE — Month ${month || 1}` : '● COMPLETE';
+
+  // Check if done
+  if (elapsed >= BASE_DURATION_MS) {
+    finishSim();
+    return;
+  }
+
+  rafId = requestAnimationFrame(tick);
+}
+
+function processEvent(evt) {
+  const v = VERTICALS[document.getElementById('industry-select').value];
+  const simHour = evt.time / BASE_DURATION_MS * 8760;
+  const timeStr = formatSimTime(evt.month);
+
+  if (evt.isMissed) {
+    // LEFT panel: missed call
+    state.missedCalls++;
+    const lostRevFromThisCall = evt.converted ? evt.ticket * (v.missedPct / 100) : 0;
+    const missedLeadRevenue = evt.ticket * (v.conversion / 100);
+    state.lostRevenue += missedLeadRevenue * (v.captureRate);
+    state.lostLeads++;
+
+    addFeedEvent('feed-without', {
+      icon: '📵',
+      type: 'danger',
+      name: `${evt.callerType}: ${evt.name}`,
+      detail: `Missed call — ${evt.missedReason}`,
+      time: timeStr
+    });
+
+    // RIGHT panel: AI captures it
+    state.answeredCalls++;
+    const willBook = Math.random() < v.captureRate;
+    if (willBook) {
+      state.bookedAppts++;
+      state.capturedRevenue += evt.ticket * (v.conversion / 100);
+      addFeedEvent('feed-with', {
+        icon: '✅',
+        type: 'accent',
+        name: `AI answered: ${evt.name}`,
+        detail: evt.captureAction,
+        time: timeStr
+      });
+    } else {
+      addFeedEvent('feed-with', {
+        icon: '🤖',
+        type: 'neutral',
+        name: `AI answered: ${evt.name}`,
+        detail: `Follow-up message sent — awaiting response`,
+        time: timeStr
+      });
+    }
+  } else {
+    // LEFT: normal answered call
+    if (evt.converted) {
+      addFeedEvent('feed-without', {
+        icon: '📞',
+        type: 'neutral',
+        name: `Call answered: ${evt.name}`,
+        detail: `Booked manually — ${v.callerType.toLowerCase()} converted`,
+        time: timeStr
+      });
+    }
+    // RIGHT: same call, both handled the same (this was answered regardless)
+    // Only emit for the left if it was a successful conversion — right gets it too
+    if (evt.converted) {
+      addFeedEvent('feed-with', {
+        icon: '📞',
+        type: 'neutral',
+        name: `Call answered: ${evt.name}`,
+        detail: `AI confirmed appointment — follow-up queued`,
+        time: timeStr
+      });
+    }
+  }
+
+  // Update counters in DOM
+  updateCounters();
+}
+
+function updateCounters() {
+  document.getElementById('stat-missed').textContent = state.missedCalls.toLocaleString();
+  document.getElementById('stat-lost-leads').textContent = state.lostLeads.toLocaleString();
+  document.getElementById('stat-lost-revenue').textContent = '$' + Math.round(state.lostRevenue).toLocaleString();
+  document.getElementById('stat-answered').textContent = state.answeredCalls.toLocaleString();
+  document.getElementById('stat-booked').textContent = state.bookedAppts.toLocaleString();
+  document.getElementById('stat-captured-revenue').textContent = '$' + Math.round(state.capturedRevenue).toLocaleString();
+
+  // Tracker
+  const v = VERTICALS[document.getElementById('industry-select').value];
+  // Without = base revenue (calls that were answered and converted)
+  const baseMonthly = v.leads * (1 - v.missedPct/100) * (v.conversion/100) * v.ticket;
+  const withoutRevMonthly = baseMonthly;
+  const withRevMonthly = baseMonthly + (v.leads * (v.missedPct/100) * v.captureRate * (v.conversion/100) * v.ticket);
+  const monthsElapsed = state.currentMonth || 1;
+  const withoutTotal = withoutRevMonthly * monthsElapsed;
+  const withTotal = withRevMonthly * monthsElapsed;
+
+  document.getElementById('tracker-without').textContent = '$' + Math.round(withoutTotal).toLocaleString();
+  document.getElementById('tracker-with').textContent = '$' + Math.round(withTotal).toLocaleString();
+  document.getElementById('tracker-without-sub').textContent = `across ${monthsElapsed} month${monthsElapsed !== 1 ? 's' : ''}`;
+  document.getElementById('tracker-with-sub').textContent = `across ${monthsElapsed} month${monthsElapsed !== 1 ? 's' : ''}`;
+
+  const delta = withTotal - withoutTotal;
+  const deltaEl = document.getElementById('tracker-delta');
+  deltaEl.textContent = '+$' + Math.round(delta).toLocaleString() + ' more revenue';
+  deltaEl.classList.toggle('hide', delta <= 0);
+}
+
+function addFeedEvent(feedId, { icon, type, name, detail, time }) {
+  const feed = document.getElementById(feedId);
+  // Remove empty state if present
+  const empty = feed.querySelector('.feed-empty');
+  if (empty) empty.remove();
+
+  const el = document.createElement('div');
+  el.className = `feed-event feed-event--${type}`;
+  el.innerHTML = `
+    <span class="feed-icon">${icon}</span>
+    <div class="feed-text">
+      <div class="feed-name">${name}</div>
+      <div class="feed-detail">${detail}</div>
+    </div>
+    <span class="feed-time">${time}</span>
+  `;
+
+  // Insert at top (feed is column-reverse)
+  feed.insertBefore(el, feed.firstChild);
+
+  // Keep feed manageable — remove old events if too many
+  const events = feed.querySelectorAll('.feed-event');
+  if (events.length > 30) {
+    events[events.length - 1].remove();
+  }
+}
+
+function formatSimTime(month) {
+  return MONTH_NAMES[(month - 1) % 12];
+}
+
+function activateMonth(m) {
+  if (m < 1 || m > 12) return;
+  // Previous months done
+  for (let i = 1; i < m; i++) {
+    const bar = document.getElementById('mcb-' + i);
+    const lbl = document.getElementById('mcl-' + i);
+    if (bar) { bar.classList.remove('active'); bar.classList.add('done'); }
+    if (lbl) { lbl.classList.remove('active'); lbl.classList.add('done'); }
+  }
+  // Current month active
+  const bar = document.getElementById('mcb-' + m);
+  const lbl = document.getElementById('mcl-' + m);
+  if (bar) { bar.classList.add('active'); }
+  if (lbl) { lbl.classList.add('active'); }
+  document.getElementById('progress-detail').textContent = `Simulating Month ${m} of 12 — ${MONTH_NAMES[m-1]}`;
+}
+
+function updateScrubber(month) {
+  const input = document.getElementById('scrubber-input');
+  const fill = document.getElementById('scrubber-fill');
+  const label = document.getElementById('scrubber-label');
+  input.value = month;
+  fill.style.width = (month / 12 * 100) + '%';
+  label.textContent = month === 0 ? 'Start' : (month === 12 ? 'Year End' : `Month ${month} of 12`);
+
+  // Update label highlights
+  for (let i = 0; i <= 12; i++) {
+    const el = document.getElementById('sm-' + i);
+    if (el) el.classList.toggle('current', i === month);
+  }
+}
+
+function finishSim() {
+  state.playing = false;
+  state.pausedElapsed = BASE_DURATION_MS;
+  state.currentMonth = 12;
+
+  // Final cleanup of month bars
+  for (let i = 1; i <= 12; i++) {
+    const bar = document.getElementById('mcb-' + i);
+    const lbl = document.getElementById('mcl-' + i);
+    if (bar) { bar.classList.remove('active'); bar.classList.add('done'); }
+    if (lbl) { lbl.classList.remove('active'); lbl.classList.add('done'); }
+  }
+  updateScrubber(12);
+  document.getElementById('progress-detail').textContent = 'Year complete!';
+  document.getElementById('status-without').textContent = '● COMPLETE';
+  document.getElementById('status-with').textContent = '● COMPLETE';
+
+  const playBtn = document.getElementById('play-btn');
+  playBtn.classList.remove('playing');
+  playBtn.querySelector('.play-icon').textContent = '▶';
+  playBtn.querySelector('.play-text').textContent = 'Replay';
+
+  // Show final summary
+  showFinalSummary();
+  if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+}
+
+function showFinalSummary() {
+  const v = VERTICALS[document.getElementById('industry-select').value];
+  document.getElementById('final-industry-note').textContent = `${v.label} — 12-month simulation complete`;
+  document.getElementById('final-missed').textContent = state.missedCalls.toLocaleString();
+  document.getElementById('final-answered').textContent = state.answeredCalls.toLocaleString();
+  document.getElementById('final-booked').textContent = state.bookedAppts.toLocaleString();
+  document.getElementById('final-recovered').textContent = '$' + Math.round(state.capturedRevenue).toLocaleString();
+  document.getElementById('final-summary').classList.add('visible');
+  document.getElementById('final-summary').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ── CONTROLS ──────────────────────────────────────────────────────────────────
+window.togglePlay = function() {
+  if (state.currentMonth >= 12) {
+    // Replay
+    resetSim();
+    setTimeout(() => startPlay(), 100);
+    return;
+  }
+  if (state.playing) {
+    pauseSim();
+  } else {
+    startPlay();
+  }
+};
+
+function startPlay() {
+  if (state.events.length === 0) {
+    // First play — generate events
+    state.events = generateEvents(document.getElementById('industry-select').value);
+  }
+  state.playing = true;
+  state.startTime = performance.now();
+  const playBtn = document.getElementById('play-btn');
+  playBtn.classList.add('playing');
+  playBtn.querySelector('.play-icon').textContent = '⏸';
+  playBtn.querySelector('.play-text').textContent = 'Pause';
+  rafId = requestAnimationFrame(tick);
+}
+
+function pauseSim() {
+  state.playing = false;
+  state.pausedElapsed = simTime();
+  state.startTime = null;
+  if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+  const playBtn = document.getElementById('play-btn');
+  playBtn.classList.remove('playing');
+  playBtn.querySelector('.play-icon').textContent = '▶';
+  playBtn.querySelector('.play-text').textContent = 'Resume';
+}
+
+window.resetSim = function() {
+  if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+  state = {
+    playing: false,
+    speed: state.speed,
+    currentMonth: 0,
+    startTime: null,
+    pausedElapsed: 0,
+    totalDurationMs: BASE_DURATION_MS,
+    missedCalls: 0, lostLeads: 0, lostRevenue: 0,
+    answeredCalls: 0, bookedAppts: 0, capturedRevenue: 0,
+    events: [],
+    eventIndex: 0,
+    monthlyStats: []
+  };
+
+  const playBtn = document.getElementById('play-btn');
+  playBtn.classList.remove('playing');
+  playBtn.querySelector('.play-icon').textContent = '▶';
+  playBtn.querySelector('.play-text').textContent = 'Play Year';
+
+  // Reset counters
+  updateCounters();
+  updateScrubber(0);
+
+  // Reset feeds
+  document.getElementById('feed-without').innerHTML = '<div class="feed-empty"><div class="empty-icon">📵</div><div>Hit Play to start the simulation</div></div>';
+  document.getElementById('feed-with').innerHTML = '<div class="feed-empty"><div class="empty-icon">🤖</div><div>AI is standing by...</div></div>';
+
+  // Reset month bars
+  for (let i = 1; i <= 12; i++) {
+    const bar = document.getElementById('mcb-' + i);
+    const lbl = document.getElementById('mcl-' + i);
+    if (bar) { bar.classList.remove('active', 'done'); }
+    if (lbl) { lbl.classList.remove('active', 'done'); }
+  }
+  document.getElementById('progress-detail').textContent = 'Click Play to begin';
+  document.getElementById('status-without').textContent = '● IDLE';
+  document.getElementById('status-with').textContent = '● IDLE';
+  document.getElementById('final-summary').classList.remove('visible');
+
+  // Reset counters to 0
+  document.getElementById('stat-missed').textContent = '0';
+  document.getElementById('stat-lost-leads').textContent = '0';
+  document.getElementById('stat-lost-revenue').textContent = '$0';
+  document.getElementById('stat-answered').textContent = '0';
+  document.getElementById('stat-booked').textContent = '0';
+  document.getElementById('stat-captured-revenue').textContent = '$0';
+  document.getElementById('tracker-without').textContent = '$0';
+  document.getElementById('tracker-with').textContent = '$0';
+  document.getElementById('tracker-without-sub').textContent = '—';
+  document.getElementById('tracker-with-sub').textContent = '—';
+  document.getElementById('tracker-delta').classList.add('hide');
+};
+
+window.setSpeed = function(speed) {
+  const wasPlaying = state.playing;
+  if (wasPlaying) pauseSim();
+  state.speed = speed;
+  document.querySelectorAll('.speed-btn').forEach(btn => {
+    btn.classList.toggle('active', parseInt(btn.dataset.speed) === speed);
+  });
+  if (wasPlaying) startPlay();
+};
+
+window.scrubTo = function(month) {
+  // Pause, jump to month
+  const wasPlaying = state.playing;
+  if (wasPlaying) pauseSim();
+
+  month = parseInt(month);
+  // Reset sim state
+  window.resetSim();
+
+  if (month === 0) return;
+
+  // Fast-forward by processing all events up to that month
+  state.events = generateEvents(document.getElementById('industry-select').value);
+  const targetTime = (month / 12) * BASE_DURATION_MS;
+
+  // Process all events up to target time silently
+  for (let i = 0; i < state.events.length; i++) {
+    if (state.events[i].time > targetTime) break;
+    processEventSilent(state.events[i]);
+    state.eventIndex = i + 1;
+  }
+
+  state.currentMonth = month;
+  state.pausedElapsed = targetTime;
+
+  // Update month bars
+  for (let m = 1; m <= month; m++) {
+    const bar = document.getElementById('mcb-' + m);
+    const lbl = document.getElementById('mcl-' + m);
+    if (bar) { bar.classList.remove('active'); bar.classList.add('done'); }
+    if (lbl) { lbl.classList.remove('active'); lbl.classList.add('done'); }
+  }
+  if (month < 12) {
+    const bar = document.getElementById('mcb-' + month);
+    if (bar) { bar.classList.add('active'); bar.classList.remove('done'); }
+  }
+
+  updateScrubber(month);
+  document.getElementById('progress-detail').textContent = month === 12 ? 'Year complete!' : `Jumped to Month ${month} of 12 — ${MONTH_NAMES[month-1]}`;
+  document.getElementById('status-without').textContent = month < 12 ? `● PAUSED — Month ${month}` : '● COMPLETE';
+  document.getElementById('status-with').textContent    = month < 12 ? `● AI PAUSED — Month ${month}` : '● COMPLETE';
+  updateCounters();
+
+  if (month === 12) showFinalSummary();
+};
+
+// Process event silently (no DOM feed update) for scrubber seek
+function processEventSilent(evt) {
+  const v = VERTICALS[document.getElementById('industry-select').value];
+  if (evt.isMissed) {
+    state.missedCalls++;
+    state.lostLeads++;
+    const missedLeadRevenue = evt.ticket * (v.conversion / 100);
+    state.lostRevenue += missedLeadRevenue * v.captureRate;
+    state.answeredCalls++;
+    if (Math.random() < v.captureRate) {
+      state.bookedAppts++;
+      state.capturedRevenue += evt.ticket * (v.conversion / 100);
+    }
+  }
+}
+
+// Industry change resets sim
+document.getElementById('industry-select').addEventListener('change', function() {
+  window.resetSim();
+});
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+updateCounters();
+</script>
+</body>
+</html>

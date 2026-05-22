@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <%- include('partials/seo-head') %>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <%- themeCSS %>
+  <style>
+    <%- include('partials/vertical-styles') %>
+  </style>
+</head>
+<body>
+<div class="vertical-page">
+
+  <!-- NAV -->
+  <nav class="vertical-nav">
+    <a href="/" class="nav-brand">Autovyne</a>
+    <div class="nav-industries">
+      <button class="nav-dropdown-btn" onclick="toggleDropdown(this)">Industries ▾</button>
+      <div class="nav-dropdown-menu">
+        <a href="/hair-and-beauty" class="nav-dropdown-item">Hair &amp; Beauty</a>
+        <a href="/contractors" class="nav-dropdown-item">Contractors</a>
+        <a href="/towing-and-automotive" class="nav-dropdown-item nav-dropdown-item--active">Towing &amp; Automotive</a>
+        <a href="/restaurants-and-hospitality" class="nav-dropdown-item">Restaurants &amp; Hospitality</a>
+        <a href="/medical-and-dental" class="nav-dropdown-item">Medical &amp; Dental</a>
+        <a href="/hvac" class="nav-dropdown-item">HVAC</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="vertical-hero">
+    <div class="vertical-hero-inner">
+      <div class="vertical-badge">For Towing Companies, Auto Shops &amp; Roadside Services</div>
+      <h1>Towing &amp; Auto: Stop Losing <span class="accent">$9K/Month</span> to Missed Dispatch Calls</h1>
+      <p class="vertical-hero-sub">Every missed dispatch call is a $200–$600 tow or service job gone to a competitor. Autovyne's AI answers every call, dispatches faster, and captures more roadside revenue — 24/7.</p>
+      <div class="vertical-proof">
+        <div class="proof-item">
+          <span class="proof-num">85%</span>
+          <span class="proof-label">of roadside callers choose whoever answers first</span>
+        </div>
+        <div class="proof-item">
+          <span class="proof-num">30%</span>
+          <span class="proof-label">of towing calls go unanswered during peak hours</span>
+        </div>
+        <div class="proof-item">
+          <span class="proof-num">$10,800</span>
+          <span class="proof-label">avg annual dispatch revenue lost to missed calls</span>
+        </div>
+      </div>
+      <div class="hero-cta-wrap">
+        <a href="/intake?vertical=towing-and-automotive" class="btn-primary btn-large">Get Your Free Towing Lead Audit →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- PAIN POINTS -->
+  <section class="pain-section">
+    <div class="pain-inner">
+      <div class="pain-header">
+        <h2>The Problems Every Towing &amp; Auto Shop Owner Knows</h2>
+        <p>Dispatch calls at 2am, customers mid-repair, peak hours with one dispatcher — these are the moments you lose money.</p>
+      </div>
+      <div class="pain-grid">
+        <div class="pain-card">
+          <div class="pain-icon">🚛</div>
+          <h3>Missed Dispatch = Lost Tow</h3>
+          <p>One unanswered call during a busy night or early morning shift can cost $200–$600. Multiply that across peak hours and the math hurts.</p>
+          <div class="pain-stat">$200–$600 per missed dispatch call</div>
+        </div>
+        <div class="pain-card">
+          <div class="pain-icon">🔧</div>
+          <h3>Shop Calls Dropped Mid-Repair</h3>
+          <p>Technicians can't answer phones while under a car. Customers calling for status updates, quotes, or new appointments hang up and go elsewhere.</p>
+          <div class="pain-stat">$150–$800 per lost service call</div>
+        </div>
+        <div class="pain-card">
+          <div class="pain-icon">🌙</div>
+          <h3>No 24/7 Coverage = Lost Revenue</h3>
+          <p>Breakdowns happen at midnight, 3am, holidays. If your competitor has 24/7 AI dispatch and you don't, they own the emergency market.</p>
+          <div class="pain-stat">40% of tow calls happen outside business hours</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ROI CALCULATOR -->
+  <section class="calc-section">
+    <div class="calc-inner">
+      <div class="calc-header">
+        <h2>Calculate Your Revenue at Risk</h2>
+        <p>How many dispatch or service calls are slipping through the cracks each week?</p>
+      </div>
+
+      <div class="calc-grid">
+        <div class="calc-card">
+          <h3>Your Numbers</h3>
+          <div class="calc-field">
+            <label>Missed calls per week</label>
+            <input type="number" id="calc-missed" value="20" min="1" max="500">
+            <div class="calc-range"><span>1</span><span>500</span></div>
+            <p class="hint">Unanswered dispatch, shop, and after-hours calls</p>
+          </div>
+          <div class="calc-field">
+            <label>Average call value ($)</label>
+            <input type="number" id="calc-ticket" value="280" min="50" max="5000" step="10">
+            <div class="calc-range"><span>$50</span><span>$5,000</span></div>
+            <p class="hint">Tows $150–$600, shop services $100–$2,000</p>
+          </div>
+          <div class="calc-field">
+            <label>Call-to-job conversion (%)</label>
+            <input type="number" id="calc-conversion" value="55" min="5" max="100">
+            <div class="calc-range"><span>5%</span><span>100%</span></div>
+            <p class="hint">Roadside callers have urgent need — avg 50–70% convert</p>
+          </div>
+        </div>
+
+        <div class="calc-result-card">
+          <div class="result-header">
+            <h3>Monthly Revenue at Risk</h3>
+            <div class="result-big" id="result-monthly">$12,320</div>
+            <div class="result-period">from missed calls this month alone</div>
+          </div>
+          <div class="result-divider"></div>
+          <div class="result-annual">
+            <div class="result-annual-label">Annual Revenue at Risk</div>
+            <div class="result-annual-val" id="result-annual">$147,840</div>
+            <div class="result-annual-sub">if nothing changes</div>
+          </div>
+          <p class="result-assumptions" id="calc-assumptions">
+            Based on <strong>20 missed calls/week</strong> × <strong>$280 avg call</strong> × <strong>55% conversion</strong> × 4 weeks
+          </p>
+        </div>
+      </div>
+
+      <div class="assumptions-bar">
+        <div class="assumption-item">
+          <span class="assumption-val">20 calls/week</span>
+          <span class="assumption-label">Avg missed dispatch</span>
+        </div>
+        <div class="assumption-item">
+          <span class="assumption-val">$280/call</span>
+          <span class="assumption-label">Towing avg value</span>
+        </div>
+        <div class="assumption-item">
+          <span class="assumption-val">55%</span>
+          <span class="assumption-label">Call-to-job rate</span>
+        </div>
+        <div class="assumption-item">
+          <span class="assumption-val">40%</span>
+          <span class="assumption-label">After-hours calls</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SERVICE TIERS -->
+  <section class="tiers-section">
+    <div class="tiers-inner">
+      <div class="tiers-header">
+        <h2>AI Automation Built for Towing &amp; Auto</h2>
+        <p>Everything your small business needs to stop missing leads — one simple package.</p>
+      </div>
+
+      <div class="packages-grid">
+        <!-- SMB BUNDLE — lead entry point, first position -->
+        <div class="package-card package-card--smb">
+          <div class="package-badge--smb">Best Value</div>
+          <div class="package-tier">SMB Bundle</div>
+          <div class="package-price">$299<span class="package-price-sub"> launch / $499 regular</span></div>
+          <div class="package-monthly">$149/mo launch / $199/mo regular</div>
+          <p class="package-desc">Everything your small business needs to stop missing leads — one simple package. No choosing between features.</p>
+          <ul class="package-features">
+            <li>AI chatbot (lead capture + qualification)</li>
+            <li>AI voice receptionist (call handling + routing)</li>
+            <li>Email auto-responders</li>
+            <li>Scheduling automation</li>
+            <li>Basic CRM workflows</li>
+            <li>3 integrations</li>
+            <li>Monthly performance report</li>
+          </ul>
+          <a href="/intake?plan=smb-bundle&vertical=towing-and-automotive" class="package-cta package-cta--primary">Get Started →</a>
+        </div>
+
+        <div class="package-card">
+          <div class="package-tier">Starter</div>
+          <div class="package-price">$299<span class="package-price-sub">/month</span></div>
+          <p class="package-desc">AI answers every call, takes job details, and notifies your dispatcher instantly — zero missed tows.</p>
+          <ul class="package-features">
+            <li>AI dispatch receptionist — 24/7 call handling</li>
+            <li>Instant SMS confirmation to callers</li>
+            <li>Job detail capture (location, vehicle, service)</li>
+            <li>Dispatcher alert via SMS/phone</li>
+            <li>Call logging &amp; CRM entry</li>
+          </ul>
+          <a href="/intake?plan=starter&vertical=towing-and-automotive" class="package-cta package-cta--outline">Start with Starter →</a>
+        </div>
+
+        <div class="package-card package-card--featured">
+          <div class="package-badge">Most Popular</div>
+          <div class="package-tier">Professional</div>
+          <div class="package-price">$599<span class="package-price-sub">/month</span></div>
+          <p class="package-desc">Full 24/7 dispatch AI plus shop scheduling, service reminders, and review automation.</p>
+          <ul class="package-features">
+            <li>Everything in Starter, plus:</li>
+            <li>24/7 after-hours dispatch handling</li>
+            <li>Shop appointment scheduling AI</li>
+            <li>Service completion notifications to customers</li>
+            <li>Post-service review requests (Google)</li>
+            <li>Priority support &amp; monthly check-in</li>
+          </ul>
+          <a href="/intake?plan=professional&vertical=towing-and-automotive" class="package-cta package-cta--primary">Get Your Free Audit →</a>
+        </div>
+
+        <div class="package-card">
+          <div class="package-tier">Enterprise</div>
+          <div class="package-price">$1,199<span class="package-price-sub">/month</span></div>
+          <p class="package-desc">Multi-truck fleet management with full AI dispatch, custom routing, and insurance partner integration.</p>
+          <ul class="package-features">
+            <li>Everything in Professional, plus:</li>
+            <li>Multi-truck &amp; multi-location dispatch</li>
+            <li>Custom CRM integration (Towbook, Dispatch)</li>
+            <li>Insurance &amp; roadside partner call routing</li>
+            <li>Dedicated onboarding &amp; quarterly review</li>
+            <li>SLA guarantee — 99.5% call answer rate</li>
+          </ul>
+          <a href="/intake?plan=enterprise&vertical=towing-and-automotive" class="package-cta package-cta--outline">Get Enterprise →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section">
+    <div class="cta-inner">
+      <h2>Get Your Free Towing &amp; Auto Lead Audit</h2>
+      <p>We'll analyze your call volume, identify how many dispatches and shop calls you're losing, and show you the exact automation to capture them. Takes 10 minutes — no commitment.</p>
+      <div class="cta-actions">
+        <a href="/intake?vertical=towing-and-automotive" class="btn-primary btn-large">Schedule Your Free Audit →</a>
+        <span class="cta-note">Takes 10 minutes. See your exact missed revenue.</span>
+      </div>
+      <div class="cta-trust">
+        <div class="trust-item"><span class="trust-dot"></span> No credit card required</div>
+        <div class="trust-item"><span class="trust-dot"></span> Custom for your business</div>
+        <div class="trust-item"><span class="trust-dot"></span> Results in 24 hours</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div>
+        <div class="footer-brand">Autovyne</div>
+        <div class="footer-tagline">AI automation for local businesses</div>
+      </div>
+      <div class="footer-contact">
+        <span class="footer-contact-item">autovyne@polsia.app</span>
+        <span class="footer-contact-item">autovyne.polsia.app</span>
+      </div>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+(function() {
+  window.toggleDropdown = function(btn) {
+    var menu = btn.nextElementSibling;
+    var isOpen = menu.classList.contains('open');
+    document.querySelectorAll('.nav-dropdown-menu.open').forEach(function(m) { m.classList.remove('open'); });
+    if (!isOpen) menu.classList.add('open');
+  };
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.nav-industries')) {
+      document.querySelectorAll('.nav-dropdown-menu.open').forEach(function(m) { m.classList.remove('open'); });
+    }
+  });
+
+  var missedEl = document.getElementById('calc-missed');
+  var ticketEl = document.getElementById('calc-ticket');
+  var convEl   = document.getElementById('calc-conversion');
+  var monthlyEl = document.getElementById('result-monthly');
+  var annualEl  = document.getElementById('result-annual');
+  var assumptionsEl = document.getElementById('calc-assumptions');
+
+  function fmt(n) { return '$' + Math.round(n).toLocaleString(); }
+
+  function calc() {
+    var missed  = parseFloat(missedEl.value) || 0;
+    var ticket  = parseFloat(ticketEl.value) || 0;
+    var conv    = (parseFloat(convEl.value) || 0) / 100;
+    var monthly = missed * ticket * conv * 4;
+    var annual  = monthly * 12;
+    monthlyEl.textContent = fmt(monthly);
+    annualEl.textContent  = fmt(annual);
+    assumptionsEl.innerHTML = 'Based on <strong>' + Math.round(missed) + ' missed calls/week</strong> × <strong>' + fmt(ticket) + ' avg call</strong> × <strong>' + Math.round(conv * 100) + '% conversion</strong> × 4 weeks';
+  }
+
+  [missedEl, ticketEl, convEl].forEach(function(el) { el.addEventListener('input', calc); });
+  calc();
+})();
+</script>
+
+<%- analyticsSnippet %>
+</body>
+</html>
