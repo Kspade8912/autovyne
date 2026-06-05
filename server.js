@@ -126,6 +126,7 @@ app.use('/api/leads', require('./routes/leads'));
 app.use('/simulator', require('./routes/simulator'));
 app.use('/demo', require('./routes/demo'));
 app.use('/api/analytics', require('./routes/analytics'));
+app.use('/api/integrations', require('./routes/integrations'));
 app.use('/admin/analytics', require('./routes/admin-analytics'));
 
 // ── Error Handler (generic — no stack traces in production) ──────────────────

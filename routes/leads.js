@@ -8,6 +8,7 @@ const { createLead, listLeads } = require('../db/leads');
 const { sendLeadNotification, sendAutoReply } = require('../services/email');
 const { createRateLimiter, sanitizeString, validateSubmission } = require('../lib/security');
 const { logEvent } = require('../db/analytics');
+const { processNewLead } = require('../services/integrations');
 
 const router = Router();
 
@@ -110,6 +111,9 @@ router.post('/', submissionLimiter, async (req, res) => {
     });
     sendAutoReply(lead).catch(err => {
       console.error('[leads] Auto-reply error:', err.message);
+    });
+    processNewLead(lead).catch(err => {
+      console.error('[leads] Integration pipeline error:', err.message);
     });
 
     res.status(201).json({ lead });
