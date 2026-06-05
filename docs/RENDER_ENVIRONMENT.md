@@ -2,6 +2,10 @@
 
 The `render.yaml` Blueprint declares the environment-variable names, but secret values must only be entered in Render. Never commit API keys to GitHub.
 
+The existing Render service may still have **Root Directory** set to `autovyne`.
+The repository includes a temporary compatibility launcher for that setting.
+After changing Root Directory to blank in Render, the compatibility directory can be removed.
+
 ## Required Before Deploying
 
 - `DATABASE_URL`: Supabase Postgres Session Pooler connection string. Without it, public pages stay online in degraded mode while database-backed lead capture remains unavailable.
