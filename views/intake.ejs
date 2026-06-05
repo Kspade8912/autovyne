@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <%- include('partials/seo-head') %>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <%- themeCSS %>
+</head>
+<body>
+  <div class="intake-page">
+
+    <nav class="intake-nav">
+      <a href="/" class="nav-brand">Autovyne</a>
+      <span class="nav-tagline">Free AI Automation Audit</span>
+    </nav>
+
+    <div class="intake-container">
+      <div class="intake-header">
+        <div class="hero-badge">2-minute setup</div>
+        <h1>See exactly how many leads<br><span class="highlight">you're losing right now.</span></h1>
+        <p class="intake-sub">Tell us about your business. We'll calculate your missed revenue and show you how AI automation fixes it.</p>
+      </div>
+
+      <% if (error) { %>
+        <div class="form-error"><span>⚠</span> <%= error %></div>
+      <% } %>
+
+      <form class="intake-form" id="lead-form" novalidate>
+
+        <!-- Honeypot field — hidden from real users, filled by bots -->
+        <input type="text" name="_honey" tabindex="-1" autocomplete="off"
+               style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;" />
+
+        <!-- Form load timestamp — sent as header on submit, used for bot detection -->
+        <input type="hidden" name="_form_loaded_at" id="form-loaded-at" value="0" />
+
+        <div class="form-row two-col">
+          <div class="form-group">
+            <label for="business_name">Business Name <span class="required">*</span></label>
+            <input type="text" id="business_name" name="business_name" placeholder="e.g. Oakwood Dental" required>
+          </div>
+          <div class="form-group">
+            <label for="industry">Industry <span class="required">*</span></label>
+            <select id="industry" name="industry" required>
+              <option value="" disabled selected>Select your industry</option>
+              <option value="dental">Dental / Medical</option>
+              <option value="hvac">HVAC / Plumbing / Electric</option>
+              <option value="roofing">Roofing / Contractors</option>
+              <option value="auto">Auto Repair / Detailing</option>
+              <option value="salon">Salon / Spa / Aesthetics</option>
+              <option value="realestate">Real Estate</option>
+              <option value="legal">Legal / Law Firm</option>
+              <option value="fitness">Gym / Fitness Studio</option>
+              <option value="restaurant">Restaurant / Food</option>
+              <option value="other">Other Local Business</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row two-col">
+          <div class="form-group">
+            <label for="phone">Phone Number</label>
+            <input type="tel" id="phone" name="phone" placeholder="(555) 000-0000">
+          </div>
+          <div class="form-group">
+            <label for="email">Email <span class="form-hint-inline">(get your results by email)</span></label>
+            <input type="email" id="email" name="email" placeholder="you@yourbusiness.com">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="current_tools">Current Tools / CRM</label>
+            <input type="text" id="current_tools" name="current_tools" placeholder="e.g. HubSpot, Mindbody, none">
+          </div>
+        </div>
+
+        <div class="form-divider">
+          <span>Help us calculate your missed revenue</span>
+        </div>
+
+        <div class="form-row two-col">
+          <div class="form-group">
+            <label for="monthly_calls">Monthly Inbound Calls <span class="required">*</span></label>
+            <input type="number" id="monthly_calls" name="monthly_calls" placeholder="e.g. 150" min="1" max="10000" required>
+            <span class="form-hint">Estimate is fine</span>
+          </div>
+          <div class="form-group">
+            <label for="missed_calls_pct">Estimated Missed Call % <span class="required">*</span></label>
+            <select id="missed_calls_pct" name="missed_calls_pct" required>
+              <option value="" disabled selected>How many do you miss?</option>
+              <option value="10">~10% — Rarely miss calls</option>
+              <option value="25">~25% — Sometimes miss</option>
+              <option value="40">~40% — Miss quite a few</option>
+              <option value="60">~60% — Miss most after hours</option>
+              <option value="75">~75% — No system in place</option>
+            </select>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-primary btn-large btn-full" id="submit-btn">
+          Calculate My Missed Revenue →
+        </button>
+
+        <p class="form-disclaimer">No spam. No sales pressure. Just your numbers.</p>
+      </form>
+    </div>
+
+  </div>
+  <%- analyticsSnippet %>
+<script>
+  // Record form load time for bot detection (min submit time: 3 seconds)
+  document.getElementById('form-loaded-at').value = Date.now();
+
+  const form = document.getElementById('lead-form');
+  const submitBtn = document.getElementById('submit-btn');
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Saving…';
+
+    const fd = new FormData(form);
+    const payload = {
+      business_name: fd.get('business_name'),
+      industry: fd.get('industry'),
+      monthly_call_volume: parseInt(fd.get('monthly_calls'), 10),
+      miss_rate_pct: parseInt(fd.get('missed_calls_pct'), 10),
+      website_url: fd.get('website_url') || null,
+      email: fd.get('email') || null,
+      _honey: fd.get('_honey') || '',
+      _form_loaded_at: fd.get('_form_loaded_at') || '0',
+    };
+
+    // Basic client-side validation
+    if (!payload.business_name || !payload.industry || !payload.monthly_call_volume || payload.miss_rate_pct == null) {
+      alert('Please fill in all required fields.');
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Calculate My Missed Revenue →';
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/leads', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Form-Loaded-At': payload._form_loaded_at,
+        },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Submission failed');
+      window.location.href = '/results/' + data.lead.id;
+    } catch (err) {
+      alert('Something went wrong: ' + err.message + '. Please try again.');
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Calculate My Missed Revenue →';
+    }
+  });
+</script>
+</body>
+</html>

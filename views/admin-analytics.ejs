@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Analytics — Autovyne</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Space Grotesk', system-ui, sans-serif; background: #0a0a0f; color: #e8e8ed; min-height: 100vh; }
+    .container { max-width: 1100px; margin: 0 auto; padding: 40px 24px; }
+    h1 { font-size: 1.6rem; font-weight: 700; margin-bottom: 4px; }
+    .sub { color: #7878a0; font-size: 0.85rem; margin-bottom: 32px; }
+    .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
+    .stat-card { background: #14141f; border: 1px solid rgba(255,255,255,0.07); border-radius: 12px; padding: 20px; }
+    .stat-label { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: #7878a0; margin-bottom: 8px; }
+    .stat-value { font-size: 2rem; font-weight: 700; line-height: 1; }
+    .stat-value.accent { color: #00e87b; }
+    .stat-value.danger { color: #ef4444; }
+    .stat-value.warn { color: #ffd166; }
+    .stat-sub { font-size: 0.75rem; color: #7878a0; margin-top: 6px; }
+    h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 16px; }
+    .chart-wrap { background: #14141f; border: 1px solid rgba(255,255,255,0.07); border-radius: 12px; padding: 24px; margin-bottom: 24px; }
+    .bars { display: flex; align-items: flex-end; gap: 4px; height: 120px; }
+    .bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; }
+    .bar { width: 100%; background: #00e87b; border-radius: 3px 3px 0 0; min-height: 2px; transition: opacity 0.2s; }
+    .bar:hover { opacity: 0.8; }
+    .bar-label { font-size: 0.6rem; color: #7878a0; margin-top: 4px; }
+    .bar-val { font-size: 0.6rem; color: #7878a0; margin-bottom: 4px; }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
+    .panel { background: #14141f; border: 1px solid rgba(255,255,255,0.07); border-radius: 12px; padding: 24px; }
+    .table { width: 100%; border-collapse: collapse; }
+    .table th { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: #7878a0; text-align: left; padding: 8px 12px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .table td { padding: 10px 12px; font-size: 0.82rem; border-bottom: 1px solid rgba(255,255,255,0.03); }
+    .table tr:last-child td { border-bottom: none; }
+    .table td:last-child { text-align: right; color: #7878a0; }
+    .empty { color: #7878a0; font-size: 0.82rem; text-align: center; padding: 24px; }
+    .err { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); border-radius: 8px; padding: 16px; color: #ef4444; font-size: 0.85rem; }
+    .login-wrap { max-width: 400px; margin: 120px auto; }
+    .login-box { background: #14141f; border: 1px solid rgba(255,255,255,0.07); border-radius: 12px; padding: 32px; }
+    .login-box h1 { margin-bottom: 24px; }
+    label { display: block; font-size: 0.78rem; color: #7878a0; margin-bottom: 6px; }
+    input { width: 100%; padding: 10px 12px; background: #0f0f1a; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #e8e8ed; font-size: 0.9rem; outline: none; }
+    input:focus { border-color: #00e87b; }
+    button { margin-top: 16px; width: 100%; padding: 11px; background: #00e87b; color: #080810; font-family: 'Space Grotesk', sans-serif; font-size: 0.9rem; font-weight: 700; border: none; border-radius: 8px; cursor: pointer; }
+    button:hover { opacity: 0.9; }
+    @media (max-width: 768px) { .grid { grid-template-columns: repeat(2, 1fr); } .two-col { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+
+<% if (!authorized) { %>
+<div class="login-wrap">
+  <div class="login-box">
+    <h1>Analytics</h1>
+    <% if (error) { %><p style="color:#ef4444;font-size:0.82rem;margin-bottom:12px;"><%= error %></p><% } %>
+    <form method="POST">
+      <label>Admin Key</label>
+      <input type="password" name="key" placeholder="Enter your admin key" autofocus>
+      <button type="submit">View Analytics</button>
+    </form>
+  </div>
+</div>
+<% } else { %>
+<div class="container">
+  <h1>Analytics Dashboard</h1>
+  <p class="sub">Last <%= days %> days · <a href="/admin/analytics" style="color:#00e87b;text-decoration:none;">Refresh</a></p>
+
+  <div class="grid">
+    <div class="stat-card">
+      <div class="stat-label">Page Views</div>
+      <div class="stat-value accent"><%= totals.total_page_views || 0 %></div>
+      <div class="stat-sub">last <%= days %> days</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Form Submissions</div>
+      <div class="stat-value warn"><%= totals.total_form_submissions || 0 %></div>
+      <div class="stat-sub">last <%= days %> days</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">CTA Clicks</div>
+      <div class="stat-value"><%= totals.total_cta_clicks || 0 %></div>
+      <div class="stat-sub">last <%= days %> days</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Demo Interactions</div>
+      <div class="stat-value"><%= totals.total_demo_interactions || 0 %></div>
+      <div class="stat-sub">slider adjustments</div>
+    </div>
+  </div>
+
+  <!-- Page Views Chart -->
+  <div class="chart-wrap">
+    <h2>Daily Page Views (last <%= days %> days)</h2>
+    <div class="bars" id="page-views-chart"></div>
+  </div>
+
+  <!-- Two-col: Top Pages + Top Referrers -->
+  <div class="two-col">
+    <div class="panel">
+      <h2>Top Pages</h2>
+      <% if (topPages && topPages.length) { %>
+      <table class="table">
+        <thead><tr><th>Page</th><th>Views</th></tr></thead>
+        <tbody>
+          <% topPages.forEach(function(p) { %>
+          <tr><td><%= p.page %></td><td><%= p.views %></td></tr>
+          <% }); %>
+        </tbody>
+      </table>
+      <% } else { %>
+      <div class="empty">No data yet</div>
+      <% } %>
+    </div>
+    <div class="panel">
+      <h2>Top Referrers</h2>
+      <% if (topReferrers && topReferrers.length) { %>
+      <table class="table">
+        <thead><tr><th>Source</th><th>Visits</th></tr></thead>
+        <tbody>
+          <% topReferrers.forEach(function(r) { %>
+          <tr>
+            <td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="<%= r.referrer %>"><%= r.referrer %></td>
+            <td><%= r.count %></td>
+          </tr>
+          <% }); %>
+        </tbody>
+      </table>
+      <% } else { %>
+      <div class="empty">No referrer data</div>
+      <% } %>
+    </div>
+  </div>
+
+  <!-- Form Submissions Chart -->
+  <div class="chart-wrap">
+    <h2>Daily Form Submissions (last <%= days %> days)</h2>
+    <div class="bars" id="form-chart"></div>
+  </div>
+
+</div>
+
+<script>
+  // Render page views chart
+  var pvData = <%- JSON.stringify(pageViews || []) %>;
+  var maxPV = Math.max(...pvData.map(function(d){ return parseInt(d.views); }), 1);
+  var pvEl = document.getElementById('page-views-chart');
+  pvData.forEach(function(d) {
+    var pct = (parseInt(d.views) / maxPV) * 100;
+    var date = new Date(d.date);
+    var label = (date.getMonth() + 1) + '/' + date.getDate();
+    pvEl.innerHTML += '<div class="bar-wrap"><div class="bar-val">' + d.views + '</div><div class="bar" style="height:' + pct + '%"></div><div class="bar-label">' + label + '</div></div>';
+  });
+  if (pvData.length === 0) pvEl.innerHTML = '<div class="empty" style="width:100%">No page view data</div>';
+
+  // Render form submissions chart
+  var fsData = <%- JSON.stringify(formSubmissions || []) %>;
+  var maxFS = Math.max(...fsData.map(function(d){ return parseInt(d.submissions); }), 1);
+  var fsEl = document.getElementById('form-chart');
+  fsData.forEach(function(d) {
+    var pct = (parseInt(d.submissions) / maxFS) * 100;
+    var date = new Date(d.date);
+    var label = (date.getMonth() + 1) + '/' + date.getDate();
+    fsEl.innerHTML += '<div class="bar-wrap"><div class="bar-val">' + d.submissions + '</div><div class="bar" style="height:' + pct + '%"></div><div class="bar-label">' + label + '</div></div>';
+  });
+  if (fsData.length === 0) fsEl.innerHTML = '<div class="empty" style="width:100%">No form submission data</div>';
+</script>
+<% } %>
+
+</body>
+</html>

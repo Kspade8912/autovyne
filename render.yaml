@@ -1,0 +1,39 @@
+services:
+  - type: web
+    runtime: node
+    name: autovyne
+    plan: free
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: OPENAI_MODEL
+        value: gpt-4o-mini
+      - key: COOKIE_SECRET
+        generateValue: true
+      - key: ADMIN_API_KEY
+        generateValue: true
+      - key: ANALYTICS_IP_SALT
+        generateValue: true
+      - key: POLSIA_API_KEY
+        sync: false
+      - key: POLSIA_ANALYTICS_SLUG
+        sync: false
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        value: "587"
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: SMTP_FROM
+        sync: false
+      - key: LEAD_NOTIFY_EMAIL
+        sync: false
