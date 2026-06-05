@@ -23,8 +23,8 @@ router.get('/:id', async (req, res) => {
         ogTitle: 'Your AI Automation Report — Autovyne',
         ogDescription: 'See exactly how much revenue your business loses to missed calls — and how AI automation recovers it.',
         ogImage: 'https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/generated-images/company_136332/e0fbc7b1-c6a9-410d-b27f-7cae6bf1e794.jpg',
-        ogUrl: 'https://autovyne.polsia.app/results/' + id,
-        canonical: 'https://autovyne.polsia.app/results/' + id,
+      ogUrl: 'https://autovyne.com/results/' + id,
+      canonical: 'https://autovyne.com/results/' + id,
       },
     });
   } catch (err) {

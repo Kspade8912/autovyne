@@ -49,8 +49,8 @@ app.use((req, res, next) => {
 
 // ── CORS — restrict to known domains ─────────────────────────────────────────
 const ALLOWED_ORIGINS = [
-  'https://autovyne.polsia.app',
   'https://autovyne.com',
+  'https://autovyne-oj8a.onrender.com',
   'http://localhost:3000',
   'http://127.0.0.1:3000',
 ];
@@ -108,8 +108,8 @@ app.get('/', (_req, res) => {
       ogTitle: 'Autovyne — AI Automation for Local Businesses',
       ogDescription: 'AI automation that captures every lead. Chatbots, voice receptionists, scheduling — built for local businesses.',
       ogImage: 'https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/generated-images/company_136332/e0fbc7b1-c6a9-410d-b27f-7cae6bf1e794.jpg',
-      ogUrl: 'https://autovyne.polsia.app',
-      canonical: 'https://autovyne.polsia.app',
+      ogUrl: 'https://autovyne.com',
+      canonical: 'https://autovyne.com',
     },
   });
 });

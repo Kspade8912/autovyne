@@ -20,8 +20,8 @@ router.get('/', (_req, res) => {
       ogTitle: 'Get Your Free AI Automation Audit — Autovyne',
       ogDescription: 'Tell us about your business. We calculate exactly how much revenue you lose to missed calls — and show how AI automation recovers it.',
       ogImage: 'https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/generated-images/company_136332/e0fbc7b1-c6a9-410d-b27f-7cae6bf1e794.jpg',
-      ogUrl: 'https://autovyne.polsia.app/intake',
-      canonical: 'https://autovyne.polsia.app/intake',
+    ogUrl: 'https://autovyne.com/intake',
+    canonical: 'https://autovyne.com/intake',
     },
   });
 });

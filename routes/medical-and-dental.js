@@ -15,8 +15,8 @@ router.get('/', (_req, res) => {
       ogTitle: 'Medical & Dental AI Automation — Capture Every Patient | Autovyne',
       ogDescription: 'Medical practices miss 30% of calls while with patients. Autovyne answers every call, books new patients, and reduces no-shows.',
       ogImage: 'https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/generated-images/company_136332/e0fbc7b1-c6a9-410d-b27f-7cae6bf1e794.jpg',
-      ogUrl: 'https://autovyne.polsia.app/medical-and-dental',
-      canonical: 'https://autovyne.polsia.app/medical-and-dental',
+    ogUrl: 'https://autovyne.com/medical-and-dental',
+    canonical: 'https://autovyne.com/medical-and-dental',
     },
   });
 });

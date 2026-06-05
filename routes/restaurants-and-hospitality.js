@@ -15,8 +15,8 @@ router.get('/', (_req, res) => {
       ogTitle: 'Restaurant & Hospitality AI Automation — Fill Every Table | Autovyne',
       ogDescription: 'Restaurants miss reservations during dinner rush. Autovyne handles every call, books tables, and fills your seats 24/7.',
       ogImage: 'https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/generated-images/company_136332/e0fbc7b1-c6a9-410d-b27f-7cae6bf1e794.jpg',
-      ogUrl: 'https://autovyne.polsia.app/restaurants-and-hospitality',
-      canonical: 'https://autovyne.polsia.app/restaurants-and-hospitality',
+    ogUrl: 'https://autovyne.com/restaurants-and-hospitality',
+    canonical: 'https://autovyne.com/restaurants-and-hospitality',
     },
   });
 });

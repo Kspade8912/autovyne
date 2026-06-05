@@ -15,8 +15,8 @@ router.get('/', (_req, res) => {
       ogTitle: 'Hair & Beauty AI Automation — Never Miss a Booking | Autovyne',
       ogDescription: "Salons miss 25% of calls during busy hours. Autovyne's AI answers every call, books appointments, and fills your calendar 24/7.",
       ogImage: 'https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/generated-images/company_136332/e0fbc7b1-c6a9-410d-b27f-7cae6bf1e794.jpg',
-      ogUrl: 'https://autovyne.polsia.app/hair-and-beauty',
-      canonical: 'https://autovyne.polsia.app/hair-and-beauty',
+    ogUrl: 'https://autovyne.com/hair-and-beauty',
+    canonical: 'https://autovyne.com/hair-and-beauty',
     },
   });
 });

@@ -15,8 +15,8 @@ router.get('/', (_req, res) => {
       ogTitle: 'Contractor AI Automation — Stop Missing Leads on Job Sites | Autovyne',
       ogDescription: 'Contractors miss 35% of calls while on job sites. Autovyne captures every lead, books site visits, and recovers lost contracts.',
       ogImage: 'https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/generated-images/company_136332/e0fbc7b1-c6a9-410d-b27f-7cae6bf1e794.jpg',
-      ogUrl: 'https://autovyne.polsia.app/contractors',
-      canonical: 'https://autovyne.polsia.app/contractors',
+    ogUrl: 'https://autovyne.com/contractors',
+    canonical: 'https://autovyne.com/contractors',
     },
   });
 });

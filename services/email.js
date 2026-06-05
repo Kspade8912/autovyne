@@ -43,7 +43,7 @@ function buildLeadEmailHtml(lead) {
     <tr style="background: #f5f5f5;"><td style="padding: 8px; font-weight: bold;">Submitted At</td><td style="padding: 8px;">${created_at ? new Date(created_at).toLocaleString() : '—'}</td></tr>
   </table>
   <p style="margin-top: 24px; color: #666; font-size: 0.9em;">
-    View all leads: <a href="https://autovyne.polsia.app">autovyne.polsia.app</a>
+      View all leads: <a href="https://autovyne.com">autovyne.com</a>
   </p>
 </body>
 </html>`;
@@ -60,8 +60,8 @@ function escapeHtml(str) {
 
 async function sendLeadNotification(lead) {
   const transporter = createTransporter();
-  const to = process.env.LEAD_NOTIFY_EMAIL || 'autovyne@polsia.app';
-  const from = process.env.SMTP_FROM || 'Autovyne <noreply@autovyne.polsia.app>';
+  const to = process.env.LEAD_NOTIFY_EMAIL || 'hello@autovyne.com';
+  const from = process.env.SMTP_FROM || 'Autovyne <hello@autovyne.com>';
 
   if (!transporter) {
     console.warn('[email] SMTP not configured — skipping notification for lead:', lead.id);
@@ -159,7 +159,7 @@ function buildAutoReplyHtml(lead) {
               <table cellpadding="0" cellspacing="0" style="margin-bottom:32px;">
                 <tr>
                   <td style="background:#0f0f0f;border-radius:6px;">
-                    <a href="https://autovyne.polsia.app/roi" style="display:inline-block;padding:14px 32px;color:#ffffff;font-size:15px;font-weight:600;text-decoration:none;letter-spacing:-0.2px;">
+            <a href="https://autovyne.com/roi" style="display:inline-block;padding:14px 32px;color:#ffffff;font-size:15px;font-weight:600;text-decoration:none;letter-spacing:-0.2px;">
                       See Your 12-Month ROI →
                     </a>
                   </td>
@@ -169,7 +169,7 @@ function buildAutoReplyHtml(lead) {
               <p style="margin:0;font-size:15px;color:#555;line-height:1.6;">
                 — The Autovyne Team<br>
                 <span style="font-size:13px;color:#999;">Reply to this email or visit
-                  <a href="https://autovyne.polsia.app" style="color:#0f0f0f;">autovyne.polsia.app</a>
+          <a href="https://autovyne.com" style="color:#0f0f0f;">autovyne.com</a>
                   to learn more.</span>
               </p>
             </td>
@@ -179,7 +179,7 @@ function buildAutoReplyHtml(lead) {
           <tr>
             <td style="padding:20px 36px;background:#f5f5f5;border-top:1px solid #eee;">
               <p style="margin:0;font-size:12px;color:#999;text-align:center;">
-                You're receiving this because you submitted a lead audit at autovyne.polsia.app.<br>
+          You're receiving this because you submitted a lead audit at autovyne.com.<br>
                 This is a one-time results email — no ongoing emails unless you reply.
               </p>
             </td>
@@ -242,7 +242,7 @@ async function sendAutoReply(lead) {
   }
 
   const subject = `${escapeHtml(business_name)} — Your Free Lead Audit Results`;
-  const plainText = `Hi ${business_name} team,\n\nBased on what you told us, your business is missing approximately ${lead.estimated_missed_leads} leads per month — that's roughly $${Number(lead.estimated_monthly_loss).toLocaleString()}/month in lost revenue.\n\nAutovyne deploys an AI chatbot and voice receptionist that answers every call and message 24/7, captures lead info, books appointments, and routes urgent requests to your team.\n\nReply to this email to schedule a free 15-minute strategy call, or visit https://autovyne.polsia.app/roi to see your full 12-month ROI projection.\n\n— The Autovyne Team`;
+  const plainText = `Hi ${business_name} team,\n\nBased on what you told us, your business is missing approximately ${lead.estimated_missed_leads} leads per month — that's roughly $${Number(lead.estimated_monthly_loss).toLocaleString()}/month in lost revenue.\n\nAutovyne deploys an AI chatbot and voice receptionist that answers every call and message 24/7, captures lead info, books appointments, and routes urgent requests to your team.\n\nReply to this email to schedule a free 15-minute strategy call, or visit https://autovyne.com/roi to see your full 12-month ROI projection.\n\n— The Autovyne Team`;
 
   try {
     const res = await fetch('https://polsia.com/api/proxy/email/send', {
