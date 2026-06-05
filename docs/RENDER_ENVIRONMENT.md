@@ -4,7 +4,7 @@ The `render.yaml` Blueprint declares the environment-variable names, but secret 
 
 ## Required Before Deploying
 
-- `DATABASE_URL`: Supabase Postgres Session Pooler connection string. The app exits during startup when this is missing.
+- `DATABASE_URL`: Supabase Postgres Session Pooler connection string. Without it, public pages stay online in degraded mode while database-backed lead capture remains unavailable.
 - `OPENAI_API_KEY`: OpenAI project API key for AI-agent features.
 - `HUBSPOT_ACCESS_TOKEN`: HubSpot private app token with `crm.objects.contacts.write`.
 - `N8N_WEBHOOK_URL`: Production webhook URL from the active n8n workflow.

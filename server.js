@@ -1,7 +1,5 @@
-// Fail fast if DATABASE_URL is missing
 if (!process.env.DATABASE_URL) {
-  console.error('ERROR: DATABASE_URL environment variable is required');
-  process.exit(1);
+  console.warn('WARNING: DATABASE_URL is not configured. Starting in degraded mode; database-backed features are unavailable.');
 }
 
 const express = require('express');
@@ -91,7 +89,10 @@ app.use((req, res, next) => {
 
 // ── Health Check (required for Render, no DB query to allow Neon auto-suspend) ─
 app.get('/health', (req, res) => {
-  res.json({ status: 'healthy' });
+  res.json({
+    status: 'healthy',
+    database: process.env.DATABASE_URL ? 'configured' : 'not_configured',
+  });
 });
 
 // ── Static Files ──────────────────────────────────────────────────────────────
