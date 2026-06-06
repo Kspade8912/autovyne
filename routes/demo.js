@@ -1,5 +1,4 @@
-// routes/demo.js — GET /demo: Live Business Simulator page
-// Owns: rendering the /demo view. Does NOT own: data persistence, API calls.
+// routes/demo.js - GET /demo: unified ROI calculator and live business simulator.
 const express = require('express');
 const router = express.Router();
 
@@ -7,13 +6,13 @@ router.get('/', (_req, res) => {
   res.render('demo', {
     activePage: 'demo',
     seo: {
-      title: 'Live Business Simulator — See AI Automation in Action | Autovyne',
-      description: 'Watch a year of business unfold in 60 seconds — with and without AI automation. See exactly how much revenue Autovyne recovers.',
-      ogTitle: 'Watch a Year of Revenue — With vs Without Autovyne',
-      ogDescription: 'Watch a year of business unfold side by side — one business without AI, one with. Every missed call, every dollar recovered.',
+      title: 'ROI Calculator + Live Demo - Autovyne',
+      description: 'Calculate missed-call revenue, then watch a live year-in-the-business demo showing how Autovyne AI automation recovers leads.',
+      ogTitle: 'ROI Calculator + Live Demo - Autovyne',
+      ogDescription: 'Estimate revenue at risk and watch Autovyne AI calling, SMS follow-up, and CRM automation recover missed leads.',
       ogImage: 'https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/generated-images/company_136332/e0fbc7b1-c6a9-410d-b27f-7cae6bf1e794.jpg',
-    ogUrl: 'https://autovyne.com/demo',
-    canonical: 'https://autovyne.com/demo',
+      ogUrl: 'https://autovyne.com/demo',
+      canonical: 'https://autovyne.com/demo',
     },
   });
 });

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <%- include('partials/seo-head') %>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/theme.css">
+</head>
+<body>
+  <%- include('partials/nav') %>
+
+  <% if (!authorized) { %>
+  <main class="portal-shell portal-login">
+    <section class="portal-card portal-login-card">
+      <div class="hero-badge">Client Portal</div>
+      <h1>See what Autovyne is doing for your business.</h1>
+      <p class="portal-muted">Log in with the email and access code Autovyne gave you. This is a limited client view, not the internal operations dashboard.</p>
+      <% if (error) { %><p class="portal-error"><%= error %></p><% } %>
+      <form method="POST" action="/portal/login" class="portal-form">
+        <label for="email">Email</label>
+        <input id="email" name="email" type="email" required>
+        <label for="access_code">Access Code</label>
+        <input id="access_code" name="access_code" type="password" required>
+        <button class="btn-primary btn-full" type="submit">Open My Dashboard</button>
+      </form>
+    </section>
+  </main>
+  <% } else {
+    const services = account.services || {};
+    const metrics = account.metrics || {};
+    const serviceRows = [
+      ['AI Calling', services.ai_calling, 'Answers missed calls, captures intent, and routes follow-up.'],
+      ['SMS Follow-up', services.sms_followup, 'Sends compliant follow-up only when SMS consent is recorded.'],
+      ['CRM Sync', services.crm_sync, 'Pushes qualified leads and account updates into HubSpot.'],
+      ['n8n Workflows', services.n8n_workflows, 'Runs behind-the-scenes automation and notifications.'],
+      ['OpenAI Qualification', services.openai_qualification, 'Summarizes leads and recommends next actions.'],
+    ];
+  %>
+  <main class="portal-shell">
+    <section class="portal-hero-panel">
+      <div>
+        <div class="hero-badge">Client Dashboard</div>
+        <h1><%= account.business_name %></h1>
+        <p class="portal-muted">Status: <strong><%= account.status %></strong> · Plan: <strong><%= account.plan %></strong></p>
+      </div>
+      <form method="POST" action="/portal/logout"><button class="portal-secondary-btn" type="submit">Log Out</button></form>
+    </section>
+
+    <section class="portal-grid">
+      <article class="portal-card portal-metric"><span>Calls Handled</span><strong><%= Number(metrics.calls_handled || 0).toLocaleString() %></strong></article>
+      <article class="portal-card portal-metric"><span>SMS Sent</span><strong><%= Number(metrics.sms_sent || 0).toLocaleString() %></strong></article>
+      <article class="portal-card portal-metric"><span>CRM Leads Synced</span><strong><%= Number(metrics.crm_leads_synced || 0).toLocaleString() %></strong></article>
+      <article class="portal-card portal-metric"><span>Estimated Recovery</span><strong>$<%= Number(metrics.estimated_revenue_recovered || 0).toLocaleString() %></strong></article>
+    </section>
+
+    <section class="portal-two-col">
+      <article class="portal-card">
+        <h2>Automation Stack</h2>
+        <p class="portal-muted">What is active or being prepared for this account.</p>
+        <div class="portal-service-list">
+          <% serviceRows.forEach(function(row) { %>
+          <div class="portal-service">
+            <div>
+              <strong><%= row[0] %></strong>
+              <p><%= row[2] %></p>
+            </div>
+            <span class="portal-pill <%= row[1] ? 'portal-pill-on' : 'portal-pill-off' %>"><%= row[1] ? 'Active' : 'Setup' %></span>
+          </div>
+          <% }); %>
+        </div>
+      </article>
+
+      <article class="portal-card">
+        <h2>Recent Visible Activity</h2>
+        <p class="portal-muted">A transparent view of updates Autovyne has marked client-visible.</p>
+        <% if (events.length) { %>
+        <div class="portal-timeline">
+          <% events.forEach(function(event) { %>
+          <div class="portal-event">
+            <span></span>
+            <div>
+              <strong><%= event.title %></strong>
+              <p><%= event.detail || event.event_type %></p>
+              <small><%= new Date(event.created_at).toLocaleString() %></small>
+            </div>
+          </div>
+          <% }); %>
+        </div>
+        <% } else { %>
+        <div class="portal-empty">No visible activity yet. Once setup work starts, updates will appear here.</div>
+        <% } %>
+      </article>
+    </section>
+  </main>
+  <% } %>
+
+  <%- include('partials/footer') %>
+</body>
+</html>

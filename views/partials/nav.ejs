@@ -2,7 +2,7 @@
   <div class="site-nav-inner">
     <a href="/" class="site-nav-brand">Autovyne</a>
     <div class="site-nav-industries">
-      <button class="site-nav-dropdown-btn" onclick="toggleSiteDropdown(this)" aria-haspopup="true" aria-expanded="false">Industries ▾</button>
+      <button class="site-nav-dropdown-btn" onclick="toggleSiteDropdown(this)" aria-haspopup="true" aria-expanded="false">Industries</button>
       <div class="site-nav-dropdown-menu">
         <a href="/hair-and-beauty" class="site-nav-dropdown-item">Hair &amp; Beauty</a>
         <a href="/contractors" class="site-nav-dropdown-item">Contractors</a>
@@ -11,8 +11,8 @@
         <a href="/medical-and-dental" class="site-nav-dropdown-item">Medical &amp; Dental</a>
       </div>
     </div>
-    <a href="/simulator" class="site-nav-dropdown-btn" style="text-decoration:none;margin-left:4px;">Revenue Simulator →</a>
-    <a href="/demo" class="site-nav-dropdown-btn" style="text-decoration:none;margin-left:4px;color:var(--accent, #00e87b);">▶ Live Demo</a>
+    <a href="/demo" class="site-nav-dropdown-btn" style="text-decoration:none;margin-left:4px;color:var(--accent, #00e87b);">ROI + Live Demo</a>
+    <a href="/portal" class="site-nav-dropdown-btn" style="text-decoration:none;margin-left:4px;">Client Portal</a>
     <a href="/questions" class="site-nav-dropdown-btn" style="text-decoration:none;margin-left:4px;">Questions</a>
   </div>
 </nav>
@@ -22,7 +22,6 @@
     var open = menu.classList.toggle('open');
     btn.setAttribute('aria-expanded', open);
     if (open) {
-      // Close on outside click
       var close = function(e) {
         if (!btn.parentElement.contains(e.target)) {
           menu.classList.remove('open');

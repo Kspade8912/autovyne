@@ -129,7 +129,9 @@ app.use('/demo', require('./routes/demo'));
 app.use('/api/analytics', require('./routes/analytics'));
 app.use('/api/integrations', require('./routes/integrations'));
 app.use('/admin/analytics', require('./routes/admin-analytics'));
+app.use('/admin/accounts', require('./routes/admin-accounts'));
 app.use('/admin/compliance', require('./routes/admin-compliance'));
+app.use('/portal', require('./routes/portal'));
 app.use('/questions', require('./routes/questions'));
 app.use('/', require('./routes/public-pages'));
 
