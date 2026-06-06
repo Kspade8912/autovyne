@@ -14,15 +14,18 @@ async function runStep(name, fn) {
 
 async function processNewLead(lead) {
   let qualification = null;
+  const automationLead = lead.sms_consent
+    ? lead
+    : { ...lead, phone: null, sms_eligible: false };
 
   const openaiResult = await runStep('openai', async () => {
-    qualification = await openai.qualifyLead(lead);
+    qualification = await openai.qualifyLead(automationLead);
     return qualification;
   });
 
   const [hubspotResult, n8nResult] = await Promise.all([
-    runStep('hubspot', () => hubspot.upsertLead(lead)),
-    runStep('n8n', () => n8n.sendLeadEvent(lead, qualification)),
+    runStep('hubspot', () => hubspot.upsertLead(automationLead)),
+    runStep('n8n', () => n8n.sendLeadEvent(automationLead, qualification)),
   ]);
 
   console.log('[integrations] lead processed:', lead.id, openaiResult.status, hubspotResult.status, n8nResult.status);

@@ -9,6 +9,8 @@ const { sendLeadNotification, sendAutoReply } = require('../services/email');
 const { createRateLimiter, sanitizeString, validateSubmission } = require('../lib/security');
 const { logEvent } = require('../db/analytics');
 const { processNewLead } = require('../services/integrations');
+const { recordSmsConsent } = require('../db/compliance');
+const { SMS_CONSENT_TEXT, hasSmsConsent, getRequestIp } = require('../lib/sms-consent');
 
 const router = Router();
 
@@ -59,6 +61,8 @@ router.post('/', submissionLimiter, async (req, res) => {
     miss_rate_pct,
     website_url,
     email,
+    phone,
+    sms_consent,
     _honey, // honeypot — already checked above, strip it
   } = req.body;
 
@@ -74,6 +78,8 @@ router.post('/', submissionLimiter, async (req, res) => {
     missRatePct: parseInt(miss_rate_pct, 10),
     websiteUrl: website_url ? sanitizeString(website_url) : null,
     email: emailValid ? sanitizedEmail : null,
+    phone: phone ? sanitizeString(phone) : null,
+    smsConsent: hasSmsConsent(sms_consent),
   };
 
   // Validation
@@ -88,6 +94,16 @@ router.post('/', submissionLimiter, async (req, res) => {
 
   try {
     const lead = await createLead(sanitized);
+    await recordSmsConsent({
+      phone: sanitized.phone,
+      consented: sanitized.smsConsent,
+      formSource: 'audit_api',
+      sourceRecordType: 'lead',
+      sourceRecordId: lead.id,
+      ipAddress: getRequestIp(req),
+      userAgent: req.headers['user-agent'] || null,
+      consentText: SMS_CONSENT_TEXT,
+    });
 
     // Server-side analytics: always log form submissions (independent of client JS)
     logEvent({

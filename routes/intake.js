@@ -7,6 +7,8 @@
 const { Router } = require('express');
 const { createSubmission } = require('../db/submissions');
 const { sanitizeString, validateSubmission } = require('../lib/security');
+const { recordSmsConsent } = require('../db/compliance');
+const { SMS_CONSENT_TEXT, hasSmsConsent, getRequestIp } = require('../lib/sms-consent');
 
 const router = Router();
 
@@ -42,6 +44,7 @@ router.post('/', async (req, res) => {
     current_tools,
     monthly_calls,
     missed_calls_pct,
+    sms_consent,
   } = req.body;
 
   // Sanitize inputs
@@ -52,6 +55,7 @@ router.post('/', async (req, res) => {
     currentTools: current_tools ? sanitizeString(current_tools) : '',
     monthlyCalls: parseInt(monthly_calls, 10),
     missedCallsPct: parseInt(missed_calls_pct, 10),
+    smsConsent: hasSmsConsent(sms_consent),
   };
 
   // Basic server-side validation
@@ -66,6 +70,16 @@ router.post('/', async (req, res) => {
 
   try {
     const submission = await createSubmission(sanitized);
+    await recordSmsConsent({
+      phone: sanitized.phone,
+      consented: sanitized.smsConsent,
+      formSource: 'intake_form',
+      sourceRecordType: 'intake_submission',
+      sourceRecordId: submission.id,
+      ipAddress: getRequestIp(req),
+      userAgent: req.headers['user-agent'] || null,
+      consentText: SMS_CONSENT_TEXT,
+    });
     res.redirect(`/results/${submission.id}`);
   } catch (err) {
     console.error('[intake] POST error:', err.message);

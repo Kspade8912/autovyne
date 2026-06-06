@@ -13,6 +13,7 @@ async function upsertLead(lead) {
     lifecyclestage: 'lead',
   };
   if (lead.website_url) properties.website = lead.website_url;
+  if (lead.sms_consent && lead.phone) properties.phone = lead.phone;
 
   const response = await fetchJson('https://api.hubapi.com/crm/v3/objects/contacts/batch/upsert', {
     method: 'POST',

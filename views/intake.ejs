@@ -82,6 +82,11 @@
           <span>Help us calculate your missed revenue</span>
         </div>
 
+        <div class="sms-consent">
+          <input type="checkbox" id="sms_consent" name="sms_consent" value="true">
+          <label for="sms_consent">By checking this box, I consent to receive SMS messages from Autovyne related to my account, audit request, onboarding, missed-call automation, and service updates. Message frequency varies. Message and data rates may apply. Reply STOP to opt out and HELP for help. Consent is not a condition of purchase. View our <a href="/privacy" target="_blank">Privacy Policy</a> and <a href="/sms-terms" target="_blank">SMS Terms</a>.</label>
+        </div>
+
         <div class="form-row two-col">
           <div class="form-group">
             <label for="monthly_calls">Monthly Inbound Calls <span class="required">*</span></label>
@@ -110,6 +115,7 @@
     </div>
 
   </div>
+  <%- include('partials/footer') %>
   <%- analyticsSnippet %>
 <script>
   // Record form load time for bot detection (min submit time: 3 seconds)
@@ -131,6 +137,8 @@
       miss_rate_pct: parseInt(fd.get('missed_calls_pct'), 10),
       website_url: fd.get('website_url') || null,
       email: fd.get('email') || null,
+      phone: fd.get('phone') || null,
+      sms_consent: fd.get('sms_consent') === 'true',
       _honey: fd.get('_honey') || '',
       _form_loaded_at: fd.get('_form_loaded_at') || '0',
     };

@@ -17,6 +17,8 @@ async function createLead({
   missRatePct,
   websiteUrl,
   email,
+  phone,
+  smsConsent,
 }) {
   const missedLeads = Math.round((monthlyCallVolume * missRatePct) / 100);
   const monthlyLoss = missedLeads * 400;
@@ -24,8 +26,9 @@ async function createLead({
   const result = await pool.query(
     `INSERT INTO leads
        (business_name, industry, monthly_call_volume, miss_rate_pct,
-        website_url, email, estimated_missed_leads, estimated_monthly_loss)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
+        website_url, email, phone, sms_consent, sms_consent_at,
+        estimated_missed_leads, estimated_monthly_loss)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,CASE WHEN $8 THEN NOW() ELSE NULL END,$9,$10)
      RETURNING *`,
     [
       businessName,
@@ -34,6 +37,8 @@ async function createLead({
       missRatePct,
       websiteUrl || null,
       email || null,
+      phone || null,
+      Boolean(smsConsent),
       missedLeads,
       monthlyLoss,
     ]

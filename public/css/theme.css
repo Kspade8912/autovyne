@@ -469,6 +469,47 @@ body {
   font-size: 0.85rem;
   color: var(--fg-muted);
 }
+.footer-contact-item a,
+.footer-legal-links a { color: var(--fg-muted); text-decoration: none; }
+.footer-contact-item a:hover,
+.footer-legal-links a:hover { color: var(--accent); }
+.footer-legal-links { display: flex; gap: 12px; flex-wrap: wrap; justify-content: flex-end; }
+.footer-legal-links a { font-size: 0.76rem; }
+
+.sms-consent {
+  display: grid;
+  grid-template-columns: 20px 1fr;
+  gap: 12px;
+  align-items: start;
+  margin: 0 0 24px;
+  padding: 16px;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  background: var(--bg-subtle);
+}
+.sms-consent input { width: 18px; height: 18px; margin-top: 3px; accent-color: var(--accent); }
+.sms-consent label { color: var(--fg-muted); font-size: 0.78rem; line-height: 1.55; }
+.sms-consent a, .legal-page a { color: var(--accent); }
+
+.form-group textarea {
+  background: var(--bg-subtle);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  padding: 12px 14px;
+  resize: vertical;
+}
+.success-card { background: var(--bg-card); border: 1px solid var(--accent-glow); border-radius: 16px; padding: 40px; }
+.success-card h2 { color: var(--accent); margin-bottom: 8px; }
+.legal-page { max-width: 860px; margin: 0 auto; padding: 72px 24px 100px; }
+.legal-header { margin-bottom: 48px; }
+.legal-header h1 { font: 700 clamp(2rem,5vw,3.3rem)/1.15 var(--font-display); margin-bottom: 10px; }
+.legal-header p, .legal-page section p { color: var(--fg-muted); }
+.legal-page section { margin-bottom: 36px; }
+.legal-page section h2 { font: 600 1.25rem var(--font-display); margin-bottom: 10px; }
+.legal-page section p + p { margin-top: 12px; }
 
 /* ---- BUTTONS ---- */
 .btn-primary {
@@ -1004,6 +1045,7 @@ body {
   .step-num { font-size: 2rem; min-width: auto; }
   .footer-inner { flex-direction: column; gap: 16px; text-align: center; }
   .footer-contact { text-align: center; }
+  .footer-legal-links { justify-content: center; }
   .problem, .services, .how { padding: 72px 20px; }
   .closing { padding: 80px 20px; }
   .two-col { grid-template-columns: 1fr; }

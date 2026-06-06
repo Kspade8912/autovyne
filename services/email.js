@@ -60,8 +60,8 @@ function escapeHtml(str) {
 
 async function sendLeadNotification(lead) {
   const transporter = createTransporter();
-  const to = process.env.LEAD_NOTIFY_EMAIL || 'hello@autovyne.com';
-  const from = process.env.SMTP_FROM || 'Autovyne <hello@autovyne.com>';
+  const to = process.env.LEAD_NOTIFY_EMAIL || 'kwaun.autovyne@gmail.com';
+  const from = process.env.SMTP_FROM || 'Autovyne <kwaun.autovyne@gmail.com>';
 
   if (!transporter) {
     console.warn('[email] SMTP not configured — skipping notification for lead:', lead.id);

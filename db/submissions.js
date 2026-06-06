@@ -16,6 +16,7 @@ async function createSubmission({
   currentTools,
   monthlyCalls,
   missedCallsPct,
+  smsConsent,
 }) {
   const missedLeads = Math.round((monthlyCalls * missedCallsPct) / 100);
   // Recover ~35% of missed leads; avg local biz deal ~$400
@@ -26,8 +27,9 @@ async function createSubmission({
     `INSERT INTO intake_submissions
        (business_name, industry, phone, current_tools,
         monthly_calls, missed_calls_pct,
-        estimated_recovery_leads, estimated_revenue_recovered)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
+        estimated_recovery_leads, estimated_revenue_recovered,
+        sms_consent, sms_consent_at)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,CASE WHEN $9 THEN NOW() ELSE NULL END)
      RETURNING *`,
     [
       businessName,
@@ -38,6 +40,7 @@ async function createSubmission({
       missedCallsPct,
       recoveredLeads,
       revenueRecovered,
+      Boolean(smsConsent),
     ]
   );
   return result.rows[0];

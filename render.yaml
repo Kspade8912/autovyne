@@ -21,6 +21,14 @@ services:
         sync: false
       - key: N8N_WEBHOOK_SECRET
         sync: false
+      - key: TWILIO_ACCOUNT_SID
+        sync: false
+      - key: TWILIO_AUTH_TOKEN
+        sync: false
+      - key: TWILIO_PHONE_NUMBER
+        sync: false
+      - key: TWILIO_MESSAGING_SERVICE_SID
+        sync: false
       - key: COOKIE_SECRET
         generateValue: true
       - key: ADMIN_API_KEY
