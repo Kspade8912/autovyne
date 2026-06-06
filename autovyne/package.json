@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "start": "NODE_PATH=./node_modules node ../server.js",
+    "start": "NODE_PATH=./node_modules node ../migrate.js && NODE_PATH=./node_modules node ../server.js",
     "build": "NODE_PATH=./node_modules node ../migrate.js",
     "migrate": "NODE_PATH=./node_modules node ../migrate.js"
   },
