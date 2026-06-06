@@ -3,7 +3,7 @@ services:
     runtime: node
     name: autovyne
     plan: free
-    buildCommand: npm ci && npm run build
+    buildCommand: npm install && npm run migrate
     startCommand: npm start
     healthCheckPath: /health
     envVars:
