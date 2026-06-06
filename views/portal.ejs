@@ -17,7 +17,7 @@
     <section class="portal-card portal-login-card">
       <div class="hero-badge">Client Portal</div>
       <h1>See what Autovyne is doing for your business.</h1>
-      <p class="portal-muted">Log in with the email and access code Autovyne gave you. This is a limited client view, not the internal operations dashboard.</p>
+      <p class="portal-muted">Log in with the email and access code Autovyne gave you. This gives you a simple customer view, not the internal operations dashboard.</p>
       <% if (error) { %><p class="portal-error"><%= error %></p><% } %>
       <form method="POST" action="/portal/login" class="portal-form">
         <label for="email">Email</label>
@@ -32,34 +32,62 @@
     const services = account.services || {};
     const metrics = account.metrics || {};
     const serviceRows = [
-      ['AI Calling', services.ai_calling, 'Answers missed calls, captures intent, and routes follow-up.'],
-      ['SMS Follow-up', services.sms_followup, 'Sends compliant follow-up only when SMS consent is recorded.'],
-      ['CRM Sync', services.crm_sync, 'Pushes qualified leads and account updates into HubSpot.'],
-      ['n8n Workflows', services.n8n_workflows, 'Runs behind-the-scenes automation and notifications.'],
-      ['OpenAI Qualification', services.openai_qualification, 'Summarizes leads and recommends next actions.'],
+      ['AI Calling', services.ai_calling, 'Helps answer missed calls and collect what the customer needs.'],
+      ['SMS Follow-up', services.sms_followup, 'Follows up by text only when SMS consent is recorded.'],
+      ['CRM Sync', services.crm_sync, 'Moves qualified leads and account updates into your CRM.'],
+      ['Automation Workflows', services.n8n_workflows, 'Runs the behind-the-scenes handoffs and notifications.'],
+      ['AI Lead Review', services.openai_qualification, 'Summarizes leads and recommends the next best action.'],
     ];
+    const activeServices = serviceRows.filter(row => row[1]).length;
+    const completion = Math.round((activeServices / serviceRows.length) * 100);
+    const statusLabel = String(account.status || 'setup').replace(/_/g, ' ');
+    const nextStep = account.status === 'active'
+      ? 'Your account is active. Autovyne will keep tracking activity and improving follow-up.'
+      : account.status === 'needs_attention'
+        ? 'Autovyne is reviewing this account before the next customer-facing update.'
+        : account.status === 'paused'
+          ? 'This account is paused. Automation will resume after Autovyne reactivates it.'
+          : 'Your account is in setup. Autovyne is connecting the tools before activation.';
   %>
   <main class="portal-shell">
     <section class="portal-hero-panel">
       <div>
         <div class="hero-badge">Client Dashboard</div>
         <h1><%= account.business_name %></h1>
-        <p class="portal-muted">Status: <strong><%= account.status %></strong> · Plan: <strong><%= account.plan %></strong> · Billing: <strong><%= (account.billing_method || 'automatic') === 'manual' ? 'manual monthly' : 'automatic monthly' %></strong></p>
+        <p class="portal-muted">A simple view of what Autovyne is setting up, what is active, and what has happened recently.</p>
       </div>
       <form method="POST" action="/portal/logout"><button class="portal-secondary-btn" type="submit">Log Out</button></form>
     </section>
 
+    <section class="portal-status-strip">
+      <article class="portal-card portal-status-card">
+        <span>Account Status</span>
+        <strong><%= statusLabel %></strong>
+        <p><%= nextStep %></p>
+      </article>
+      <article class="portal-card portal-status-card">
+        <span>Plan</span>
+        <strong><%= account.plan %></strong>
+        <p><%= (account.billing_method || 'automatic') === 'manual' ? 'Manual monthly billing' : 'Automatic monthly billing' %></p>
+      </article>
+      <article class="portal-card portal-status-card">
+        <span>Setup Progress</span>
+        <strong><%= completion %>%</strong>
+        <p><%= activeServices %> of <%= serviceRows.length %> automation areas active.</p>
+      </article>
+    </section>
+
     <section class="portal-grid">
-      <article class="portal-card portal-metric"><span>Calls Handled</span><strong><%= Number(metrics.calls_handled || 0).toLocaleString() %></strong></article>
-      <article class="portal-card portal-metric"><span>SMS Sent</span><strong><%= Number(metrics.sms_sent || 0).toLocaleString() %></strong></article>
-      <article class="portal-card portal-metric"><span>CRM Leads Synced</span><strong><%= Number(metrics.crm_leads_synced || 0).toLocaleString() %></strong></article>
-      <article class="portal-card portal-metric"><span>Estimated Recovery</span><strong>$<%= Number(metrics.estimated_revenue_recovered || 0).toLocaleString() %></strong></article>
+      <article class="portal-card portal-metric"><span>Calls Helped</span><strong><%= Number(metrics.calls_handled || 0).toLocaleString() %></strong><p>Calls Autovyne has handled or assisted.</p></article>
+      <article class="portal-card portal-metric"><span>Texts Sent</span><strong><%= Number(metrics.sms_sent || 0).toLocaleString() %></strong><p>Approved SMS follow-up messages.</p></article>
+      <article class="portal-card portal-metric"><span>Leads Moved</span><strong><%= Number(metrics.crm_leads_synced || 0).toLocaleString() %></strong><p>Leads sent into your CRM workflow.</p></article>
+      <article class="portal-card portal-metric"><span>Estimated Recovery</span><strong>$<%= Number(metrics.estimated_revenue_recovered || 0).toLocaleString() %></strong><p>Estimated revenue preserved by follow-up.</p></article>
     </section>
 
     <section class="portal-two-col">
       <article class="portal-card">
-        <h2>Automation Stack</h2>
-        <p class="portal-muted">What is active or being prepared for this account.</p>
+        <h2>Your Automation Setup</h2>
+        <p class="portal-muted">Plain-English status for each piece of the system.</p>
         <div class="portal-service-list">
           <% serviceRows.forEach(function(row) { %>
           <div class="portal-service">
@@ -74,8 +102,8 @@
       </article>
 
       <article class="portal-card">
-        <h2>Recent Visible Activity</h2>
-        <p class="portal-muted">A transparent view of updates Autovyne has marked client-visible.</p>
+        <h2>Recent Autovyne Updates</h2>
+        <p class="portal-muted">Updates Autovyne has marked visible for your account.</p>
         <% if (events.length) { %>
         <div class="portal-timeline">
           <% events.forEach(function(event) { %>
@@ -93,6 +121,18 @@
         <div class="portal-empty">No visible activity yet. Once setup work starts, updates will appear here.</div>
         <% } %>
       </article>
+    </section>
+
+    <section class="portal-card portal-help-card">
+      <div>
+        <h2>What You Can Expect</h2>
+        <p class="portal-muted">Autovyne keeps the technical setup in the background. This portal gives you the useful version: status, activity, and results.</p>
+      </div>
+      <div class="portal-help-grid">
+        <div><strong>1. Setup</strong><p>Autovyne connects calling, SMS, CRM, and workflow tools.</p></div>
+        <div><strong>2. Monitor</strong><p>You can check progress here without needing technical access.</p></div>
+        <div><strong>3. Improve</strong><p>As calls and leads come in, Autovyne updates the workflow.</p></div>
+      </div>
     </section>
   </main>
   <% } %>

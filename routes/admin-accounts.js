@@ -11,6 +11,39 @@ const { hasAdminSession, setAdminSession } = require('../lib/admin-auth');
 
 const router = Router();
 
+const QUICK_ACTIONS = {
+  onboarding_started: {
+    eventType: 'onboarding',
+    title: 'Onboarding started',
+    detail: 'Autovyne has started setting up the account, automation tools, and customer follow-up workflow.',
+    visibleToClient: true,
+  },
+  ai_calling_connected: {
+    eventType: 'ai_calling',
+    title: 'AI calling connected',
+    detail: 'The AI calling workflow has been connected and is ready for monitored testing.',
+    visibleToClient: true,
+  },
+  sms_ready: {
+    eventType: 'sms',
+    title: 'SMS follow-up ready',
+    detail: 'SMS follow-up is ready for approved contacts with recorded consent.',
+    visibleToClient: true,
+  },
+  crm_connected: {
+    eventType: 'crm',
+    title: 'CRM sync connected',
+    detail: 'Lead and account updates are connected to the CRM workflow.',
+    visibleToClient: true,
+  },
+  needs_review: {
+    eventType: 'review',
+    title: 'Needs Autovyne review',
+    detail: 'This account needs an internal check before the next customer-facing update.',
+    visibleToClient: false,
+  },
+};
+
 function isAuthorized(req) {
   return hasAdminSession(req) || Boolean(process.env.ADMIN_API_KEY && req.signedCookies?.accounts_auth === 'authorized');
 }
@@ -93,11 +126,11 @@ router.post('/', async (req, res) => {
       billingMethod: sanitizeString(req.body.billing_method) || 'automatic',
       accessCode: sanitizeString(req.body.access_code),
       services: {
-        ai_calling: req.body.ai_calling === 'true',
-        sms_followup: req.body.sms_followup === 'true',
-        crm_sync: req.body.crm_sync === 'true',
-        n8n_workflows: req.body.n8n_workflows === 'true',
-        openai_qualification: req.body.openai_qualification === 'true',
+        ai_calling: req.body.ai_calling === 'true' || req.body.service_preset === 'calling' || req.body.service_preset === 'full',
+        sms_followup: req.body.sms_followup === 'true' || req.body.service_preset === 'sms' || req.body.service_preset === 'full',
+        crm_sync: req.body.crm_sync === 'true' || req.body.service_preset === 'crm' || req.body.service_preset === 'full',
+        n8n_workflows: req.body.n8n_workflows === 'true' || req.body.service_preset === 'workflow' || req.body.service_preset === 'full',
+        openai_qualification: req.body.openai_qualification === 'true' || req.body.service_preset === 'full',
       },
       metrics: {
         calls_handled: req.body.calls_handled,
@@ -121,6 +154,29 @@ router.post('/', async (req, res) => {
   } catch (error) {
     console.error('[admin-accounts] save error:', error.message);
     res.status(500).render('admin-accounts', await pageData({ error: 'Account could not be saved.' }));
+  }
+});
+
+router.post('/quick-action', async (req, res) => {
+  if (!isAuthorized(req)) return res.status(401).redirect('/admin/accounts');
+
+  const preset = QUICK_ACTIONS[sanitizeString(req.body.quick_action)];
+  if (!preset) {
+    return res.status(400).render('admin-accounts', await pageData({ error: 'Choose a valid quick action.' }));
+  }
+
+  try {
+    await recordAccountEvent({
+      accountId: parseInt(req.body.account_id, 10),
+      eventType: preset.eventType,
+      title: preset.title,
+      detail: preset.detail,
+      visibleToClient: req.body.visible_to_client ? req.body.visible_to_client === 'true' : preset.visibleToClient,
+    });
+    res.redirect('/admin/accounts');
+  } catch (error) {
+    console.error('[admin-accounts] quick action error:', error.message);
+    res.status(500).render('admin-accounts', await pageData({ error: 'Quick action could not be saved.' }));
   }
 });
 
