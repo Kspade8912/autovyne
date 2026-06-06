@@ -5,6 +5,7 @@
  */
 const { Router } = require('express');
 const { getDailyPageViews, getDailyFormSubmissions, getTopReferrers, getTopPages, getTotalStats } = require('../db/analytics');
+const { hasAdminSession, setAdminSession } = require('../lib/admin-auth');
 
 const router = Router();
 
@@ -17,7 +18,7 @@ router.get('/', async (req, res) => {
   const token = req.signedCookies?.analytics_auth;
   const days = Math.min(parseInt(req.query.days) || 30, 90);
 
-  if (token === adminKey) {
+  if (hasAdminSession(req) || token === adminKey) {
     try {
       const [pageViews, formSubmissions, topReferrers, topPages, totals] = await Promise.all([
         getDailyPageViews(days),
@@ -67,7 +68,9 @@ router.post('/', (req, res) => {
       signed: true,
       maxAge: 24 * 60 * 60 * 1000,
       sameSite: 'strict',
+      secure: process.env.NODE_ENV === 'production',
     });
+    setAdminSession(res);
     return res.redirect('/admin/analytics');
   }
 

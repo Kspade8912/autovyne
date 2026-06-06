@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Login - Autovyne</title>
+  <style>
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;background:#08080d;color:#eff2f7;font:15px 'Space Grotesk',system-ui,sans-serif}.wrap{width:min(980px,calc(100% - 32px));margin:0 auto;padding:64px 0}.card{background:#12141c;border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:30px;box-shadow:0 24px 90px rgba(0,0,0,.32)}.login{max-width:460px;margin:80px auto}.badge{display:inline-block;color:#00e87b;background:rgba(0,232,123,.1);border:1px solid rgba(0,232,123,.22);border-radius:999px;padding:5px 12px;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.08em}h1{font-size:clamp(2rem,5vw,3.2rem);line-height:1.05;margin:16px 0 10px;letter-spacing:-.04em}.sub{color:#8a8f9e;line-height:1.65}.err{margin:16px 0;color:#ff9d9d;background:rgba(255,107,107,.12);border:1px solid rgba(255,107,107,.24);border-radius:12px;padding:12px}label{display:block;color:#8a8f9e;font-size:12px;text-transform:uppercase;letter-spacing:.08em;font-weight:800;margin:20px 0 8px}input{width:100%;padding:13px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:#0a0c12;color:#fff}button,.btn{display:inline-block;border:0;border-radius:11px;padding:12px 16px;background:#00e87b;color:#05070a;font-weight:900;text-decoration:none;cursor:pointer}.btn-dark{background:#202432;color:#eff2f7}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:24px}.tile{display:block;background:#12141c;border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:22px;text-decoration:none;color:#eff2f7}.tile:hover{border-color:rgba(0,232,123,.45)}.tile strong{display:block;font-size:1.1rem;margin-bottom:8px}.tile span{color:#8a8f9e;font-size:.9rem;line-height:1.5}@media(max-width:760px){.grid{grid-template-columns:1fr}.wrap{padding:36px 0}}
+  </style>
+</head>
+<body>
+<% if (!authorized) { %>
+  <main class="wrap login">
+    <section class="card">
+      <span class="badge">Master Admin</span>
+      <h1>Autovyne Admin Login</h1>
+      <p class="sub">Use your Autovyne admin username and password to open the account command center, analytics, and SMS compliance proof.</p>
+      <% if (error) { %><div class="err"><%= error %></div><% } %>
+      <form method="POST" action="/admin/login">
+        <label for="username">Username</label>
+        <input id="username" name="username" type="text" autocomplete="username" required autofocus>
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" required>
+        <button type="submit" style="width:100%;margin-top:16px">Log In</button>
+      </form>
+    </section>
+  </main>
+<% } else { %>
+  <main class="wrap">
+    <section class="card">
+      <span class="badge">Logged In</span>
+      <h1>Autovyne Admin Hub</h1>
+      <p class="sub">One login for your internal tools. Customer portal access stays separate at `/portal`.</p>
+      <form method="POST" action="/admin/logout" class="actions"><button class="btn-dark" type="submit">Log Out</button></form>
+    </section>
+    <section class="grid">
+      <a class="tile" href="/admin/accounts"><strong>Accounts</strong><span>Create clients, update service status, metrics, and customer-visible activity.</span></a>
+      <a class="tile" href="/admin/analytics"><strong>Analytics</strong><span>See page views, form submissions, CTA clicks, and demo engagement.</span></a>
+      <a class="tile" href="/admin/compliance"><strong>SMS Compliance</strong><span>View Twilio opt-in proof records with consent language, timestamp, IP, and user agent.</span></a>
+    </section>
+  </main>
+<% } %>
+</body>
+</html>

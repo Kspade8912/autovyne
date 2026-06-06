@@ -7,11 +7,12 @@ const {
   recordAccountEvent,
 } = require('../db/accounts');
 const { sanitizeString } = require('../lib/security');
+const { hasAdminSession, setAdminSession } = require('../lib/admin-auth');
 
 const router = Router();
 
 function isAuthorized(req) {
-  return Boolean(process.env.ADMIN_API_KEY && req.signedCookies?.accounts_auth === 'authorized');
+  return hasAdminSession(req) || Boolean(process.env.ADMIN_API_KEY && req.signedCookies?.accounts_auth === 'authorized');
 }
 
 async function pageData(overrides = {}) {
@@ -74,6 +75,7 @@ router.post('/login', (req, res) => {
     sameSite: 'strict',
     secure: process.env.NODE_ENV === 'production',
   });
+  setAdminSession(res);
   res.redirect('/admin/accounts');
 });
 

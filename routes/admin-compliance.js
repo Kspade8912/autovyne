@@ -1,5 +1,6 @@
 const { Router } = require('express');
 const { listSmsConsentRecords } = require('../db/compliance');
+const { hasAdminSession, setAdminSession } = require('../lib/admin-auth');
 
 const router = Router();
 
@@ -7,7 +8,7 @@ router.get('/', async (req, res) => {
   const adminKey = process.env.ADMIN_API_KEY;
   if (!adminKey) return res.status(403).send('<h1>Forbidden</h1>');
 
-  if (req.signedCookies?.compliance_auth === 'authorized') {
+  if (hasAdminSession(req) || req.signedCookies?.compliance_auth === 'authorized') {
     try {
       const records = await listSmsConsentRecords();
       return res.render('admin-compliance', { authorized: true, error: null, records });
@@ -34,6 +35,7 @@ router.post('/', (req, res) => {
     sameSite: 'strict',
     secure: process.env.NODE_ENV === 'production',
   });
+  setAdminSession(res);
   res.redirect('/admin/compliance');
 });
 
