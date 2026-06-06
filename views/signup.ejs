@@ -24,7 +24,7 @@
     <section class="portal-card">
       <% if (error) { %><p class="portal-error"><%= error %></p><% } %>
       <% if (!stripeConfigured) { %>
-        <p class="portal-error">Payments are not live yet. This signup flow is ready, but Stripe keys and price IDs still need to be added in Render.</p>
+        <p class="portal-error">Automatic card payments are not live yet. Manual monthly billing requests can still be submitted.</p>
       <% } %>
       <form method="POST" class="portal-form">
         <input type="text" name="_honey" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px;">
@@ -61,6 +61,16 @@
             </select>
           </div>
         </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="billing_method">Monthly Billing Method</label>
+            <select id="billing_method" name="billing_method" required>
+              <option value="automatic" <%= selectedBillingMethod !== 'manual' ? 'selected' : '' %>>Automatic monthly card payments</option>
+              <option value="manual" <%= selectedBillingMethod === 'manual' ? 'selected' : '' %>>Manual monthly billing</option>
+            </select>
+            <span class="form-hint">Automatic uses Stripe recurring monthly billing. Manual lets Autovyne follow up and run billing manually.</span>
+          </div>
+        </div>
         <div class="form-row two-col">
           <div class="form-group"><label for="website_url">Website</label><input id="website_url" name="website_url" placeholder="https://yourbusiness.com"></div>
           <div class="form-group"><label for="current_tools">Current CRM / Tools</label><input id="current_tools" name="current_tools" placeholder="HubSpot, Jobber, none, etc."></div>
@@ -79,11 +89,11 @@
 
         <div class="sms-consent">
           <input type="checkbox" id="accept_terms" name="accept_terms" value="true" required>
-          <label for="accept_terms">I agree to Autovyne's <a href="/terms" target="_blank">Terms of Service</a>, including the initial one-month minimum service period after payment. After the first month, service may be canceled before the next billing period according to the posted terms.</label>
+          <label for="accept_terms">I agree to Autovyne's <a href="/terms" target="_blank">Terms of Service</a>, including the initial one-month minimum service period after payment or manual billing approval. After the first month, service may be canceled before the next billing period according to the posted terms.</label>
         </div>
 
-        <button class="btn-primary btn-large btn-full" type="submit">Continue to Secure Payment</button>
-        <p class="form-disclaimer">Payment is handled by Stripe. Your portal activates automatically after successful payment.</p>
+        <button class="btn-primary btn-large btn-full" type="submit">Continue</button>
+        <p class="form-disclaimer">Automatic billing is handled by Stripe as a monthly subscription. Manual billing requests create an account for Autovyne review.</p>
       </form>
     </section>
   </main>

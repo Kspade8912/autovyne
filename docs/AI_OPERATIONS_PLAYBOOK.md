@@ -4,19 +4,21 @@
 
 1. A business owner lands on Autovyne and uses the ROI + Live Demo page.
 2. They choose a plan from `/signup`, enter onboarding details, create a portal password, and accept the posted Terms.
-3. Stripe Checkout collects payment using the configured subscription Price for that plan.
-4. A verified Stripe success page or webhook marks the signup as paid.
-5. Autovyne automatically creates or updates the client portal account, sets it active, and records payment/activation timestamps.
-6. Supabase stores the signup order, account data, SMS consent evidence, leads, and questions.
-7. n8n receives an `account.paid` event and coordinates setup workflows after payment.
-8. OpenAI, HubSpot, Twilio, and other setup steps run from the paid onboarding event.
-9. Twilio sends SMS only when the consent checkbox was checked and recorded.
-10. The customer sees a limited status view in `/portal`.
-11. Autovyne manages all accounts from `/admin/accounts`.
+3. They choose automatic monthly card payments or manual monthly billing.
+4. Automatic billing sends them to Stripe Checkout using the configured monthly subscription Price for that plan.
+5. A verified Stripe success page or webhook marks the signup as paid.
+6. Manual billing creates a `needs_attention` account for Autovyne review and does not start paid AI setup automatically.
+7. Autovyne creates or updates the client portal account and records the billing method.
+8. Supabase stores the signup order, account data, SMS consent evidence, leads, and questions.
+9. n8n receives `account.paid` for automatic billing or `account.manual_billing_requested` for manual billing.
+10. OpenAI, HubSpot, Twilio, and other paid setup steps run only after payment or manual billing approval.
+11. Twilio sends SMS only when the consent checkbox was checked and recorded.
+12. The customer sees a limited status view in `/portal`.
+13. Autovyne manages all accounts from `/admin/accounts`.
 
 ## Customer Portal
 
-Paid customers are created automatically after Stripe confirms payment.
+Automatic billing customers are activated after Stripe confirms payment. Manual billing customers are created for review with `needs_attention` status.
 
 Use `/admin/accounts` when you need to review, update, or manually correct a managed account.
 
@@ -79,8 +81,8 @@ Use `/admin/analytics` for site traffic and conversion signals.
 - Store exact SMS consent text with timestamp, source, IP, and user agent.
 - Keep customer portal metrics conservative and factual.
 - Use placeholders for unknown legal entity/address details until finalized.
-- Keep Stripe recurring Price IDs mapped to the matching Autovyne plan in Render.
-- Add optional Stripe setup Price IDs for launch/setup fees when a plan has an upfront onboarding charge.
+- Keep Stripe monthly recurring Price IDs mapped to the matching Autovyne plan in Render.
+- Use the signup billing method to distinguish automatic monthly card payments from manual monthly billing accounts.
 - Treat Stripe webhooks as the source of truth for account activation after payment.
 - Do not activate unpaid accounts through the public signup flow.
 

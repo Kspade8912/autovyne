@@ -9,13 +9,6 @@ const PLAN_PRICE_ENV = {
   enterprise: 'STRIPE_PRICE_ENTERPRISE',
 };
 
-const PLAN_SETUP_PRICE_ENV = {
-  'smb-bundle': 'STRIPE_SETUP_PRICE_SMB_BUNDLE',
-  starter: 'STRIPE_SETUP_PRICE_STARTER',
-  professional: 'STRIPE_SETUP_PRICE_PROFESSIONAL',
-  enterprise: 'STRIPE_SETUP_PRICE_ENTERPRISE',
-};
-
 function isConfigured() {
   return Boolean(process.env.STRIPE_SECRET_KEY);
 }
@@ -26,10 +19,6 @@ function webhookConfigured() {
 
 function getPlanPriceId(plan) {
   return process.env[PLAN_PRICE_ENV[plan] || PLAN_PRICE_ENV.starter] || null;
-}
-
-function getPlanSetupPriceId(plan) {
-  return process.env[PLAN_SETUP_PRICE_ENV[plan] || PLAN_SETUP_PRICE_ENV.starter] || null;
 }
 
 function publicBaseUrl() {
@@ -86,11 +75,6 @@ async function createCheckoutSession(order) {
   params.set('client_reference_id', String(order.id));
   params.set('line_items[0][price]', priceId);
   params.set('line_items[0][quantity]', '1');
-  const setupPriceId = getPlanSetupPriceId(order.plan);
-  if (setupPriceId) {
-    params.set('line_items[1][price]', setupPriceId);
-    params.set('line_items[1][quantity]', '1');
-  }
   params.set('success_url', `${publicBaseUrl()}/signup/success?session_id={CHECKOUT_SESSION_ID}`);
   params.set('cancel_url', `${publicBaseUrl()}/signup/cancel?order_id=${order.id}`);
   params.set('metadata[signup_order_id]', String(order.id));
@@ -150,7 +134,6 @@ module.exports = {
   STRIPE_API_VERSION,
   createCheckoutSession,
   getPlanPriceId,
-  getPlanSetupPriceId,
   isConfigured,
   retrieveCheckoutSession,
   verifyWebhook,

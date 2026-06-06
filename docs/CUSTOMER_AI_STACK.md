@@ -35,22 +35,23 @@ Use one isolated customer configuration per business. Do not reuse customer cred
 ## Customer Signup to Launch
 
 1. Customer submits `/signup`, enters onboarding details, creates a portal password, and accepts the posted Terms.
-2. Stripe Checkout confirms the first subscription payment.
-3. Autovyne automatically activates the portal account and sends an `account.paid` event to n8n.
-4. Confirm the requested workflow, business hours, escalation contacts, FAQs, calendar, CRM, and approved message templates.
-5. Obtain and document the customer's authority and consent process for their own leads/customers.
-6. Configure isolated HubSpot pipeline data and n8n workflow branches.
-7. Provision and register the Twilio sender.
-8. Build the AI prompt, knowledge base, guardrails, human handoff, and failure path.
-9. Test normal, invalid, opt-out, HELP, after-hours, escalation, and provider-outage scenarios.
-10. Obtain customer approval, launch gradually, and monitor calls, messages, opt-outs, errors, and conversion.
+2. Customer chooses automatic monthly card payments or manual monthly billing.
+3. Automatic billing uses Stripe Checkout to confirm the first subscription payment, activates the portal account, and sends an `account.paid` event to n8n.
+4. Manual billing creates a `needs_attention` account and sends an `account.manual_billing_requested` event so Autovyne can handle billing before paid setup starts.
+5. Confirm the requested workflow, business hours, escalation contacts, FAQs, calendar, CRM, and approved message templates.
+6. Obtain and document the customer's authority and consent process for their own leads/customers.
+7. Configure isolated HubSpot pipeline data and n8n workflow branches.
+8. Provision and register the Twilio sender.
+9. Build the AI prompt, knowledge base, guardrails, human handoff, and failure path.
+10. Test normal, invalid, opt-out, HELP, after-hours, escalation, and provider-outage scenarios.
+11. Obtain customer approval, launch gradually, and monitor calls, messages, opt-outs, errors, and conversion.
 
 ## Production Gate
 
 A customer workflow is ready only when:
 
 - Twilio registration is approved.
-- Stripe signup, webhook activation, and plan Price mapping are tested.
+- Stripe monthly signup, webhook activation, manual billing flag, and plan Price mapping are tested.
 - Legal pages and consent language match the live message program.
 - SMS sends are impossible when `sms_eligible` is false.
 - STOP and HELP are tested.

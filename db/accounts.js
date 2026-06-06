@@ -33,6 +33,10 @@ function defaultMetrics(input = {}) {
   };
 }
 
+function normalizeBillingMethod(value) {
+  return value === 'manual' ? 'manual' : 'automatic';
+}
+
 async function createOrUpdateAccount({
   businessName,
   contactName,
@@ -40,6 +44,7 @@ async function createOrUpdateAccount({
   phone,
   status,
   plan,
+  billingMethod,
   accessCode,
   services,
   metrics,
@@ -52,14 +57,15 @@ async function createOrUpdateAccount({
 
   const result = await pool.query(
     `INSERT INTO client_accounts
-       (business_name, contact_name, email, phone, status, plan, access_code_hash, services, metrics, notes)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
+       (business_name, contact_name, email, phone, status, plan, billing_method, access_code_hash, services, metrics, notes)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
      ON CONFLICT (email) DO UPDATE SET
        business_name = EXCLUDED.business_name,
        contact_name = EXCLUDED.contact_name,
        phone = EXCLUDED.phone,
        status = EXCLUDED.status,
        plan = EXCLUDED.plan,
+       billing_method = EXCLUDED.billing_method,
        access_code_hash = EXCLUDED.access_code_hash,
        services = EXCLUDED.services,
        metrics = EXCLUDED.metrics,
@@ -73,6 +79,7 @@ async function createOrUpdateAccount({
       phone || null,
       status || 'setup',
       plan || 'starter',
+      normalizeBillingMethod(billingMethod),
       codeHash,
       JSON.stringify(serviceJson),
       JSON.stringify(metricJson),
@@ -89,6 +96,7 @@ async function createOrUpdateAccountWithHash({
   phone,
   status,
   plan,
+  billingMethod,
   accessCodeHash,
   services,
   metrics,
@@ -105,16 +113,17 @@ async function createOrUpdateAccountWithHash({
 
   const result = await pool.query(
     `INSERT INTO client_accounts
-       (business_name, contact_name, email, phone, status, plan, access_code_hash,
+       (business_name, contact_name, email, phone, status, plan, billing_method, access_code_hash,
         services, metrics, notes, stripe_customer_id, stripe_checkout_session_id,
         stripe_subscription_id, paid_at, activated_at)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)
      ON CONFLICT (email) DO UPDATE SET
        business_name = EXCLUDED.business_name,
        contact_name = EXCLUDED.contact_name,
        phone = EXCLUDED.phone,
        status = EXCLUDED.status,
        plan = EXCLUDED.plan,
+       billing_method = EXCLUDED.billing_method,
        access_code_hash = EXCLUDED.access_code_hash,
        services = EXCLUDED.services,
        metrics = EXCLUDED.metrics,
@@ -133,6 +142,7 @@ async function createOrUpdateAccountWithHash({
       phone || null,
       status || 'active',
       plan || 'starter',
+      normalizeBillingMethod(billingMethod),
       accessCodeHash,
       JSON.stringify(serviceJson),
       JSON.stringify(metricJson),
@@ -237,5 +247,6 @@ module.exports = {
   hashAccessCode,
   listAccountEvents,
   listAccounts,
+  normalizeBillingMethod,
   recordAccountEvent,
 };

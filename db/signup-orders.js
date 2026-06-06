@@ -9,6 +9,7 @@ async function createSignupOrder({
   websiteUrl,
   currentTools,
   plan,
+  billingMethod,
   portalAccessCodeHash,
   smsConsent,
   onboarding,
@@ -16,9 +17,9 @@ async function createSignupOrder({
   const result = await pool.query(
     `INSERT INTO signup_orders
        (business_name, contact_name, email, phone, industry, website_url,
-        current_tools, plan, portal_access_code_hash, sms_consent,
+        current_tools, plan, billing_method, portal_access_code_hash, sms_consent,
         sms_consent_at, onboarding)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,CASE WHEN $10 THEN NOW() ELSE NULL END,$11)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,CASE WHEN $11 THEN NOW() ELSE NULL END,$12)
      RETURNING *`,
     [
       businessName,
@@ -29,6 +30,7 @@ async function createSignupOrder({
       websiteUrl || null,
       currentTools || null,
       plan,
+      billingMethod === 'manual' ? 'manual' : 'automatic',
       portalAccessCodeHash,
       Boolean(smsConsent),
       JSON.stringify(onboarding || {}),
@@ -92,11 +94,25 @@ async function markSignupActivated(orderId, accountId) {
   return result.rows[0] || null;
 }
 
+async function markSignupManualBilling(orderId, accountId) {
+  const result = await pool.query(
+    `UPDATE signup_orders
+     SET payment_status = 'manual_billing',
+         activated_account_id = $2,
+         updated_at = NOW()
+     WHERE id = $1
+     RETURNING *`,
+    [orderId, accountId]
+  );
+  return result.rows[0] || null;
+}
+
 module.exports = {
   attachCheckoutSession,
   createSignupOrder,
   getSignupOrderById,
   getSignupOrderBySession,
   markSignupActivated,
+  markSignupManualBilling,
   markSignupPaid,
 };

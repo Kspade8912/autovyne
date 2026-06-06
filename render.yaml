@@ -41,14 +41,6 @@ services:
         sync: false
       - key: STRIPE_PRICE_ENTERPRISE
         sync: false
-      - key: STRIPE_SETUP_PRICE_SMB_BUNDLE
-        sync: false
-      - key: STRIPE_SETUP_PRICE_STARTER
-        sync: false
-      - key: STRIPE_SETUP_PRICE_PROFESSIONAL
-        sync: false
-      - key: STRIPE_SETUP_PRICE_ENTERPRISE
-        sync: false
       - key: PUBLIC_BASE_URL
         value: https://autovyne.com
       - key: COOKIE_SECRET

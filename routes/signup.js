@@ -1,5 +1,5 @@
 const { Router } = require('express');
-const { createOrUpdateAccountWithHash, hashAccessCode, recordAccountEvent } = require('../db/accounts');
+const { createOrUpdateAccountWithHash, hashAccessCode, normalizeBillingMethod, recordAccountEvent } = require('../db/accounts');
 const { recordSmsConsent } = require('../db/compliance');
 const {
   attachCheckoutSession,
@@ -7,6 +7,7 @@ const {
   getSignupOrderById,
   getSignupOrderBySession,
   markSignupActivated,
+  markSignupManualBilling,
   markSignupPaid,
 } = require('../db/signup-orders');
 const { createRateLimiter, sanitizeString, validateSubmission } = require('../lib/security');
@@ -28,12 +29,20 @@ function validPlan(plan) {
   return PLAN_LABELS[plan] ? plan : 'professional';
 }
 
+function billingLabel(value) {
+  return normalizeBillingMethod(value) === 'manual' ? 'Manual monthly billing' : 'Automatic monthly card payments';
+}
+
 function pageData(overrides = {}) {
   return {
     error: null,
     order: null,
     account: null,
     plans: PLAN_LABELS,
+    billingLabel,
+    manualBilling: false,
+    selectedPlan: 'professional',
+    selectedBillingMethod: 'automatic',
     stripeConfigured: stripe.isConfigured(),
     seo: {
       title: 'Sign Up - Autovyne',
@@ -72,6 +81,7 @@ async function activatePaidOrder(order, session = {}) {
     phone: order.phone,
     status: 'active',
     plan: order.plan,
+    billingMethod: order.billing_method || 'automatic',
     accessCodeHash: order.portal_access_code_hash,
     services,
     metrics: {},
@@ -99,6 +109,46 @@ async function activatePaidOrder(order, session = {}) {
   return { order: activatedOrder || order, account, activated: true };
 }
 
+async function createManualBillingAccount(order) {
+  const services = {
+    ai_calling: false,
+    sms_followup: false,
+    crm_sync: false,
+    n8n_workflows: false,
+    openai_qualification: false,
+  };
+
+  const account = await createOrUpdateAccountWithHash({
+    businessName: order.business_name,
+    contactName: order.contact_name,
+    email: order.email,
+    phone: order.phone,
+    status: 'needs_attention',
+    plan: order.plan,
+    billingMethod: 'manual',
+    accessCodeHash: order.portal_access_code_hash,
+    services,
+    metrics: {},
+    notes: 'Manual monthly billing requested during signup. Do not start paid setup until payment is handled.',
+    activatedAt: new Date().toISOString(),
+  });
+
+  await recordAccountEvent({
+    accountId: account.id,
+    eventType: 'manual_billing_requested',
+    title: 'Manual monthly billing requested',
+    detail: 'Autovyne received this signup without automatic card payments. Internal billing follow-up is required before paid setup begins.',
+    visibleToClient: true,
+  });
+
+  const manualOrder = await markSignupManualBilling(order.id, account.id);
+  n8n.sendManualSignupEvent({ order: manualOrder || order, account }).catch(error => {
+    console.error('[signup] n8n manual signup error:', error.message);
+  });
+
+  return { order: manualOrder || order, account };
+}
+
 async function markSessionPaidAndActivate(session) {
   const orderId = parseInt(session.metadata?.signup_order_id || session.client_reference_id, 10);
   const order = orderId ? await getSignupOrderById(orderId) : await getSignupOrderBySession(session.id);
@@ -115,12 +165,18 @@ async function markSessionPaidAndActivate(session) {
 }
 
 router.get('/', (req, res) => {
-  res.render('signup', pageData({ selectedPlan: validPlan(req.query.plan) }));
+  res.render('signup', pageData({
+    selectedPlan: validPlan(req.query.plan),
+    selectedBillingMethod: normalizeBillingMethod(req.query.billing_method),
+  }));
 });
 
 router.post('/', limiter, async (req, res) => {
   if (validateSubmission(req, { honeypotField: '_honey', minSubmitMs: 3000 })) {
-    return res.render('signup', pageData({ selectedPlan: validPlan(req.body.plan) }));
+    return res.render('signup', pageData({
+      selectedPlan: validPlan(req.body.plan),
+      selectedBillingMethod: normalizeBillingMethod(req.body.billing_method),
+    }));
   }
 
   const data = {
@@ -132,6 +188,7 @@ router.post('/', limiter, async (req, res) => {
     websiteUrl: sanitizeString(req.body.website_url),
     currentTools: sanitizeString(req.body.current_tools),
     plan: validPlan(req.body.plan),
+    billingMethod: normalizeBillingMethod(req.body.billing_method),
     portalPassword: String(req.body.portal_password || ''),
     onboardingGoal: sanitizeString(req.body.onboarding_goal),
     smsConsent: hasSmsConsent(req.body.sms_consent),
@@ -139,21 +196,22 @@ router.post('/', limiter, async (req, res) => {
   };
 
   if (!data.businessName || !data.contactName || !data.email || !data.industry) {
-    return res.status(400).render('signup', pageData({ error: 'Please fill in your business, contact, email, and industry.', selectedPlan: data.plan }));
+    return res.status(400).render('signup', pageData({ error: 'Please fill in your business, contact, email, and industry.', selectedPlan: data.plan, selectedBillingMethod: data.billingMethod }));
   }
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
-    return res.status(400).render('signup', pageData({ error: 'Please enter a valid email address.', selectedPlan: data.plan }));
+    return res.status(400).render('signup', pageData({ error: 'Please enter a valid email address.', selectedPlan: data.plan, selectedBillingMethod: data.billingMethod }));
   }
   if (data.portalPassword.length < 8) {
-    return res.status(400).render('signup', pageData({ error: 'Choose a portal password with at least 8 characters.', selectedPlan: data.plan }));
+    return res.status(400).render('signup', pageData({ error: 'Choose a portal password with at least 8 characters.', selectedPlan: data.plan, selectedBillingMethod: data.billingMethod }));
   }
   if (!data.acceptedTerms) {
-    return res.status(400).render('signup', pageData({ error: 'Please accept the Terms of Service before continuing.', selectedPlan: data.plan }));
+    return res.status(400).render('signup', pageData({ error: 'Please accept the Terms of Service before continuing.', selectedPlan: data.plan, selectedBillingMethod: data.billingMethod }));
   }
-  if (!stripe.isConfigured()) {
+  if (data.billingMethod === 'automatic' && !stripe.isConfigured()) {
     return res.status(503).render('signup', pageData({
-      error: 'Payments are not configured yet. Add Stripe keys and price IDs in Render before accepting paid signups.',
+      error: 'Automatic payments are not configured yet. Add Stripe keys and monthly price IDs in Render before accepting automatic monthly payments, or choose manual monthly billing.',
       selectedPlan: data.plan,
+      selectedBillingMethod: data.billingMethod,
     }));
   }
 
@@ -163,6 +221,7 @@ router.post('/', limiter, async (req, res) => {
       portalAccessCodeHash: hashAccessCode(data.portalPassword),
       onboarding: {
         goal: data.onboardingGoal,
+        billing_method: data.billingMethod,
         accepted_terms_at: new Date().toISOString(),
         minimum_service_months: 1,
       },
@@ -179,12 +238,17 @@ router.post('/', limiter, async (req, res) => {
       consentText: SMS_CONSENT_TEXT,
     });
 
+    if (data.billingMethod === 'manual') {
+      const result = await createManualBillingAccount(order);
+      return res.render('signup-status', pageData({ order: result.order, account: result.account, manualBilling: true }));
+    }
+
     const session = await stripe.createCheckoutSession(order);
     await attachCheckoutSession(order.id, session.id);
-    res.redirect(303, session.url);
+    return res.redirect(303, session.url);
   } catch (error) {
     console.error('[signup] create error:', error.message);
-    res.status(500).render('signup', pageData({ error: error.message || 'Signup could not be started.', selectedPlan: data.plan }));
+    res.status(500).render('signup', pageData({ error: error.message || 'Signup could not be started.', selectedPlan: data.plan, selectedBillingMethod: data.billingMethod }));
   }
 });
 

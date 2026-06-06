@@ -90,6 +90,7 @@ router.post('/', async (req, res) => {
       phone: sanitizeString(req.body.phone),
       status: sanitizeString(req.body.status) || 'setup',
       plan: sanitizeString(req.body.plan) || 'starter',
+      billingMethod: sanitizeString(req.body.billing_method) || 'automatic',
       accessCode: sanitizeString(req.body.access_code),
       services: {
         ai_calling: req.body.ai_calling === 'true',

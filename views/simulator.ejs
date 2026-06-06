@@ -677,13 +677,13 @@
         </div>
         <div class="kpi-card">
           <div class="kpi-label">Year 1 Cost (SMB Bundle)</div>
-          <div class="kpi-value kpi-value--fg" id="kpi-cost">$2,087</div>
-          <div class="kpi-sub">$299 setup + $149/mo × 12</div>
+          <div class="kpi-value kpi-value--fg" id="kpi-cost">$1,788</div>
+          <div class="kpi-sub">$149/mo x 12</div>
         </div>
         <div class="kpi-card">
           <div class="kpi-label">Year 1 ROI</div>
           <div class="kpi-value kpi-value--accent" id="kpi-roi">769%</div>
-          <div class="kpi-sub">Net: <span id="kpi-net">$16,057</span> first year</div>
+          <div class="kpi-sub">Net: <span id="kpi-net">$16,356</span> first year</div>
           <span class="kpi-badge">Best Value</span>
         </div>
       </div>
@@ -734,8 +734,8 @@
           <p>One price covers AI chatbot, voice receptionist, email automation, scheduling, and CRM — no feature tiers, no add-ons, no surprises.</p>
         </div>
         <div class="sim-cta-right">
-          <div class="sim-cta-price">$299 + $149/mo</div>
-          <div class="sim-cta-price-sub">Launch pricing — saves $600/yr vs. regular</div>
+          <div class="sim-cta-price">$149/mo</div>
+          <div class="sim-cta-price-sub">Monthly subscription</div>
           <a href="/signup?plan=smb-bundle" class="sim-cta-link">Sign Up -></a>
         </div>
       </div>
@@ -798,7 +798,6 @@ const VERTICALS = {
 };
 
 // SMB Bundle pricing
-const SETUP_FEE = 299;
 const MONTHLY_FEE = 149;
 const MONTHS = 12;
 
@@ -829,7 +828,7 @@ function simulate(leads, ticket, missedPct, conversion, improvementRate) {
   const annualWith    = withMonthly * 12;
   const annualDelta   = annualWith - annualWithout;
   const additionalAnnual = additionalMonthly * 12;
-  const annualCost    = SETUP_FEE + (MONTHLY_FEE * 12);
+  const annualCost    = MONTHLY_FEE * MONTHS;
   const netGain       = annualDelta - annualCost;
   const roi           = annualCost > 0 ? Math.round((netGain / annualCost) * 100) : 0;
 

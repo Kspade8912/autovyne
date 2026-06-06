@@ -26,7 +26,8 @@
   const accountsList = accounts || [];
   const snap = snapshot || {};
   const activeAccounts = accountsList.filter(a => a.status === 'active').length;
-  const totalRecovery = accountsList.reduce((sum, a) => sum + Number((a.metrics || {}).estimated_revenue_recovered || 0), 0);
+  const automaticBilling = accountsList.filter(a => (a.billing_method || 'automatic') === 'automatic').length;
+  const manualBilling = accountsList.filter(a => a.billing_method === 'manual').length;
 %>
   <div class="wrap">
     <div class="top">
@@ -39,8 +40,8 @@
     <section class="grid">
       <div class="card stat"><span>Managed Accounts</span><strong class="accent"><%= accountsList.length %></strong></div>
       <div class="card stat"><span>Active Accounts</span><strong><%= activeAccounts %></strong></div>
-      <div class="card stat"><span>Recent Leads</span><strong class="warn"><%= (snap.leads || []).length %></strong></div>
-      <div class="card stat"><span>Tracked Recovery</span><strong>$<%= totalRecovery.toLocaleString() %></strong></div>
+      <div class="card stat"><span>Auto Billing</span><strong class="warn"><%= automaticBilling %></strong></div>
+      <div class="card stat"><span>Manual Billing</span><strong><%= manualBilling %></strong></div>
     </section>
 
     <section class="cols">
@@ -53,7 +54,8 @@
           <label>Phone</label><input name="phone">
           <label>Access Code</label><input name="access_code" required placeholder="Give this to the customer">
           <label>Status</label><select name="status"><option value="setup">Setup</option><option value="active">Active</option><option value="paused">Paused</option><option value="needs_attention">Needs Attention</option></select>
-          <label>Plan</label><select name="plan"><option value="starter">Starter</option><option value="professional">Professional</option><option value="enterprise">Enterprise</option></select>
+          <label>Plan</label><select name="plan"><option value="smb-bundle">SMB Bundle</option><option value="starter">Starter</option><option value="professional">Professional</option><option value="enterprise">Enterprise</option></select>
+          <label>Billing Method</label><select name="billing_method"><option value="automatic">Automatic monthly card payments</option><option value="manual">Manual monthly billing</option></select>
           <div class="checks">
             <label class="check"><input type="checkbox" name="ai_calling" value="true"> AI Calling</label>
             <label class="check"><input type="checkbox" name="sms_followup" value="true"> SMS Follow-up</label>
@@ -78,12 +80,13 @@
         <div class="section-title"><h2>Managed Accounts</h2><span class="mini">Give customers `/portal` plus their email/access code.</span></div>
         <div class="table-wrap">
           <table class="table">
-            <thead><tr><th>Account</th><th>Status</th><th>Services</th><th>Metrics</th><th>Activity</th></tr></thead>
+            <thead><tr><th>Account</th><th>Status</th><th>Billing</th><th>Services</th><th>Metrics</th><th>Activity</th></tr></thead>
             <tbody>
             <% accountsList.forEach(function(a) { const s = a.services || {}; const m = a.metrics || {}; %>
               <tr>
                 <td><strong><%= a.business_name %></strong><br><span class="mini"><%= a.email %></span></td>
                 <td><span class="pill <%= a.status === 'active' ? 'pill-on' : '' %>"><%= a.status %></span><br><span class="mini"><%= a.plan %></span></td>
+                <td><span class="pill <%= (a.billing_method || 'automatic') === 'automatic' ? 'pill-on' : '' %>"><%= (a.billing_method || 'automatic') === 'manual' ? 'manual monthly' : 'automatic monthly' %></span></td>
                 <td>
                   <% ['ai_calling','sms_followup','crm_sync','n8n_workflows','openai_qualification'].forEach(function(key){ %>
                     <span class="pill <%= s[key] ? 'pill-on' : '' %>"><%= key.replace(/_/g, ' ') %></span>
@@ -93,7 +96,7 @@
                 <td><a class="btn btn-secondary" href="/admin/accounts/<%= a.id %>/events">Events</a></td>
               </tr>
             <% }); %>
-            <% if (!accountsList.length) { %><tr><td colspan="5" class="sub">No managed accounts yet.</td></tr><% } %>
+            <% if (!accountsList.length) { %><tr><td colspan="6" class="sub">No managed accounts yet.</td></tr><% } %>
             </tbody>
           </table>
         </div>
