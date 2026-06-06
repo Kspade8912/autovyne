@@ -71,8 +71,11 @@ app.use((req, res, next) => {
 app.use(createRateLimiter({ windowMs: 15 * 60 * 1000, maxRequests: 100 }));
 
 // ── Body Parsers ───────────────────────────────────────────────────────────────
-app.use(express.json({ limit: '10kb' }));
-app.use(express.urlencoded({ extended: true, limit: '10kb' }));
+function captureRawBody(req, _res, buf) {
+  if (req.originalUrl.startsWith('/signup/stripe-webhook')) req.rawBody = Buffer.from(buf);
+}
+app.use(express.json({ limit: '250kb', verify: captureRawBody }));
+app.use(express.urlencoded({ extended: true, limit: '250kb', verify: captureRawBody }));
 
 // ── EJS View Engine ───────────────────────────────────────────────────────────
 app.set('view engine', 'ejs');
@@ -133,6 +136,7 @@ app.use('/admin/analytics', require('./routes/admin-analytics'));
 app.use('/admin/accounts', require('./routes/admin-accounts'));
 app.use('/admin/compliance', require('./routes/admin-compliance'));
 app.use('/portal', require('./routes/portal'));
+app.use('/signup', require('./routes/signup'));
 app.use('/questions', require('./routes/questions'));
 app.use('/', require('./routes/public-pages'));
 

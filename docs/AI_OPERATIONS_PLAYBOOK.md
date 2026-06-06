@@ -3,24 +3,28 @@
 ## Efficient Customer Flow
 
 1. A business owner lands on Autovyne and uses the ROI + Live Demo page.
-2. They submit an audit, question, or onboarding form.
-3. Supabase stores the lead, question, SMS consent evidence, and account data.
-4. OpenAI qualifies the lead and creates a simple next-action summary.
-5. HubSpot stores the CRM contact and business context.
-6. n8n receives the event and coordinates follow-up workflows.
-7. Twilio sends SMS only when the consent checkbox was checked and recorded.
-8. The customer sees a limited status view in `/portal`.
-9. Autovyne manages all accounts from `/admin/accounts`.
+2. They choose a plan from `/signup`, enter onboarding details, create a portal password, and accept the posted Terms.
+3. Stripe Checkout collects payment using the configured subscription Price for that plan.
+4. A verified Stripe success page or webhook marks the signup as paid.
+5. Autovyne automatically creates or updates the client portal account, sets it active, and records payment/activation timestamps.
+6. Supabase stores the signup order, account data, SMS consent evidence, leads, and questions.
+7. n8n receives an `account.paid` event and coordinates setup workflows after payment.
+8. OpenAI, HubSpot, Twilio, and other setup steps run from the paid onboarding event.
+9. Twilio sends SMS only when the consent checkbox was checked and recorded.
+10. The customer sees a limited status view in `/portal`.
+11. Autovyne manages all accounts from `/admin/accounts`.
 
 ## Customer Portal
 
-Use `/admin/accounts` to create a customer account after a business signs up.
+Paid customers are created automatically after Stripe confirms payment.
+
+Use `/admin/accounts` when you need to review, update, or manually correct a managed account.
 
 Give the customer:
 
 - Portal URL: `/portal`
 - Their email address
-- Their access code
+- The portal password they created during signup
 
 The customer can see:
 
@@ -75,6 +79,10 @@ Use `/admin/analytics` for site traffic and conversion signals.
 - Store exact SMS consent text with timestamp, source, IP, and user agent.
 - Keep customer portal metrics conservative and factual.
 - Use placeholders for unknown legal entity/address details until finalized.
+- Keep Stripe recurring Price IDs mapped to the matching Autovyne plan in Render.
+- Add optional Stripe setup Price IDs for launch/setup fees when a plan has an upfront onboarding charge.
+- Treat Stripe webhooks as the source of truth for account activation after payment.
+- Do not activate unpaid accounts through the public signup flow.
 
 ## Next Upgrade
 

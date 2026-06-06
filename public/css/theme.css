@@ -1067,7 +1067,9 @@ body {
   text-transform: uppercase;
   letter-spacing: 0.08em;
 }
-.portal-form input {
+.portal-form input,
+.portal-form select,
+.portal-form textarea {
   width: 100%;
   border: 1px solid rgba(255,255,255,0.12);
   border-radius: 12px;
@@ -1075,6 +1077,8 @@ body {
   color: var(--fg);
   padding: 13px 14px;
 }
+.portal-form textarea { min-height: 120px; resize: vertical; }
+.portal-form select option { background: var(--bg-card); color: var(--fg); }
 .portal-hero-panel {
   display: flex;
   justify-content: space-between;

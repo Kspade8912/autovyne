@@ -5,7 +5,8 @@ Use one isolated customer configuration per business. Do not reuse customer cred
 ## Core Stack
 
 1. **Autovyne website and API on Render**
-   - Captures audit/signup requests and explicit SMS consent.
+   - Captures paid signup/onboarding requests and explicit SMS consent.
+   - Redirects customers to Stripe Checkout before portal activation.
    - Runs the OpenAI qualification step.
    - Syncs contacts to HubSpot.
    - Sends consent-aware events to n8n.
@@ -33,12 +34,12 @@ Use one isolated customer configuration per business. Do not reuse customer cred
 
 ## Customer Signup to Launch
 
-1. Customer submits the Autovyne audit or questions form.
-2. Confirm the requested workflow, business hours, escalation contacts, FAQs, calendar, CRM, and approved message templates.
-3. Sign the customer agreement and confirm subscription/payment terms.
-4. Create isolated customer records and credentials.
+1. Customer submits `/signup`, enters onboarding details, creates a portal password, and accepts the posted Terms.
+2. Stripe Checkout confirms the first subscription payment.
+3. Autovyne automatically activates the portal account and sends an `account.paid` event to n8n.
+4. Confirm the requested workflow, business hours, escalation contacts, FAQs, calendar, CRM, and approved message templates.
 5. Obtain and document the customer's authority and consent process for their own leads/customers.
-6. Configure HubSpot pipeline and n8n workflow.
+6. Configure isolated HubSpot pipeline data and n8n workflow branches.
 7. Provision and register the Twilio sender.
 8. Build the AI prompt, knowledge base, guardrails, human handoff, and failure path.
 9. Test normal, invalid, opt-out, HELP, after-hours, escalation, and provider-outage scenarios.
@@ -49,6 +50,7 @@ Use one isolated customer configuration per business. Do not reuse customer cred
 A customer workflow is ready only when:
 
 - Twilio registration is approved.
+- Stripe signup, webhook activation, and plan Price mapping are tested.
 - Legal pages and consent language match the live message program.
 - SMS sends are impossible when `sms_eligible` is false.
 - STOP and HELP are tested.

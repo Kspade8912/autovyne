@@ -92,9 +92,9 @@ Output: daily action list and pipeline summary.
 Start with one vertical and one offer:
 
 - Vertical: HVAC and home services
-- Offer: free missed-call revenue audit
+- Offer: paid signup with missed-call revenue analysis during onboarding
 - Primary CTA: `/demo`
-- Conversion CTA: `/intake`
+- Conversion CTA: `/signup`
 - Promise: show the opportunity using the prospect’s numbers, without guaranteeing results
 
 Measure: researched leads, approvals, contact attempts, replies, qualified replies, booked calls, and closed clients.

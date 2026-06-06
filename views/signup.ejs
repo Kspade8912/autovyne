@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <%- include('partials/seo-head') %>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/theme.css">
+</head>
+<body>
+  <%- include('partials/nav') %>
+  <main class="portal-shell">
+    <section class="portal-hero-panel">
+      <div>
+        <div class="hero-badge">Signup + Payment + Onboarding</div>
+        <h1>Start Autovyne and activate your portal.</h1>
+        <p class="portal-muted">Create your account, pay securely, and Autovyne will automatically approve your portal and start onboarding workflows.</p>
+      </div>
+      <a class="portal-secondary-btn" href="/demo" style="text-decoration:none">View ROI Demo</a>
+    </section>
+
+    <section class="portal-card">
+      <% if (error) { %><p class="portal-error"><%= error %></p><% } %>
+      <% if (!stripeConfigured) { %>
+        <p class="portal-error">Payments are not live yet. This signup flow is ready, but Stripe keys and price IDs still need to be added in Render.</p>
+      <% } %>
+      <form method="POST" class="portal-form">
+        <input type="text" name="_honey" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px;">
+        <input type="hidden" name="_form_loaded_at" id="form-loaded-at" value="0">
+
+        <div class="form-row two-col">
+          <div class="form-group"><label for="business_name">Business Name</label><input id="business_name" name="business_name" required></div>
+          <div class="form-group"><label for="contact_name">Your Name</label><input id="contact_name" name="contact_name" required></div>
+        </div>
+        <div class="form-row two-col">
+          <div class="form-group"><label for="email">Email</label><input type="email" id="email" name="email" required></div>
+          <div class="form-group"><label for="phone">Phone</label><input type="tel" id="phone" name="phone"></div>
+        </div>
+        <div class="form-row two-col">
+          <div class="form-group">
+            <label for="industry">Industry</label>
+            <select id="industry" name="industry" required>
+              <option value="" disabled selected>Select industry</option>
+              <option value="hvac">HVAC / Plumbing / Electric</option>
+              <option value="contractors">Contractors</option>
+              <option value="auto">Towing / Automotive</option>
+              <option value="restaurant">Restaurant / Hospitality</option>
+              <option value="medical">Medical / Dental</option>
+              <option value="beauty">Hair / Beauty</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="plan">Plan</label>
+            <select id="plan" name="plan" required>
+              <% Object.keys(plans).forEach(function(key) { %>
+                <option value="<%= key %>" <%= selectedPlan === key ? 'selected' : '' %>><%= plans[key] %></option>
+              <% }); %>
+            </select>
+          </div>
+        </div>
+        <div class="form-row two-col">
+          <div class="form-group"><label for="website_url">Website</label><input id="website_url" name="website_url" placeholder="https://yourbusiness.com"></div>
+          <div class="form-group"><label for="current_tools">Current CRM / Tools</label><input id="current_tools" name="current_tools" placeholder="HubSpot, Jobber, none, etc."></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label for="onboarding_goal">What should Autovyne automate first?</label><textarea id="onboarding_goal" name="onboarding_goal" rows="5" placeholder="Example: missed calls, SMS follow-up, booking reminders, CRM lead updates"></textarea></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label for="portal_password">Create Portal Password</label><input type="password" id="portal_password" name="portal_password" minlength="8" required><span class="form-hint">You will use this with your email to log into the client portal after payment.</span></div>
+        </div>
+
+        <div class="sms-consent">
+          <input type="checkbox" id="sms_consent" name="sms_consent" value="true">
+          <label for="sms_consent">By checking this box, I consent to receive SMS messages from Autovyne related to my account, audit request, onboarding, missed-call automation, and service updates. Message frequency varies. Message and data rates may apply. Reply STOP to opt out and HELP for help. Consent is not a condition of purchase. View our <a href="/privacy" target="_blank">Privacy Policy</a> and <a href="/sms-terms" target="_blank">SMS Terms</a>.</label>
+        </div>
+
+        <div class="sms-consent">
+          <input type="checkbox" id="accept_terms" name="accept_terms" value="true" required>
+          <label for="accept_terms">I agree to Autovyne's <a href="/terms" target="_blank">Terms of Service</a>, including the initial one-month minimum service period after payment. After the first month, service may be canceled before the next billing period according to the posted terms.</label>
+        </div>
+
+        <button class="btn-primary btn-large btn-full" type="submit">Continue to Secure Payment</button>
+        <p class="form-disclaimer">Payment is handled by Stripe. Your portal activates automatically after successful payment.</p>
+      </form>
+    </section>
+  </main>
+  <%- include('partials/footer') %>
+  <script>document.getElementById('form-loaded-at')?.setAttribute('value', Date.now());</script>
+</body>
+</html>

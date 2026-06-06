@@ -42,4 +42,40 @@ async function sendQuestionEvent(question) {
   }, 15000);
 }
 
-module.exports = { isConfigured, sendLeadEvent, sendQuestionEvent };
+async function sendPaidSignupEvent({ order, account }) {
+  if (!isConfigured()) return null;
+
+  const smsEligible = Boolean(order.sms_consent && order.phone);
+  return fetchJson(process.env.N8N_WEBHOOK_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Autovyne-Secret': process.env.N8N_WEBHOOK_SECRET,
+    },
+    body: JSON.stringify({
+      event: 'account.paid',
+      sent_at: new Date().toISOString(),
+      sms_eligible: smsEligible,
+      order: {
+        id: order.id,
+        business_name: order.business_name,
+        contact_name: order.contact_name,
+        email: order.email,
+        phone: smsEligible ? order.phone : null,
+        industry: order.industry,
+        website_url: order.website_url,
+        current_tools: order.current_tools,
+        plan: order.plan,
+        onboarding: order.onboarding || {},
+        paid_at: order.paid_at,
+      },
+      account: {
+        id: account.id,
+        status: account.status,
+        plan: account.plan,
+      },
+    }),
+  }, 15000);
+}
+
+module.exports = { isConfigured, sendLeadEvent, sendPaidSignupEvent, sendQuestionEvent };

@@ -82,6 +82,71 @@ async function createOrUpdateAccount({
   return result.rows[0];
 }
 
+async function createOrUpdateAccountWithHash({
+  businessName,
+  contactName,
+  email,
+  phone,
+  status,
+  plan,
+  accessCodeHash,
+  services,
+  metrics,
+  notes,
+  stripeCustomerId,
+  stripeCheckoutSessionId,
+  stripeSubscriptionId,
+  paidAt,
+  activatedAt,
+}) {
+  const normalizedEmail = normalizeEmail(email);
+  const serviceJson = defaultServices(services);
+  const metricJson = defaultMetrics(metrics);
+
+  const result = await pool.query(
+    `INSERT INTO client_accounts
+       (business_name, contact_name, email, phone, status, plan, access_code_hash,
+        services, metrics, notes, stripe_customer_id, stripe_checkout_session_id,
+        stripe_subscription_id, paid_at, activated_at)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)
+     ON CONFLICT (email) DO UPDATE SET
+       business_name = EXCLUDED.business_name,
+       contact_name = EXCLUDED.contact_name,
+       phone = EXCLUDED.phone,
+       status = EXCLUDED.status,
+       plan = EXCLUDED.plan,
+       access_code_hash = EXCLUDED.access_code_hash,
+       services = EXCLUDED.services,
+       metrics = EXCLUDED.metrics,
+       notes = EXCLUDED.notes,
+       stripe_customer_id = EXCLUDED.stripe_customer_id,
+       stripe_checkout_session_id = EXCLUDED.stripe_checkout_session_id,
+       stripe_subscription_id = EXCLUDED.stripe_subscription_id,
+       paid_at = EXCLUDED.paid_at,
+       activated_at = EXCLUDED.activated_at,
+       updated_at = NOW()
+     RETURNING *`,
+    [
+      businessName,
+      contactName || null,
+      normalizedEmail,
+      phone || null,
+      status || 'active',
+      plan || 'starter',
+      accessCodeHash,
+      JSON.stringify(serviceJson),
+      JSON.stringify(metricJson),
+      notes || null,
+      stripeCustomerId || null,
+      stripeCheckoutSessionId || null,
+      stripeSubscriptionId || null,
+      paidAt || null,
+      activatedAt || null,
+    ]
+  );
+  return result.rows[0];
+}
+
 async function getAccountByLogin(email, accessCode) {
   const result = await pool.query(
     'SELECT * FROM client_accounts WHERE email = $1 AND access_code_hash = $2 LIMIT 1',
@@ -163,11 +228,13 @@ async function getAdminSnapshot() {
 
 module.exports = {
   createOrUpdateAccount,
+  createOrUpdateAccountWithHash,
   defaultMetrics,
   defaultServices,
   getAccountById,
   getAccountByLogin,
   getAdminSnapshot,
+  hashAccessCode,
   listAccountEvents,
   listAccounts,
   recordAccountEvent,
