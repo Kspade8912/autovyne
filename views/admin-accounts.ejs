@@ -30,6 +30,12 @@
   const setupAccounts = accountsList.filter(a => a.status === 'setup').length;
   const needsAttention = accountsList.filter(a => a.status === 'needs_attention').length;
   const automaticBilling = accountsList.filter(a => (a.billing_method || 'automatic') === 'automatic').length;
+  const editAccount = selectedEditAccount || null;
+  const editServices = editAccount ? (editAccount.services || {}) : {};
+  const editMetrics = editAccount ? (editAccount.metrics || {}) : {};
+  const formAction = editAccount ? `/admin/accounts/account/${editAccount.id}` : '/admin/accounts';
+  const isSelected = (value, current) => String(value) === String(current || '');
+  const isChecked = (value) => Boolean(value) ? 'checked' : '';
 %>
   <div class="wrap">
     <div class="top">
@@ -58,8 +64,8 @@
       <div class="card">
         <div class="section-title">
           <div>
-            <h2>Guided Account Setup</h2>
-            <p class="mini">Use this to create a new account or update an existing email.</p>
+            <h2><%= editAccount ? `Editing ${editAccount.business_name}` : 'Guided Account Setup' %></h2>
+            <p class="mini"><%= editAccount ? 'Update this account without changing the portal code unless you enter a new one.' : 'Use this to create a new account or update an existing email.' %></p>
           </div>
         </div>
         <div class="steps">
@@ -67,30 +73,33 @@
           <div class="step"><span class="step-num">2</span><div><strong>Choose status and billing</strong><p class="mini">Setup, active, paused, or needs attention.</p></div></div>
           <div class="step"><span class="step-num">3</span><div><strong>Pick the automation bundle</strong><p class="mini">Presets turn on the right service switches for you.</p></div></div>
         </div>
-        <form method="POST" action="/admin/accounts">
-          <label>Business Name</label><input name="business_name" required placeholder="Example: Smith Auto Repair">
-          <label>Contact Name</label><input name="contact_name" placeholder="Owner or manager name">
-          <label>Email</label><input name="email" type="email" required placeholder="customer@email.com">
-          <label>Phone</label><input name="phone" placeholder="Business phone">
-          <label>Portal Access Code</label><input name="access_code" required placeholder="Give this code to the customer">
+        <% if (editAccount) { %>
+          <div class="msg ok">You are editing an existing customer account. Leave portal access code blank to keep the current code.</div>
+        <% } %>
+        <form method="POST" action="<%= formAction %>">
+          <label>Business Name</label><input name="business_name" required placeholder="Example: Smith Auto Repair" value="<%= editAccount ? editAccount.business_name : '' %>">
+          <label>Contact Name</label><input name="contact_name" placeholder="Owner or manager name" value="<%= editAccount ? (editAccount.contact_name || '') : '' %>">
+          <label>Email</label><input name="email" type="email" required placeholder="customer@email.com" value="<%= editAccount ? editAccount.email : '' %>">
+          <label>Phone</label><input name="phone" placeholder="Business phone" value="<%= editAccount ? (editAccount.phone || '') : '' %>">
+          <label>Portal Access Code</label><input name="access_code" <%= editAccount ? '' : 'required' %> placeholder="<%= editAccount ? 'Leave blank to keep current code' : 'Give this code to the customer' %>">
           <label>Account Status</label>
           <select name="status">
-            <option value="setup">Setup - still being prepared</option>
-            <option value="active">Active - customer is live</option>
-            <option value="paused">Paused - temporarily stopped</option>
-            <option value="needs_attention">Needs Attention - review required</option>
+            <option value="setup" <%= isSelected('setup', editAccount && editAccount.status) ? 'selected' : '' %>>Setup - still being prepared</option>
+            <option value="active" <%= isSelected('active', editAccount && editAccount.status) ? 'selected' : '' %>>Active - customer is live</option>
+            <option value="paused" <%= isSelected('paused', editAccount && editAccount.status) ? 'selected' : '' %>>Paused - temporarily stopped</option>
+            <option value="needs_attention" <%= isSelected('needs_attention', editAccount && editAccount.status) ? 'selected' : '' %>>Needs Attention - review required</option>
           </select>
           <label>Plan</label>
           <select name="plan">
-            <option value="smb-bundle">SMB Bundle - $149/month</option>
-            <option value="starter">Starter</option>
-            <option value="professional">Professional</option>
-            <option value="enterprise">Enterprise</option>
+            <option value="smb-bundle" <%= isSelected('smb-bundle', editAccount && editAccount.plan) ? 'selected' : '' %>>SMB Bundle - $149/month</option>
+            <option value="starter" <%= isSelected('starter', editAccount && editAccount.plan) ? 'selected' : '' %>>Starter</option>
+            <option value="professional" <%= isSelected('professional', editAccount && editAccount.plan) ? 'selected' : '' %>>Professional</option>
+            <option value="enterprise" <%= isSelected('enterprise', editAccount && editAccount.plan) ? 'selected' : '' %>>Enterprise</option>
           </select>
           <label>Billing Method</label>
           <select name="billing_method">
-            <option value="automatic">Automatic monthly card payments</option>
-            <option value="manual">Manual monthly billing</option>
+            <option value="automatic" <%= isSelected('automatic', editAccount && (editAccount.billing_method || 'automatic')) ? 'selected' : '' %>>Automatic monthly card payments</option>
+            <option value="manual" <%= isSelected('manual', editAccount && editAccount.billing_method) ? 'selected' : '' %>>Manual monthly billing</option>
           </select>
           <label>Automation Preset</label>
           <select name="service_preset">
@@ -102,24 +111,25 @@
             <option value="workflow">n8n workflow only</option>
           </select>
           <div class="checks">
-            <label class="check"><input type="checkbox" name="ai_calling" value="true"> AI Calling</label>
-            <label class="check"><input type="checkbox" name="sms_followup" value="true"> SMS Follow-up</label>
-            <label class="check"><input type="checkbox" name="crm_sync" value="true"> CRM Sync</label>
-            <label class="check"><input type="checkbox" name="n8n_workflows" value="true"> n8n</label>
-            <label class="check"><input type="checkbox" name="openai_qualification" value="true"> OpenAI Lead Review</label>
+            <label class="check"><input type="checkbox" name="ai_calling" value="true" <%= isChecked(editServices.ai_calling) %>> AI Calling</label>
+            <label class="check"><input type="checkbox" name="sms_followup" value="true" <%= isChecked(editServices.sms_followup) %>> SMS Follow-up</label>
+            <label class="check"><input type="checkbox" name="crm_sync" value="true" <%= isChecked(editServices.crm_sync) %>> CRM Sync</label>
+            <label class="check"><input type="checkbox" name="n8n_workflows" value="true" <%= isChecked(editServices.n8n_workflows) %>> n8n</label>
+            <label class="check"><input type="checkbox" name="openai_qualification" value="true" <%= isChecked(editServices.openai_qualification) %>> OpenAI Lead Review</label>
           </div>
           <div class="form-band">
             <label>Live Metrics</label>
             <div class="checks">
-              <input name="calls_handled" type="number" min="0" placeholder="Calls handled">
-              <input name="sms_sent" type="number" min="0" placeholder="SMS sent">
-              <input name="crm_leads_synced" type="number" min="0" placeholder="CRM synced">
-              <input name="missed_calls_recovered" type="number" min="0" placeholder="Recovered calls">
-              <input name="estimated_revenue_recovered" type="number" min="0" placeholder="Revenue recovered">
+              <input name="calls_handled" type="number" min="0" placeholder="Calls handled" value="<%= editMetrics.calls_handled || 0 %>">
+              <input name="sms_sent" type="number" min="0" placeholder="SMS sent" value="<%= editMetrics.sms_sent || 0 %>">
+              <input name="crm_leads_synced" type="number" min="0" placeholder="CRM synced" value="<%= editMetrics.crm_leads_synced || 0 %>">
+              <input name="missed_calls_recovered" type="number" min="0" placeholder="Recovered calls" value="<%= editMetrics.missed_calls_recovered || 0 %>">
+              <input name="estimated_revenue_recovered" type="number" min="0" placeholder="Revenue recovered" value="<%= editMetrics.estimated_revenue_recovered || 0 %>">
             </div>
           </div>
-          <label>Internal Notes</label><textarea name="notes" placeholder="Only Autovyne admins can see this."></textarea>
-          <button class="btn" style="width:100%;margin-top:14px">Save Account</button>
+          <label>Internal Notes</label><textarea name="notes" placeholder="Only Autovyne admins can see this."><%= editAccount ? (editAccount.notes || '') : '' %></textarea>
+          <button class="btn" style="width:100%;margin-top:14px"><%= editAccount ? 'Save Account Changes' : 'Save Account' %></button>
+          <% if (editAccount) { %><a class="btn btn-ghost" style="width:100%;text-align:center;margin-top:10px" href="/admin/accounts">Cancel Editing</a><% } %>
         </form>
       </div>
 
@@ -137,7 +147,7 @@
         </div>
         <div class="table-wrap" id="accounts-table">
           <table class="table">
-            <thead><tr><th>Account</th><th>Status</th><th>Billing</th><th>Services</th><th>Metrics</th><th>Activity</th></tr></thead>
+            <thead><tr><th>Account</th><th>Status</th><th>Billing</th><th>Services</th><th>Metrics</th><th>Actions</th></tr></thead>
             <tbody>
             <% accountsList.forEach(function(a) { const s = a.services || {}; const m = a.metrics || {}; %>
               <tr>
@@ -150,7 +160,12 @@
                   <% }); %>
                 </td>
                 <td class="mini">Calls: <%= m.calls_handled || 0 %><br>SMS: <%= m.sms_sent || 0 %><br>CRM: <%= m.crm_leads_synced || 0 %><br>Recovered: $<%= Number(m.estimated_revenue_recovered || 0).toLocaleString() %></td>
-                <td><a class="btn btn-ghost" href="/admin/accounts/<%= a.id %>/events">View Events</a></td>
+                <td>
+                  <div class="actions">
+                    <a class="btn btn-ghost" href="/admin/accounts/<%= a.id %>/edit">Edit</a>
+                    <a class="btn btn-ghost" href="/admin/accounts/<%= a.id %>/events">Events</a>
+                  </div>
+                </td>
               </tr>
             <% }); %>
             <% if (!accountsList.length) { %><tr><td colspan="6" class="sub">No managed accounts yet.</td></tr><% } %>

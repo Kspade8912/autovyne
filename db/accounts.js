@@ -89,6 +89,60 @@ async function createOrUpdateAccount({
   return result.rows[0];
 }
 
+async function updateAccountById({
+  id,
+  businessName,
+  contactName,
+  email,
+  phone,
+  status,
+  plan,
+  billingMethod,
+  accessCode,
+  services,
+  metrics,
+  notes,
+}) {
+  const normalizedEmail = normalizeEmail(email);
+  const serviceJson = defaultServices(services);
+  const metricJson = defaultMetrics(metrics);
+  const hasNewAccessCode = String(accessCode || '').trim().length > 0;
+
+  const result = await pool.query(
+    `UPDATE client_accounts SET
+       business_name = $2,
+       contact_name = $3,
+       email = $4,
+       phone = $5,
+       status = $6,
+       plan = $7,
+       billing_method = $8,
+       access_code_hash = CASE WHEN $9::BOOLEAN THEN $10 ELSE access_code_hash END,
+       services = $11,
+       metrics = $12,
+       notes = $13,
+       updated_at = NOW()
+     WHERE id = $1
+     RETURNING *`,
+    [
+      id,
+      businessName,
+      contactName || null,
+      normalizedEmail,
+      phone || null,
+      status || 'setup',
+      plan || 'starter',
+      normalizeBillingMethod(billingMethod),
+      hasNewAccessCode,
+      hasNewAccessCode ? hashAccessCode(accessCode) : null,
+      JSON.stringify(serviceJson),
+      JSON.stringify(metricJson),
+      notes || null,
+    ]
+  );
+  return result.rows[0] || null;
+}
+
 async function createOrUpdateAccountWithHash({
   businessName,
   contactName,
@@ -249,4 +303,5 @@ module.exports = {
   listAccounts,
   normalizeBillingMethod,
   recordAccountEvent,
+  updateAccountById,
 };

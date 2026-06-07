@@ -2,9 +2,11 @@ const { Router } = require('express');
 const {
   createOrUpdateAccount,
   getAdminSnapshot,
+  getAccountById,
   listAccountEvents,
   listAccounts,
   recordAccountEvent,
+  updateAccountById,
 } = require('../db/accounts');
 const { sanitizeString } = require('../lib/security');
 const { hasAdminSession, setAdminSession } = require('../lib/admin-auth');
@@ -60,8 +62,38 @@ async function pageData(overrides = {}) {
     accounts,
     snapshot,
     selectedAccount: null,
+    selectedEditAccount: null,
     selectedEvents: [],
     ...overrides,
+  };
+}
+
+function accountInput(body) {
+  const servicePreset = sanitizeString(body.service_preset);
+  return {
+    businessName: sanitizeString(body.business_name),
+    contactName: sanitizeString(body.contact_name),
+    email: sanitizeString(body.email),
+    phone: sanitizeString(body.phone),
+    status: sanitizeString(body.status) || 'setup',
+    plan: sanitizeString(body.plan) || 'starter',
+    billingMethod: sanitizeString(body.billing_method) || 'automatic',
+    accessCode: sanitizeString(body.access_code),
+    services: {
+      ai_calling: body.ai_calling === 'true' || servicePreset === 'calling' || servicePreset === 'full',
+      sms_followup: body.sms_followup === 'true' || servicePreset === 'sms' || servicePreset === 'full',
+      crm_sync: body.crm_sync === 'true' || servicePreset === 'crm' || servicePreset === 'full',
+      n8n_workflows: body.n8n_workflows === 'true' || servicePreset === 'workflow' || servicePreset === 'full',
+      openai_qualification: body.openai_qualification === 'true' || servicePreset === 'full',
+    },
+    metrics: {
+      calls_handled: body.calls_handled,
+      sms_sent: body.sms_sent,
+      crm_leads_synced: body.crm_leads_synced,
+      missed_calls_recovered: body.missed_calls_recovered,
+      estimated_revenue_recovered: body.estimated_revenue_recovered,
+    },
+    notes: sanitizeString(body.notes),
   };
 }
 
@@ -75,6 +107,7 @@ router.get('/', async (req, res) => {
       accounts: [],
       snapshot: {},
       selectedAccount: null,
+      selectedEditAccount: null,
       selectedEvents: [],
     });
   }
@@ -97,6 +130,7 @@ router.post('/login', (req, res) => {
       accounts: [],
       snapshot: {},
       selectedAccount: null,
+      selectedEditAccount: null,
       selectedEvents: [],
     });
   }
@@ -117,29 +151,7 @@ router.post('/', async (req, res) => {
 
   try {
     const account = await createOrUpdateAccount({
-      businessName: sanitizeString(req.body.business_name),
-      contactName: sanitizeString(req.body.contact_name),
-      email: sanitizeString(req.body.email),
-      phone: sanitizeString(req.body.phone),
-      status: sanitizeString(req.body.status) || 'setup',
-      plan: sanitizeString(req.body.plan) || 'starter',
-      billingMethod: sanitizeString(req.body.billing_method) || 'automatic',
-      accessCode: sanitizeString(req.body.access_code),
-      services: {
-        ai_calling: req.body.ai_calling === 'true' || req.body.service_preset === 'calling' || req.body.service_preset === 'full',
-        sms_followup: req.body.sms_followup === 'true' || req.body.service_preset === 'sms' || req.body.service_preset === 'full',
-        crm_sync: req.body.crm_sync === 'true' || req.body.service_preset === 'crm' || req.body.service_preset === 'full',
-        n8n_workflows: req.body.n8n_workflows === 'true' || req.body.service_preset === 'workflow' || req.body.service_preset === 'full',
-        openai_qualification: req.body.openai_qualification === 'true' || req.body.service_preset === 'full',
-      },
-      metrics: {
-        calls_handled: req.body.calls_handled,
-        sms_sent: req.body.sms_sent,
-        crm_leads_synced: req.body.crm_leads_synced,
-        missed_calls_recovered: req.body.missed_calls_recovered,
-        estimated_revenue_recovered: req.body.estimated_revenue_recovered,
-      },
-      notes: sanitizeString(req.body.notes),
+      ...accountInput(req.body),
     });
 
     await recordAccountEvent({
@@ -154,6 +166,55 @@ router.post('/', async (req, res) => {
   } catch (error) {
     console.error('[admin-accounts] save error:', error.message);
     res.status(500).render('admin-accounts', await pageData({ error: 'Account could not be saved.' }));
+  }
+});
+
+router.get('/:id/edit', async (req, res) => {
+  if (!isAuthorized(req)) return res.status(401).redirect('/admin/accounts');
+
+  try {
+    if (!Number.isInteger(Number(req.params.id))) {
+      return res.status(404).render('admin-accounts', await pageData({ error: 'Account not found.' }));
+    }
+    const selectedEditAccount = await getAccountById(req.params.id);
+    if (!selectedEditAccount) {
+      return res.status(404).render('admin-accounts', await pageData({ error: 'Account not found.' }));
+    }
+    res.render('admin-accounts', await pageData({ selectedEditAccount }));
+  } catch (error) {
+    console.error('[admin-accounts] edit load error:', error.message);
+    res.status(500).render('admin-accounts', await pageData({ error: 'Account edit form could not be loaded.' }));
+  }
+});
+
+router.post('/account/:id', async (req, res) => {
+  if (!isAuthorized(req)) return res.status(401).redirect('/admin/accounts');
+
+  try {
+    if (!Number.isInteger(Number(req.params.id))) {
+      return res.status(404).render('admin-accounts', await pageData({ error: 'Account not found.' }));
+    }
+    const account = await updateAccountById({
+      id: parseInt(req.params.id, 10),
+      ...accountInput(req.body),
+    });
+
+    if (!account) {
+      return res.status(404).render('admin-accounts', await pageData({ error: 'Account not found.' }));
+    }
+
+    await recordAccountEvent({
+      accountId: account.id,
+      eventType: 'account_update',
+      title: 'Account dashboard updated',
+      detail: 'Autovyne updated this account from the admin edit form.',
+      visibleToClient: true,
+    });
+
+    res.render('admin-accounts', await pageData({ success: `Updated ${account.business_name}.` }));
+  } catch (error) {
+    console.error('[admin-accounts] edit save error:', error.message);
+    res.status(500).render('admin-accounts', await pageData({ error: 'Account changes could not be saved.' }));
   }
 });
 
