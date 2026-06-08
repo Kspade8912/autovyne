@@ -56,6 +56,16 @@ function pageData(overrides = {}) {
   };
 }
 
+function publicSignupError(error, data) {
+  if (process.env.NODE_ENV !== 'production') {
+    return error.message || 'Signup could not be started.';
+  }
+  if (data?.billingMethod === 'automatic') {
+    return 'Payment setup needs Autovyne review. Please choose manual monthly billing or email kwaun.autovyne@gmail.com.';
+  }
+  return 'Signup could not be started. Please try again or email kwaun.autovyne@gmail.com.';
+}
+
 async function activatePaidOrder(order, session = {}) {
   if (!order || order.activated_account_id) {
     return {
@@ -248,7 +258,7 @@ router.post('/', limiter, async (req, res) => {
     return res.redirect(303, session.url);
   } catch (error) {
     console.error('[signup] create error:', error.message);
-    res.status(500).render('signup', pageData({ error: error.message || 'Signup could not be started.', selectedPlan: data.plan, selectedBillingMethod: data.billingMethod }));
+    res.status(500).render('signup', pageData({ error: publicSignupError(error, data), selectedPlan: data.plan, selectedBillingMethod: data.billingMethod }));
   }
 });
 
