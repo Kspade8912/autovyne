@@ -90,6 +90,70 @@ const QUICK_ACTIONS = {
   },
 };
 
+const ACCOUNT_OPERATIONS = {
+  start_setup: {
+    label: 'Start setup',
+    status: 'setup',
+    services: {},
+    eventType: 'onboarding',
+    title: 'Setup started',
+    detail: 'Autovyne has started setup and will turn on each service after it is connected and checked.',
+    visibleToClient: true,
+    notes: 'Setup started from admin operation preset.',
+  },
+  launch_full_stack: {
+    label: 'Launch full stack',
+    status: 'active',
+    services: {
+      ai_calling: true,
+      sms_followup: true,
+      crm_sync: true,
+      n8n_workflows: true,
+      openai_qualification: true,
+    },
+    eventType: 'launch',
+    title: 'Launch-ready setup complete',
+    detail: 'Autovyne marked AI calling, SMS follow-up, CRM sync, workflow automation, and AI lead review active.',
+    visibleToClient: true,
+    notes: 'Full stack marked active from admin operation preset. Confirm SMS consent before sending texts.',
+  },
+  sms_crm_ready: {
+    label: 'SMS and CRM ready',
+    status: 'setup',
+    services: {
+      sms_followup: true,
+      crm_sync: true,
+      n8n_workflows: true,
+      openai_qualification: true,
+    },
+    eventType: 'sms',
+    title: 'SMS and CRM workflow ready',
+    detail: 'Autovyne marked SMS follow-up, CRM sync, and workflow automation ready for approved contacts.',
+    visibleToClient: true,
+    notes: 'SMS/CRM marked ready from admin operation preset. Confirm consent before sending texts.',
+  },
+  billing_review: {
+    label: 'Needs billing review',
+    status: 'needs_attention',
+    services: {},
+    eventType: 'billing',
+    title: 'Billing review needed',
+    detail: 'This account needs billing review before additional service changes are made.',
+    visibleToClient: true,
+    notes: 'Billing review required.',
+  },
+  pause_service: {
+    label: 'Pause service',
+    status: 'paused',
+    services: {},
+    eventType: 'review',
+    title: 'Service paused',
+    detail: 'Autovyne paused this account while the next step is reviewed.',
+    visibleToClient: true,
+    notes: 'Paused from admin operation preset.',
+  },
+};
+
 function isAuthorized(req) {
   return hasAdminSession(req) || Boolean(process.env.ADMIN_API_KEY && req.signedCookies?.accounts_auth === 'authorized');
 }
@@ -177,6 +241,16 @@ function accountInput(body) {
       estimated_revenue_recovered: body.estimated_revenue_recovered,
     },
     notes: sanitizeString(body.notes),
+  };
+}
+
+function mergeServices(current = {}, updates = {}) {
+  return {
+    ai_calling: updates.ai_calling ?? Boolean(current.ai_calling),
+    sms_followup: updates.sms_followup ?? Boolean(current.sms_followup),
+    crm_sync: updates.crm_sync ?? Boolean(current.crm_sync),
+    n8n_workflows: updates.n8n_workflows ?? Boolean(current.n8n_workflows),
+    openai_qualification: updates.openai_qualification ?? Boolean(current.openai_qualification),
   };
 }
 
@@ -329,6 +403,50 @@ router.post('/quick-action', async (req, res) => {
   } catch (error) {
     console.error('[admin-accounts] quick action error:', error.message);
     res.status(500).render('admin-accounts', await pageData({ error: 'Quick action could not be saved.' }));
+  }
+});
+
+router.post('/operation', async (req, res) => {
+  if (!isAuthorized(req)) return res.status(401).redirect('/admin/accounts');
+
+  const operation = ACCOUNT_OPERATIONS[sanitizeString(req.body.operation)];
+  if (!operation) {
+    return res.status(400).render('admin-accounts', await pageData({ error: 'Choose a valid account operation.' }));
+  }
+
+  try {
+    const account = await getAccountById(parseInt(req.body.account_id, 10));
+    if (!account) {
+      return res.status(404).render('admin-accounts', await pageData({ error: 'Account not found.' }));
+    }
+
+    const updated = await updateAccountById({
+      id: account.id,
+      businessName: account.business_name,
+      contactName: account.contact_name,
+      email: account.email,
+      phone: account.phone,
+      status: operation.status,
+      plan: account.plan,
+      billingMethod: account.billing_method,
+      accessCode: '',
+      services: mergeServices(account.services || {}, operation.services || {}),
+      metrics: account.metrics || {},
+      notes: operation.notes || account.notes,
+    });
+
+    await recordAccountEvent({
+      accountId: account.id,
+      eventType: operation.eventType,
+      title: operation.title,
+      detail: operation.detail,
+      visibleToClient: req.body.visible_to_client ? req.body.visible_to_client === 'true' : operation.visibleToClient,
+    });
+
+    res.render('admin-accounts', await pageData({ success: `${operation.label} saved for ${updated.business_name}.` }));
+  } catch (error) {
+    console.error('[admin-accounts] operation error:', error.message);
+    res.status(500).render('admin-accounts', await pageData({ error: 'Account operation could not be saved.' }));
   }
 });
 

@@ -268,6 +268,31 @@
 
     <section class="recent" id="quick-action">
       <div class="card">
+        <div class="section-title"><h2>One-Click Account Controls</h2><p class="mini">Use guided operations when you want to move an account forward without editing every field.</p></div>
+        <form method="POST" action="/admin/accounts/operation">
+          <label>Account</label>
+          <select name="account_id" required>
+            <% accountsList.forEach(function(a){ %><option value="<%= a.id %>"><%= a.business_name %></option><% }); %>
+          </select>
+          <label>Operation</label>
+          <select name="operation" required>
+            <option value="start_setup">Start setup - portal active, services being prepared</option>
+            <option value="sms_crm_ready">Mark SMS + CRM workflow ready</option>
+            <option value="launch_full_stack">Launch full stack - mark all services active</option>
+            <option value="billing_review">Needs billing review</option>
+            <option value="pause_service">Pause service</option>
+          </select>
+          <label>Visibility</label>
+          <select name="visible_to_client">
+            <option value="true">Show in customer portal</option>
+            <option value="false">Internal only</option>
+          </select>
+          <button class="btn" style="margin-top:14px">Run Account Operation</button>
+          <p class="mini">SMS-related operations still require consent proof before any actual SMS outreach.</p>
+        </form>
+      </div>
+
+      <div class="card">
         <div class="section-title"><h2>Quick Customer Update</h2><p class="mini">Choose a preset instead of typing from scratch.</p></div>
         <form method="POST" action="/admin/accounts/quick-action">
           <label>Account</label>
