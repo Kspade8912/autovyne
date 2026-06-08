@@ -12,6 +12,7 @@ This runbook is the working checklist for taking Autovyne from signup to active 
 6. n8n receives the paid signup event.
 7. Admin uses `/admin/accounts` to mark setup milestones visible to the customer.
 8. Customer logs into `/portal` to see status, activity, and progress.
+9. Automatic-billing customers can open Stripe billing management from the portal after activation.
 
 ## Required Live Environment Keys
 
@@ -85,6 +86,21 @@ Recommended setup:
 8. Confirm admin sees the account and customer portal shows the correct progress.
 
 Never mix live price IDs with test secret keys.
+
+## Stripe Customer Billing Portal
+
+Autovyne can send automatic-billing customers from `/portal` to Stripe's hosted billing portal.
+
+Before using this live:
+
+1. Stripe Dashboard -> Settings -> Billing -> Customer portal.
+2. Enable the portal.
+3. Allow customers to update payment methods.
+4. Decide whether customers can cancel subscriptions directly or must contact Autovyne.
+5. Save the portal configuration.
+6. Test with a paid account that has a Stripe customer ID.
+
+If Stripe Customer Portal is not configured, the portal button can appear but Stripe will reject the session request.
 
 ## Customer Onboarding Checklist
 
