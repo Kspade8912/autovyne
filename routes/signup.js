@@ -77,11 +77,11 @@ async function activatePaidOrder(order, session = {}) {
 
   const paidAt = order.paid_at || new Date().toISOString();
   const services = {
-    ai_calling: true,
-    sms_followup: Boolean(order.sms_consent),
-    crm_sync: true,
-    n8n_workflows: true,
-    openai_qualification: true,
+    ai_calling: false,
+    sms_followup: false,
+    crm_sync: false,
+    n8n_workflows: false,
+    openai_qualification: false,
   };
 
   const account = await createOrUpdateAccountWithHash({
@@ -89,13 +89,13 @@ async function activatePaidOrder(order, session = {}) {
     contactName: order.contact_name,
     email: order.email,
     phone: order.phone,
-    status: 'active',
+    status: 'setup',
     plan: order.plan,
     billingMethod: order.billing_method || 'automatic',
     accessCodeHash: order.portal_access_code_hash,
     services,
     metrics: {},
-    notes: 'Auto-created after successful paid signup.',
+    notes: 'Auto-created after successful paid signup. Portal is active; automation setup is queued for Autovyne.',
     stripeCustomerId: session.customer?.id || session.customer || order.stripe_customer_id,
     stripeCheckoutSessionId: session.id || order.stripe_checkout_session_id,
     stripeSubscriptionId: session.subscription?.id || session.subscription || order.stripe_subscription_id,
@@ -107,7 +107,23 @@ async function activatePaidOrder(order, session = {}) {
     accountId: account.id,
     eventType: 'payment_confirmed',
     title: 'Payment confirmed and portal activated',
-    detail: 'Autovyne automatically approved this account and started onboarding after payment.',
+    detail: 'Autovyne confirmed payment, activated the portal, and queued onboarding.',
+    visibleToClient: true,
+  });
+
+  await recordAccountEvent({
+    accountId: account.id,
+    eventType: 'onboarding',
+    title: 'Onboarding started',
+    detail: 'Autovyne is preparing AI calling, SMS follow-up, CRM sync, and workflow automation for this account.',
+    visibleToClient: true,
+  });
+
+  await recordAccountEvent({
+    accountId: account.id,
+    eventType: 'review',
+    title: 'Automation setup queued',
+    detail: 'Autovyne will turn on each automation area after it is connected and checked.',
     visibleToClient: true,
   });
 
