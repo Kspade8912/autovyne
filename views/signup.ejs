@@ -22,6 +22,16 @@
     </section>
 
     <section class="portal-card">
+      <h2>What happens after you sign up?</h2>
+      <div class="portal-help-grid">
+        <div><strong>1. Secure checkout</strong><p>Automatic billing goes through Stripe. Manual billing creates a review request for Autovyne.</p></div>
+        <div><strong>2. Portal activation</strong><p>After payment or approval, your client portal opens with your setup status and account activity.</p></div>
+        <div><strong>3. AI setup starts</strong><p>Autovyne connects calling, SMS, CRM, and workflow tools in stages, then updates your portal as each area is ready.</p></div>
+      </div>
+      <p class="portal-muted" style="margin-top:14px">SMS follow-up only starts for contacts with proper consent records. The portal shows progress, not private internal controls.</p>
+    </section>
+
+    <section class="portal-card">
       <% if (error) { %><p class="portal-error"><%= error %></p><% } %>
       <% if (!stripeConfigured) { %>
         <p class="portal-error">Automatic card payments are not live yet. Manual monthly billing requests can still be submitted.</p>
