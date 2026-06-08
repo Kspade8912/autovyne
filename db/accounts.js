@@ -224,6 +224,27 @@ async function getAccountById(id) {
   return result.rows[0] || null;
 }
 
+async function getAccountByStripeSubscription(subscriptionId) {
+  const result = await pool.query(
+    'SELECT * FROM client_accounts WHERE stripe_subscription_id = $1 LIMIT 1',
+    [subscriptionId]
+  );
+  return result.rows[0] || null;
+}
+
+async function updateAccountStatusById({ id, status, notes }) {
+  const result = await pool.query(
+    `UPDATE client_accounts
+     SET status = $2,
+         notes = COALESCE($3, notes),
+         updated_at = NOW()
+     WHERE id = $1
+     RETURNING *`,
+    [id, status, notes || null]
+  );
+  return result.rows[0] || null;
+}
+
 async function listAccounts({ limit = 250 } = {}) {
   const result = await pool.query(
     `SELECT a.*,
@@ -296,6 +317,7 @@ module.exports = {
   defaultMetrics,
   defaultServices,
   getAccountById,
+  getAccountByStripeSubscription,
   getAccountByLogin,
   getAdminSnapshot,
   hashAccessCode,
@@ -303,5 +325,6 @@ module.exports = {
   listAccounts,
   normalizeBillingMethod,
   recordAccountEvent,
+  updateAccountStatusById,
   updateAccountById,
 };

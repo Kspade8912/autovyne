@@ -1,5 +1,12 @@
 const { Router } = require('express');
-const { createOrUpdateAccountWithHash, hashAccessCode, normalizeBillingMethod, recordAccountEvent } = require('../db/accounts');
+const {
+  createOrUpdateAccountWithHash,
+  getAccountByStripeSubscription,
+  hashAccessCode,
+  normalizeBillingMethod,
+  recordAccountEvent,
+  updateAccountStatusById,
+} = require('../db/accounts');
 const { recordSmsConsent } = require('../db/compliance');
 const {
   attachCheckoutSession,
@@ -190,6 +197,69 @@ async function markSessionPaidAndActivate(session) {
   return activatePaidOrder(paidOrder, session);
 }
 
+async function findAccountForStripeObject(object = {}) {
+  const subscriptionId = object.subscription?.id || object.subscription || object.id;
+  if (!subscriptionId) return null;
+  return getAccountByStripeSubscription(subscriptionId);
+}
+
+async function handleSubscriptionDeleted(subscription) {
+  const account = await findAccountForStripeObject(subscription);
+  if (!account) return null;
+
+  const updated = await updateAccountStatusById({
+    id: account.id,
+    status: 'paused',
+    notes: 'Stripe subscription ended. Review billing before resuming service.',
+  });
+
+  await recordAccountEvent({
+    accountId: account.id,
+    eventType: 'billing',
+    title: 'Subscription ended',
+    detail: 'Stripe reported that this subscription ended. Autovyne has paused the account until billing is reviewed.',
+    visibleToClient: true,
+  });
+
+  return updated;
+}
+
+async function handleInvoicePaymentFailed(invoice) {
+  const account = await findAccountForStripeObject(invoice);
+  if (!account) return null;
+
+  const updated = await updateAccountStatusById({
+    id: account.id,
+    status: 'needs_attention',
+    notes: 'Stripe reported a failed subscription payment. Billing review is required.',
+  });
+
+  await recordAccountEvent({
+    accountId: account.id,
+    eventType: 'billing',
+    title: 'Billing needs attention',
+    detail: 'Stripe reported a failed payment. Please update billing or contact Autovyne for help.',
+    visibleToClient: true,
+  });
+
+  return updated;
+}
+
+async function handleInvoicePaymentSucceeded(invoice) {
+  const account = await findAccountForStripeObject(invoice);
+  if (!account) return null;
+
+  await recordAccountEvent({
+    accountId: account.id,
+    eventType: 'billing',
+    title: 'Monthly payment received',
+    detail: 'Stripe confirmed the latest monthly subscription payment.',
+    visibleToClient: true,
+  });
+
+  return account;
+}
+
 router.get('/', (req, res) => {
   res.render('signup', pageData({
     selectedPlan: validPlan(req.query.plan),
@@ -305,6 +375,12 @@ router.post('/stripe-webhook', async (req, res) => {
     const event = stripe.verifyWebhook(req.rawBody, req.headers['stripe-signature']);
     if (event.type === 'checkout.session.completed' || event.type === 'checkout.session.async_payment_succeeded') {
       await markSessionPaidAndActivate(event.data.object);
+    } else if (event.type === 'customer.subscription.deleted') {
+      await handleSubscriptionDeleted(event.data.object);
+    } else if (event.type === 'invoice.payment_failed') {
+      await handleInvoicePaymentFailed(event.data.object);
+    } else if (event.type === 'invoice.payment_succeeded') {
+      await handleInvoicePaymentSucceeded(event.data.object);
     }
     res.json({ received: true });
   } catch (error) {

@@ -102,6 +102,29 @@ Before using this live:
 
 If Stripe Customer Portal is not configured, the portal button can appear but Stripe will reject the session request.
 
+## Stripe Webhook Events
+
+The live webhook endpoint is:
+
+```text
+https://autovyne.com/signup/stripe-webhook
+```
+
+Configure snapshot events for:
+
+- `checkout.session.completed`
+- `checkout.session.async_payment_succeeded`
+- `invoice.payment_succeeded`
+- `invoice.payment_failed`
+- `customer.subscription.deleted`
+
+What Autovyne does:
+
+- Checkout completion activates the customer portal and queues onboarding.
+- Successful renewal records a customer-visible billing event.
+- Failed payment marks the account as `needs_attention`.
+- Deleted subscription marks the account as `paused`.
+
 ## Customer Onboarding Checklist
 
 For each paid customer:
