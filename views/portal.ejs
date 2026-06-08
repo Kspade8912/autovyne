@@ -157,6 +157,28 @@
       </article>
 
       <article class="portal-card">
+        <h2>Autovyne Helper</h2>
+        <p class="portal-muted">Ask simple questions about your account status, setup progress, billing visibility, or recent updates. This helper cannot change settings or send messages.</p>
+        <form method="POST" action="/portal/assistant" class="portal-form">
+          <label for="assistant_question">Question</label>
+          <select onchange="this.form.assistant_question.value=this.value">
+            <option value="">Choose a common question</option>
+            <option value="What is my current account status?">What is my current account status?</option>
+            <option value="What has Autovyne finished so far?">What has Autovyne finished so far?</option>
+            <option value="What is still being set up?">What is still being set up?</option>
+            <option value="Who do I contact if something needs to change?">Who do I contact if something needs to change?</option>
+          </select>
+          <textarea id="assistant_question" name="assistant_question" rows="3" placeholder="Example: What is still being set up?"><%= assistantQuestion || '' %></textarea>
+          <button class="btn-primary" type="submit">Ask Helper</button>
+        </form>
+        <% if (assistantResponse) { %>
+          <div class="portal-empty" style="white-space:pre-wrap;text-align:left;margin-top:14px"><%= assistantResponse %></div>
+        <% } %>
+      </article>
+    </section>
+
+    <section class="portal-two-col">
+      <article class="portal-card">
         <h2>Need Autovyne?</h2>
         <p class="portal-muted">Use this if something looks wrong, your phone number changes, or you want Autovyne to update the automation.</p>
         <div class="portal-help-grid">
@@ -164,6 +186,11 @@
           <div><strong>Email</strong><p>Reach Autovyne directly for billing or onboarding help.</p><a class="portal-secondary-btn" href="mailto:kwaun.autovyne@gmail.com" style="display:inline-block;text-decoration:none;margin-top:8px">Email Support</a></div>
         </div>
         <p class="portal-muted" style="margin-top:16px">For privacy and SMS compliance, phone/SMS updates only happen when the right consent records are in place.</p>
+      </article>
+
+      <article class="portal-card">
+        <h2>Helper Limits</h2>
+        <p class="portal-muted">For safety, the customer helper only explains what is visible in this portal. It cannot update billing, change SMS consent, edit workflows, or start/stop automation. Those requests go through Autovyne support.</p>
       </article>
     </section>
 

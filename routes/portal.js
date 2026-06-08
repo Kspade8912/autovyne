@@ -2,6 +2,7 @@ const { Router } = require('express');
 const { getAccountById, getAccountByLogin, listAccountEvents } = require('../db/accounts');
 const { sanitizeString } = require('../lib/security');
 const stripe = require('../services/stripe');
+const { askCustomerAssistant } = require('../services/openai');
 
 const router = Router();
 
@@ -17,7 +18,7 @@ function seo() {
 }
 
 function renderLogin(res, error = null) {
-  res.render('portal', { authorized: false, account: null, events: [], error, seo: seo() });
+  res.render('portal', { authorized: false, account: null, events: [], error, seo: seo(), assistantQuestion: '', assistantResponse: null });
 }
 
 router.get('/', async (req, res) => {
@@ -31,7 +32,7 @@ router.get('/', async (req, res) => {
       return renderLogin(res);
     }
     const events = await listAccountEvents(account.id, { visibleOnly: true, limit: 30 });
-    res.render('portal', { authorized: true, account, events, error: null, seo: seo() });
+    res.render('portal', { authorized: true, account, events, error: null, seo: seo(), assistantQuestion: '', assistantResponse: null });
   } catch (error) {
     console.error('[portal] load error:', error.message);
     renderLogin(res, 'The portal could not load right now. Please try again.');
@@ -52,6 +53,8 @@ router.post('/login', async (req, res) => {
       events: [],
       error: 'Invalid email or access code.',
       seo: seo(),
+      assistantQuestion: '',
+      assistantResponse: null,
     });
 
     res.cookie('portal_account_id', String(account.id), {
@@ -73,6 +76,44 @@ router.post('/logout', (_req, res) => {
   res.redirect('/portal');
 });
 
+router.post('/assistant', async (req, res) => {
+  const accountId = req.signedCookies?.portal_account_id;
+  if (!accountId) return renderLogin(res, 'Log in before asking the portal assistant.');
+
+  const assistantQuestion = sanitizeString(req.body.assistant_question);
+  try {
+    const account = await getAccountById(accountId);
+    if (!account) {
+      res.clearCookie('portal_account_id');
+      return renderLogin(res, 'Log in before asking the portal assistant.');
+    }
+    const events = await listAccountEvents(account.id, { visibleOnly: true, limit: 30 });
+    const assistantResponse = await askCustomerAssistant({ question: assistantQuestion, account, events });
+    res.render('portal', {
+      authorized: true,
+      account,
+      events,
+      error: null,
+      seo: seo(),
+      assistantQuestion,
+      assistantResponse,
+    });
+  } catch (error) {
+    console.error('[portal] assistant error:', error.message);
+    const account = await getAccountById(accountId).catch(() => null);
+    const events = account ? await listAccountEvents(account.id, { visibleOnly: true, limit: 30 }).catch(() => []) : [];
+    res.status(500).render('portal', {
+      authorized: Boolean(account),
+      account,
+      events,
+      error: null,
+      seo: seo(),
+      assistantQuestion,
+      assistantResponse: 'The portal assistant could not answer right now. Please use Submit a Question or email kwaun.autovyne@gmail.com.',
+    });
+  }
+});
+
 router.post('/billing', async (req, res) => {
   const accountId = req.signedCookies?.portal_account_id;
   if (!accountId) return renderLogin(res, 'Log in before opening billing settings.');
@@ -91,6 +132,8 @@ router.post('/billing', async (req, res) => {
         events,
         error: 'Billing portal is available after an automatic Stripe subscription is active. For help, email kwaun.autovyne@gmail.com.',
         seo: seo(),
+        assistantQuestion: '',
+        assistantResponse: null,
       });
     }
 
@@ -109,6 +152,8 @@ router.post('/billing', async (req, res) => {
       events,
       error: 'Billing settings could not open right now. Please email kwaun.autovyne@gmail.com.',
       seo: seo(),
+      assistantQuestion: '',
+      assistantResponse: null,
     });
   }
 });

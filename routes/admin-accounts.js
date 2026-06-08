@@ -10,6 +10,8 @@ const {
 } = require('../db/accounts');
 const { sanitizeString } = require('../lib/security');
 const { hasAdminSession, setAdminSession } = require('../lib/admin-auth');
+const { askAdminAssistant } = require('../services/openai');
+const { getConfigurationStatus } = require('../services/integrations');
 
 const router = Router();
 
@@ -143,6 +145,8 @@ async function pageData(overrides = {}) {
     selectedAccount: null,
     selectedEditAccount: null,
     selectedEvents: [],
+    assistantQuestion: '',
+    assistantResponse: null,
     ...overrides,
   };
 }
@@ -190,6 +194,8 @@ router.get('/', async (req, res) => {
       selectedAccount: null,
       selectedEditAccount: null,
       selectedEvents: [],
+      assistantQuestion: '',
+      assistantResponse: null,
     });
   }
 
@@ -215,6 +221,8 @@ router.post('/login', (req, res) => {
       selectedAccount: null,
       selectedEditAccount: null,
       selectedEvents: [],
+      assistantQuestion: '',
+      assistantResponse: null,
     });
   }
 
@@ -321,6 +329,36 @@ router.post('/quick-action', async (req, res) => {
   } catch (error) {
     console.error('[admin-accounts] quick action error:', error.message);
     res.status(500).render('admin-accounts', await pageData({ error: 'Quick action could not be saved.' }));
+  }
+});
+
+router.post('/assistant', async (req, res) => {
+  if (!isAuthorized(req)) return res.status(401).redirect('/admin/accounts');
+
+  const assistantQuestion = sanitizeString(req.body.assistant_question);
+  try {
+    const [accounts, snapshot] = await Promise.all([
+      listAccounts(),
+      getAdminSnapshot(),
+    ]);
+    const assistantResponse = await askAdminAssistant({
+      question: assistantQuestion,
+      accounts,
+      snapshot,
+      integrationStatus: getConfigurationStatus(),
+    });
+    res.render('admin-accounts', await pageData({
+      accounts,
+      snapshot,
+      assistantQuestion,
+      assistantResponse,
+    }));
+  } catch (error) {
+    console.error('[admin-accounts] assistant error:', error.message);
+    res.status(500).render('admin-accounts', await pageData({
+      assistantQuestion,
+      assistantResponse: 'The admin assistant could not answer right now. Check Integration Health and try again.',
+    }));
   }
 });
 

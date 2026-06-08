@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Account Command Center - Autovyne</title>
   <style>
-    *{box-sizing:border-box}body{margin:0;background:#08080d;color:#eff2f7;font:14px 'Space Grotesk',system-ui,sans-serif}.wrap{max-width:1440px;margin:0 auto;padding:30px}.top{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;margin-bottom:22px}.sub,.mini{color:#8a8f9e}.mini{font-size:12px;line-height:1.5}.eyebrow{color:#00e87b;font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.1em}.top h1{font-size:clamp(2rem,4vw,3.4rem);line-height:1;margin:8px 0 10px;letter-spacing:-.05em}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}.card{background:#12141c;border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:20px;box-shadow:0 20px 70px rgba(0,0,0,.24)}.stat span,.metric span{display:block;color:#8a8f9e;font-size:11px;text-transform:uppercase;letter-spacing:.08em;font-weight:800}.stat strong,.metric strong{display:block;font-size:30px;margin-top:6px}.accent{color:#00e87b}.warn{color:#ffd166}.danger{color:#ff6b6b}.cols{display:grid;grid-template-columns:390px 1fr;gap:18px;align-items:start}.login{max-width:440px;margin:120px auto}.login h1{margin-top:0}label{display:block;color:#8a8f9e;font-size:12px;margin:12px 0 6px;font-weight:800;text-transform:uppercase;letter-spacing:.04em}input,select,textarea{width:100%;padding:11px 12px;border-radius:11px;border:1px solid rgba(255,255,255,.12);background:#0a0c12;color:#fff;font:14px inherit}select{cursor:pointer}textarea{min-height:96px;resize:vertical}.checks{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}.check{display:flex;gap:8px;align-items:center;background:#0a0c12;border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:10px;color:#cdd3df;text-transform:none;letter-spacing:0;font-size:13px}.check input{width:auto}.btn{display:inline-block;border:0;border-radius:11px;padding:11px 14px;background:#00e87b;color:#05070a;font-weight:900;cursor:pointer;text-decoration:none}.btn-secondary{background:#202432;color:#eff2f7}.btn-ghost{background:transparent;color:#eff2f7;border:1px solid rgba(255,255,255,.14)}.actions{display:flex;gap:10px;flex-wrap:wrap}.msg{padding:12px;border-radius:12px;margin-bottom:14px}.err{background:rgba(255,107,107,.12);color:#ff9d9d}.ok{background:rgba(0,232,123,.1);color:#00e87b}.table-wrap{overflow:auto}.table{width:100%;border-collapse:collapse}.table th{color:#8a8f9e;text-align:left;text-transform:uppercase;font-size:11px;letter-spacing:.08em;border-bottom:1px solid rgba(255,255,255,.08);padding:10px}.table td{border-bottom:1px solid rgba(255,255,255,.04);padding:12px 10px;vertical-align:top}.pill{display:inline-block;border-radius:999px;padding:4px 9px;background:#202432;color:#cdd3df;font-size:12px;margin:2px 2px 2px 0}.pill-on{background:rgba(0,232,123,.12);color:#00e87b}.section-title{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin:0 0 14px}.section-title h2{font-size:18px;margin:0}.recent{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}.event{padding:11px 0;border-bottom:1px solid rgba(255,255,255,.06)}.event:last-child{border-bottom:0}.steps{display:grid;gap:8px;margin:12px 0 16px}.step{display:grid;grid-template-columns:28px 1fr;gap:10px;align-items:start;padding:10px;border-radius:12px;background:rgba(255,255,255,.035)}.step-num{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:rgba(0,232,123,.12);color:#00e87b;font-weight:900}.form-band{padding:12px;border:1px solid rgba(0,232,123,.16);background:rgba(0,232,123,.055);border-radius:14px;margin:12px 0}.segmented{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0 14px}.segmented a{padding:10px;border-radius:11px;background:#0a0c12;color:#cdd3df;text-decoration:none;text-align:center;border:1px solid rgba(255,255,255,.08);font-weight:800}.segmented a:hover{border-color:rgba(0,232,123,.45)}.filters{display:grid;grid-template-columns:2fr repeat(3,1fr) auto;gap:10px;align-items:end;margin:0 0 14px;padding:12px;border-radius:14px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.07)}.filters label{margin:0 0 5px}.health-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:10px 0 14px}.health{padding:12px;border-radius:14px;background:#0a0c12;border:1px solid rgba(255,255,255,.08)}.health strong{display:block;font-size:18px;margin-top:4px}.progress{height:8px;background:#202432;border-radius:999px;overflow:hidden;margin-top:8px}.progress span{display:block;height:100%;background:#00e87b;border-radius:999px}@media(max-width:980px){.cols,.recent,.filters{grid-template-columns:1fr}.grid,.health-grid{grid-template-columns:repeat(2,1fr)}.top{flex-direction:column}}@media(max-width:640px){.grid,.checks,.segmented,.health-grid{grid-template-columns:1fr}.wrap{padding:18px}.actions{width:100%}.actions .btn{width:100%;text-align:center}}
+    *{box-sizing:border-box}body{margin:0;background:#08080d;color:#eff2f7;font:14px 'Space Grotesk',system-ui,sans-serif}.wrap{max-width:1440px;margin:0 auto;padding:30px}.top{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;margin-bottom:22px}.sub,.mini{color:#8a8f9e}.mini{font-size:12px;line-height:1.5}.eyebrow{color:#00e87b;font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.1em}.top h1{font-size:clamp(2rem,4vw,3.4rem);line-height:1;margin:8px 0 10px;letter-spacing:-.05em}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}.card{background:#12141c;border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:20px;box-shadow:0 20px 70px rgba(0,0,0,.24)}.stat span,.metric span{display:block;color:#8a8f9e;font-size:11px;text-transform:uppercase;letter-spacing:.08em;font-weight:800}.stat strong,.metric strong{display:block;font-size:30px;margin-top:6px}.accent{color:#00e87b}.warn{color:#ffd166}.danger{color:#ff6b6b}.cols{display:grid;grid-template-columns:390px 1fr;gap:18px;align-items:start}.login{max-width:440px;margin:120px auto}.login h1{margin-top:0}label{display:block;color:#8a8f9e;font-size:12px;margin:12px 0 6px;font-weight:800;text-transform:uppercase;letter-spacing:.04em}input,select,textarea{width:100%;padding:11px 12px;border-radius:11px;border:1px solid rgba(255,255,255,.12);background:#0a0c12;color:#fff;font:14px inherit}select{cursor:pointer}textarea{min-height:96px;resize:vertical}.checks{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}.check{display:flex;gap:8px;align-items:center;background:#0a0c12;border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:10px;color:#cdd3df;text-transform:none;letter-spacing:0;font-size:13px}.check input{width:auto}.btn{display:inline-block;border:0;border-radius:11px;padding:11px 14px;background:#00e87b;color:#05070a;font-weight:900;cursor:pointer;text-decoration:none}.btn-secondary{background:#202432;color:#eff2f7}.btn-ghost{background:transparent;color:#eff2f7;border:1px solid rgba(255,255,255,.14)}.actions{display:flex;gap:10px;flex-wrap:wrap}.msg{padding:12px;border-radius:12px;margin-bottom:14px}.err{background:rgba(255,107,107,.12);color:#ff9d9d}.ok{background:rgba(0,232,123,.1);color:#00e87b}.table-wrap{overflow:auto}.table{width:100%;border-collapse:collapse}.table th{color:#8a8f9e;text-align:left;text-transform:uppercase;font-size:11px;letter-spacing:.08em;border-bottom:1px solid rgba(255,255,255,.08);padding:10px}.table td{border-bottom:1px solid rgba(255,255,255,.04);padding:12px 10px;vertical-align:top}.pill{display:inline-block;border-radius:999px;padding:4px 9px;background:#202432;color:#cdd3df;font-size:12px;margin:2px 2px 2px 0}.pill-on{background:rgba(0,232,123,.12);color:#00e87b}.section-title{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin:0 0 14px}.section-title h2{font-size:18px;margin:0}.recent{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}.event{padding:11px 0;border-bottom:1px solid rgba(255,255,255,.06)}.event:last-child{border-bottom:0}.steps{display:grid;gap:8px;margin:12px 0 16px}.step{display:grid;grid-template-columns:28px 1fr;gap:10px;align-items:start;padding:10px;border-radius:12px;background:rgba(255,255,255,.035)}.step-num{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:rgba(0,232,123,.12);color:#00e87b;font-weight:900}.form-band{padding:12px;border:1px solid rgba(0,232,123,.16);background:rgba(0,232,123,.055);border-radius:14px;margin:12px 0}.segmented{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0 14px}.segmented a{padding:10px;border-radius:11px;background:#0a0c12;color:#cdd3df;text-decoration:none;text-align:center;border:1px solid rgba(255,255,255,.08);font-weight:800}.segmented a:hover{border-color:rgba(0,232,123,.45)}.filters{display:grid;grid-template-columns:2fr repeat(3,1fr) auto;gap:10px;align-items:end;margin:0 0 14px;padding:12px;border-radius:14px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.07)}.filters label{margin:0 0 5px}.health-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:10px 0 14px}.health{padding:12px;border-radius:14px;background:#0a0c12;border:1px solid rgba(255,255,255,.08)}.health strong{display:block;font-size:18px;margin-top:4px}.progress{height:8px;background:#202432;border-radius:999px;overflow:hidden;margin-top:8px}.progress span{display:block;height:100%;background:#00e87b;border-radius:999px}.fold{border:1px solid rgba(255,255,255,.08);border-radius:14px;background:rgba(255,255,255,.025);margin:10px 0;padding:0 12px 12px}.fold summary{cursor:pointer;padding:13px 0;font-weight:900;color:#eff2f7}.assistant{border-color:rgba(0,232,123,.22);background:linear-gradient(135deg,rgba(0,232,123,.08),rgba(255,255,255,.025))}.assistant-answer{white-space:pre-wrap;background:#0a0c12;border:1px solid rgba(0,232,123,.18);border-radius:14px;padding:14px;color:#dfffee;margin-top:12px}.quick-select{margin-top:8px}@media(max-width:980px){.cols,.recent,.filters{grid-template-columns:1fr}.grid,.health-grid{grid-template-columns:repeat(2,1fr)}.top{flex-direction:column}}@media(max-width:640px){.grid,.checks,.segmented,.health-grid{grid-template-columns:1fr}.wrap{padding:18px}.actions{width:100%}.actions .btn{width:100%;text-align:center}}
   </style>
 </head>
 <body>
@@ -75,6 +75,29 @@
       <div class="card stat"><span>Portfolio Readiness</span><strong class="<%= setupPercent >= 75 ? 'accent' : 'warn' %>"><%= setupPercent %>%</strong><div class="progress"><span style="width:<%= setupPercent %>%"></span></div></div>
     </section>
 
+    <section class="card assistant">
+      <div class="section-title">
+        <div>
+          <h2>Autovyne Admin AI</h2>
+          <p class="mini">Ask for a plain-English update, next steps, risk check, or what to work on first. It can advise, but it cannot change accounts or send messages.</p>
+        </div>
+      </div>
+      <form method="POST" action="/admin/accounts/assistant">
+        <label>Quick Prompt</label>
+        <select class="quick-select" onchange="this.form.assistant_question.value=this.value">
+          <option value="">Choose a guided question</option>
+          <option value="Give me a simple daily briefing of what needs my attention first.">Daily briefing</option>
+          <option value="Which accounts look stuck or need review, and what should I do next?">Find stuck accounts</option>
+          <option value="Summarize billing, SMS consent, and automation risks before I start outreach.">Risk check</option>
+          <option value="Explain my current account activity like I am managing this by myself for the first time.">Explain activity simply</option>
+        </select>
+        <label>Your Question</label>
+        <textarea name="assistant_question" rows="3" placeholder="Example: What should I work on today?"><%= assistantQuestion || '' %></textarea>
+        <button class="btn" type="submit" style="margin-top:12px">Ask Admin AI</button>
+      </form>
+      <% if (assistantResponse) { %><div class="assistant-answer"><%= assistantResponse %></div><% } %>
+    </section>
+
     <section class="cols">
       <div class="card">
         <div class="section-title">
@@ -92,47 +115,57 @@
           <div class="msg ok">You are editing an existing customer account. Leave portal access code blank to keep the current code.</div>
         <% } %>
         <form method="POST" action="<%= formAction %>">
-          <label>Business Name</label><input name="business_name" required placeholder="Example: Smith Auto Repair" value="<%= editAccount ? editAccount.business_name : '' %>">
-          <label>Contact Name</label><input name="contact_name" placeholder="Owner or manager name" value="<%= editAccount ? (editAccount.contact_name || '') : '' %>">
-          <label>Email</label><input name="email" type="email" required placeholder="customer@email.com" value="<%= editAccount ? editAccount.email : '' %>">
-          <label>Phone</label><input name="phone" placeholder="Business phone" value="<%= editAccount ? (editAccount.phone || '') : '' %>">
-          <label>Portal Access Code</label><input name="access_code" <%= editAccount ? '' : 'required' %> placeholder="<%= editAccount ? 'Leave blank to keep current code' : 'Give this code to the customer' %>">
-          <label>Account Status</label>
-          <select name="status">
-            <option value="setup" <%= isSelected('setup', editAccount && editAccount.status) ? 'selected' : '' %>>Setup - still being prepared</option>
-            <option value="active" <%= isSelected('active', editAccount && editAccount.status) ? 'selected' : '' %>>Active - customer is live</option>
-            <option value="paused" <%= isSelected('paused', editAccount && editAccount.status) ? 'selected' : '' %>>Paused - temporarily stopped</option>
-            <option value="needs_attention" <%= isSelected('needs_attention', editAccount && editAccount.status) ? 'selected' : '' %>>Needs Attention - review required</option>
-          </select>
-          <label>Plan</label>
-          <select name="plan">
-            <option value="smb-bundle" <%= isSelected('smb-bundle', editAccount && editAccount.plan) ? 'selected' : '' %>>SMB Bundle - $149/month</option>
-            <option value="starter" <%= isSelected('starter', editAccount && editAccount.plan) ? 'selected' : '' %>>Starter</option>
-            <option value="professional" <%= isSelected('professional', editAccount && editAccount.plan) ? 'selected' : '' %>>Professional</option>
-            <option value="enterprise" <%= isSelected('enterprise', editAccount && editAccount.plan) ? 'selected' : '' %>>Enterprise</option>
-          </select>
-          <label>Billing Method</label>
-          <select name="billing_method">
-            <option value="automatic" <%= isSelected('automatic', editAccount && (editAccount.billing_method || 'automatic')) ? 'selected' : '' %>>Automatic monthly card payments</option>
-            <option value="manual" <%= isSelected('manual', editAccount && editAccount.billing_method) ? 'selected' : '' %>>Manual monthly billing</option>
-          </select>
-          <label>Automation Preset</label>
-          <select name="service_preset">
-            <option value="">Use switches below</option>
-            <option value="full">Full stack: AI calling, SMS, CRM, n8n, OpenAI</option>
-            <option value="calling">AI calling only</option>
-            <option value="sms">SMS follow-up only</option>
-            <option value="crm">CRM sync only</option>
-            <option value="workflow">n8n workflow only</option>
-          </select>
-          <div class="checks">
-            <label class="check"><input type="checkbox" name="ai_calling" value="true" <%= isChecked(editServices.ai_calling) %>> AI Calling</label>
-            <label class="check"><input type="checkbox" name="sms_followup" value="true" <%= isChecked(editServices.sms_followup) %>> SMS Follow-up</label>
-            <label class="check"><input type="checkbox" name="crm_sync" value="true" <%= isChecked(editServices.crm_sync) %>> CRM Sync</label>
-            <label class="check"><input type="checkbox" name="n8n_workflows" value="true" <%= isChecked(editServices.n8n_workflows) %>> n8n</label>
-            <label class="check"><input type="checkbox" name="openai_qualification" value="true" <%= isChecked(editServices.openai_qualification) %>> OpenAI Lead Review</label>
-          </div>
-          <div class="form-band">
+          <details class="fold" open>
+            <summary>Customer Basics</summary>
+            <label>Business Name</label><input name="business_name" required placeholder="Example: Smith Auto Repair" value="<%= editAccount ? editAccount.business_name : '' %>">
+            <label>Contact Name</label><input name="contact_name" placeholder="Owner or manager name" value="<%= editAccount ? (editAccount.contact_name || '') : '' %>">
+            <label>Email</label><input name="email" type="email" required placeholder="customer@email.com" value="<%= editAccount ? editAccount.email : '' %>">
+            <label>Phone</label><input name="phone" placeholder="Business phone" value="<%= editAccount ? (editAccount.phone || '') : '' %>">
+            <label>Portal Access Code</label><input name="access_code" <%= editAccount ? '' : 'required' %> placeholder="<%= editAccount ? 'Leave blank to keep current code' : 'Give this code to the customer' %>">
+          </details>
+          <details class="fold" open>
+            <summary>Status, Plan, and Billing</summary>
+            <label>Account Status</label>
+            <select name="status">
+              <option value="setup" <%= isSelected('setup', editAccount && editAccount.status) ? 'selected' : '' %>>Setup - still being prepared</option>
+              <option value="active" <%= isSelected('active', editAccount && editAccount.status) ? 'selected' : '' %>>Active - customer is live</option>
+              <option value="paused" <%= isSelected('paused', editAccount && editAccount.status) ? 'selected' : '' %>>Paused - temporarily stopped</option>
+              <option value="needs_attention" <%= isSelected('needs_attention', editAccount && editAccount.status) ? 'selected' : '' %>>Needs Attention - review required</option>
+            </select>
+            <label>Plan</label>
+            <select name="plan">
+              <option value="smb-bundle" <%= isSelected('smb-bundle', editAccount && editAccount.plan) ? 'selected' : '' %>>SMB Bundle - $149/month</option>
+              <option value="starter" <%= isSelected('starter', editAccount && editAccount.plan) ? 'selected' : '' %>>Starter</option>
+              <option value="professional" <%= isSelected('professional', editAccount && editAccount.plan) ? 'selected' : '' %>>Professional</option>
+              <option value="enterprise" <%= isSelected('enterprise', editAccount && editAccount.plan) ? 'selected' : '' %>>Enterprise</option>
+            </select>
+            <label>Billing Method</label>
+            <select name="billing_method">
+              <option value="automatic" <%= isSelected('automatic', editAccount && (editAccount.billing_method || 'automatic')) ? 'selected' : '' %>>Automatic monthly card payments</option>
+              <option value="manual" <%= isSelected('manual', editAccount && editAccount.billing_method) ? 'selected' : '' %>>Manual monthly billing</option>
+            </select>
+          </details>
+          <details class="fold" open>
+            <summary>Automation Services</summary>
+            <label>Automation Preset</label>
+            <select name="service_preset">
+              <option value="">Use switches below</option>
+              <option value="full">Full stack: AI calling, SMS, CRM, n8n, OpenAI</option>
+              <option value="calling">AI calling only</option>
+              <option value="sms">SMS follow-up only</option>
+              <option value="crm">CRM sync only</option>
+              <option value="workflow">n8n workflow only</option>
+            </select>
+            <div class="checks">
+              <label class="check"><input type="checkbox" name="ai_calling" value="true" <%= isChecked(editServices.ai_calling) %>> AI Calling</label>
+              <label class="check"><input type="checkbox" name="sms_followup" value="true" <%= isChecked(editServices.sms_followup) %>> SMS Follow-up</label>
+              <label class="check"><input type="checkbox" name="crm_sync" value="true" <%= isChecked(editServices.crm_sync) %>> CRM Sync</label>
+              <label class="check"><input type="checkbox" name="n8n_workflows" value="true" <%= isChecked(editServices.n8n_workflows) %>> n8n</label>
+              <label class="check"><input type="checkbox" name="openai_qualification" value="true" <%= isChecked(editServices.openai_qualification) %>> OpenAI Lead Review</label>
+            </div>
+          </details>
+          <details class="fold">
+            <summary>Metrics and Notes</summary>
             <label>Live Metrics</label>
             <div class="checks">
               <input name="calls_handled" type="number" min="0" placeholder="Calls handled" value="<%= editMetrics.calls_handled || 0 %>">
@@ -141,8 +174,16 @@
               <input name="missed_calls_recovered" type="number" min="0" placeholder="Recovered calls" value="<%= editMetrics.missed_calls_recovered || 0 %>">
               <input name="estimated_revenue_recovered" type="number" min="0" placeholder="Revenue recovered" value="<%= editMetrics.estimated_revenue_recovered || 0 %>">
             </div>
-          </div>
-          <label>Internal Notes</label><textarea name="notes" placeholder="Only Autovyne admins can see this."><%= editAccount ? (editAccount.notes || '') : '' %></textarea>
+            <label>Notes Preset</label>
+            <select onchange="this.form.notes.value=this.value">
+              <option value="">Choose a note preset</option>
+              <option value="Customer is paid and waiting for automation setup.">Paid and waiting for setup</option>
+              <option value="Needs billing review before additional setup work.">Needs billing review</option>
+              <option value="SMS consent must be verified before SMS follow-up.">Verify SMS consent</option>
+              <option value="Ready for launch-ready review after service checks.">Ready for launch review</option>
+            </select>
+            <label>Internal Notes</label><textarea name="notes" placeholder="Only Autovyne admins can see this."><%= editAccount ? (editAccount.notes || '') : '' %></textarea>
+          </details>
           <button class="btn" style="width:100%;margin-top:14px"><%= editAccount ? 'Save Account Changes' : 'Save Account' %></button>
           <% if (editAccount) { %><a class="btn btn-ghost" style="width:100%;text-align:center;margin-top:10px" href="/admin/accounts">Cancel Editing</a><% } %>
         </form>
@@ -276,6 +317,14 @@
             <option value="review">Review needed</option>
           </select>
           <label>Title</label><input name="title" required placeholder="Short customer-friendly title">
+          <label>Detail Preset</label>
+          <select onchange="const parts=this.value.split('|'); if(parts[0]) this.form.title.value=parts[0]; if(parts[1]) this.form.detail.value=parts[1];">
+            <option value="">Choose a preset</option>
+            <option value="Setup progress update|Autovyne is still connecting the required automation pieces and will update this portal as each area is ready.">Setup progress</option>
+            <option value="Billing review needed|This account needs a billing review before additional service changes are made.">Billing review</option>
+            <option value="Customer action needed|Autovyne needs updated information from the customer before the next setup step.">Customer action needed</option>
+            <option value="Launch check complete|Autovyne completed the latest launch check and will continue monitoring the account.">Launch check complete</option>
+          </select>
           <label>Detail</label><textarea name="detail" placeholder="What changed, in plain English."></textarea>
           <label>Visibility</label>
           <select name="visible_to_client">

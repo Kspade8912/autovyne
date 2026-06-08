@@ -15,6 +15,12 @@ global.fetch = async (url, options) => {
 
   let body = { ok: true };
   if (url.includes('api.openai.com')) {
+    const requestBody = JSON.parse(options.body);
+    if (String(requestBody.instructions || '').includes('Admin Copilot')) {
+      body = { output: [{ content: [{ type: 'output_text', text: 'Focus on billing review, setup accounts, and SMS consent proof first.' }] }] };
+    } else if (String(requestBody.instructions || '').includes('Customer Helper')) {
+      body = { output: [{ content: [{ type: 'output_text', text: 'Your account is in setup. Contact Autovyne for changes.' }] }] };
+    } else {
     body = {
       output: [{
         content: [{
@@ -23,6 +29,7 @@ global.fetch = async (url, options) => {
         }],
       }],
     };
+    }
   }
   if (url.includes('hubapi.com')) {
     body = { results: [{ id: 'hubspot-contact-1' }] };
@@ -43,6 +50,7 @@ const hubspot = require('./services/hubspot');
 const n8n = require('./services/n8n');
 const twilio = require('./services/twilio');
 const { getConfigurationStatus, processNewLead } = require('./services/integrations');
+const { askAdminAssistant, askCustomerAssistant } = require('./services/openai');
 const { SMS_CONSENT_TEXT, hasSmsConsent } = require('./lib/sms-consent');
 
 const lead = {
@@ -122,6 +130,21 @@ const lead = {
   const twilioBody = new URLSearchParams(twilioRequest.options.body);
   assert.equal(twilioBody.get('To'), '+15555550100');
   assert.equal(twilioBody.get('From'), '+15555550000');
+
+  const adminAnswer = await askAdminAssistant({
+    question: 'What needs attention?',
+    accounts: [{ id: 1, business_name: 'Example HVAC', status: 'setup', services: {}, metrics: {} }],
+    snapshot: { leads: [], questions: [], consents: [] },
+    integrationStatus: status,
+  });
+  assert.ok(adminAnswer.includes('billing review'));
+
+  const customerAnswer = await askCustomerAssistant({
+    question: 'What is my status?',
+    account: { business_name: 'Example HVAC', status: 'setup', services: {}, metrics: {} },
+    events: [],
+  });
+  assert.ok(customerAnswer.includes('setup'));
 
   requests.length = 0;
   await n8n.sendQuestionEvent({
