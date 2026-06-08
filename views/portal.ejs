@@ -75,6 +75,9 @@
         <span>Plan</span>
         <strong><%= account.plan %></strong>
         <p><%= billingMethod === 'manual' ? 'Manual monthly billing' : 'Automatic monthly billing' %><%= paidAt ? ` - paid ${paidAt}` : '' %></p>
+        <% if (billingMethod === 'automatic' && account.stripe_customer_id) { %>
+          <form method="POST" action="/portal/billing" style="margin-top:12px"><button class="portal-secondary-btn" type="submit">Manage Billing</button></form>
+        <% } %>
       </article>
       <article class="portal-card portal-status-card">
         <span>Setup Progress</span>

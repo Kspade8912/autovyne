@@ -92,6 +92,16 @@ async function retrieveCheckoutSession(sessionId) {
   return stripeGet(`/v1/checkout/sessions/${encodeURIComponent(sessionId)}`, params);
 }
 
+async function createBillingPortalSession({ customerId, returnPath = '/portal' }) {
+  if (!customerId) throw new Error('Stripe customer ID is required.');
+
+  const params = new URLSearchParams();
+  params.set('customer', customerId);
+  params.set('return_url', `${publicBaseUrl()}${returnPath.startsWith('/') ? returnPath : `/${returnPath}`}`);
+
+  return stripeRequest('/v1/billing_portal/sessions', params);
+}
+
 function parseSignatureHeader(signatureHeader) {
   return signatureHeader.split(',').reduce((acc, part) => {
     const separatorIndex = part.indexOf('=');
@@ -132,6 +142,7 @@ function verifyWebhook(rawBody, signatureHeader) {
 
 module.exports = {
   STRIPE_API_VERSION,
+  createBillingPortalSession,
   createCheckoutSession,
   getPlanPriceId,
   isConfigured,

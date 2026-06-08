@@ -1,6 +1,7 @@
 const { Router } = require('express');
 const { getAccountById, getAccountByLogin, listAccountEvents } = require('../db/accounts');
 const { sanitizeString } = require('../lib/security');
+const stripe = require('../services/stripe');
 
 const router = Router();
 
@@ -70,6 +71,46 @@ router.post('/login', async (req, res) => {
 router.post('/logout', (_req, res) => {
   res.clearCookie('portal_account_id');
   res.redirect('/portal');
+});
+
+router.post('/billing', async (req, res) => {
+  const accountId = req.signedCookies?.portal_account_id;
+  if (!accountId) return renderLogin(res, 'Log in before opening billing settings.');
+
+  try {
+    const account = await getAccountById(accountId);
+    if (!account) {
+      res.clearCookie('portal_account_id');
+      return renderLogin(res, 'Log in before opening billing settings.');
+    }
+    if ((account.billing_method || 'automatic') !== 'automatic' || !account.stripe_customer_id) {
+      const events = await listAccountEvents(account.id, { visibleOnly: true, limit: 30 });
+      return res.status(400).render('portal', {
+        authorized: true,
+        account,
+        events,
+        error: 'Billing portal is available after an automatic Stripe subscription is active. For help, email kwaun.autovyne@gmail.com.',
+        seo: seo(),
+      });
+    }
+
+    const session = await stripe.createBillingPortalSession({
+      customerId: account.stripe_customer_id,
+      returnPath: '/portal',
+    });
+    res.redirect(303, session.url);
+  } catch (error) {
+    console.error('[portal] billing portal error:', error.message);
+    const account = await getAccountById(accountId).catch(() => null);
+    const events = account ? await listAccountEvents(account.id, { visibleOnly: true, limit: 30 }).catch(() => []) : [];
+    res.status(500).render('portal', {
+      authorized: Boolean(account),
+      account,
+      events,
+      error: 'Billing settings could not open right now. Please email kwaun.autovyne@gmail.com.',
+      seo: seo(),
+    });
+  }
 });
 
 module.exports = router;

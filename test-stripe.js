@@ -12,6 +12,17 @@ process.env.PUBLIC_BASE_URL = 'https://autovyne.test';
 const requests = [];
 global.fetch = async (url, options) => {
   requests.push({ url, options });
+  if (url.includes('/v1/billing_portal/sessions')) {
+    return {
+      ok: true,
+      status: 200,
+      text: async () => JSON.stringify({
+        id: 'bps_test_unit',
+        object: 'billing_portal.session',
+        url: 'https://billing.stripe.com/p/session/test',
+      }),
+    };
+  }
   return {
     ok: true,
     status: 200,
@@ -49,6 +60,16 @@ const stripe = require('./services/stripe');
   assert.equal(body.get('cancel_url'), 'https://autovyne.test/signup/cancel?order_id=123');
   assert.equal(body.get('metadata[signup_order_id]'), '123');
   assert.equal(body.get('allow_promotion_codes'), 'true');
+
+  const billingSession = await stripe.createBillingPortalSession({
+    customerId: 'cus_unit',
+    returnPath: '/portal',
+  });
+  assert.equal(billingSession.id, 'bps_test_unit');
+  const billingBody = new URLSearchParams(requests[1].options.body);
+  assert.equal(requests[1].url, 'https://api.stripe.com/v1/billing_portal/sessions');
+  assert.equal(billingBody.get('customer'), 'cus_unit');
+  assert.equal(billingBody.get('return_url'), 'https://autovyne.test/portal');
 
   const event = {
     id: 'evt_unit',
