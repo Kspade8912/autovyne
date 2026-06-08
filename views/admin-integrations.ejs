@@ -18,6 +18,7 @@
       </div>
       <div class="actions">
         <a class="btn" href="/admin/accounts">Accounts</a>
+        <a class="btn btn-dark" href="/admin/questions">Support Queue</a>
         <a class="btn btn-dark" href="/admin">Admin Hub</a>
       </div>
     </section>
@@ -31,7 +32,7 @@
 
     <section class="card">
       <table class="table">
-        <thead><tr><th>Area</th><th>System</th><th>Status</th><th>What It Means</th></tr></thead>
+        <thead><tr><th>Area</th><th>System</th><th>Status</th><th>What It Means</th><th>Owner Next Step</th></tr></thead>
         <tbody>
           <% rows.forEach(function(row) { %>
             <tr>
@@ -39,6 +40,7 @@
               <td><strong><%= row.name %></strong></td>
               <td><span class="pill <%= row.ready ? 'pill-on' : 'pill-warn' %>"><%= row.ready ? 'Ready' : 'Review' %></span></td>
               <td class="mini"><%= row.detail %></td>
+              <td class="mini"><%= row.nextAction %></td>
             </tr>
           <% }); %>
         </tbody>
