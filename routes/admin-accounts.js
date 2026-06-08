@@ -20,6 +20,18 @@ const QUICK_ACTIONS = {
     detail: 'Autovyne has started setting up the account, automation tools, and customer follow-up workflow.',
     visibleToClient: true,
   },
+  payment_confirmed: {
+    eventType: 'billing',
+    title: 'Payment confirmed',
+    detail: 'Payment has been confirmed and Autovyne is moving this account through onboarding.',
+    visibleToClient: true,
+  },
+  portal_activated: {
+    eventType: 'portal',
+    title: 'Customer portal activated',
+    detail: 'The customer portal is active so the business owner can view setup status, activity, and account progress.',
+    visibleToClient: true,
+  },
   ai_calling_connected: {
     eventType: 'ai_calling',
     title: 'AI calling connected',
@@ -38,6 +50,36 @@ const QUICK_ACTIONS = {
     detail: 'Lead and account updates are connected to the CRM workflow.',
     visibleToClient: true,
   },
+  hubspot_connected: {
+    eventType: 'crm',
+    title: 'HubSpot connected',
+    detail: 'HubSpot CRM syncing has been connected for lead and customer workflow updates.',
+    visibleToClient: true,
+  },
+  n8n_connected: {
+    eventType: 'workflow',
+    title: 'Automation workflow connected',
+    detail: 'The n8n automation workflow is connected for lead handoff, notifications, and internal follow-up.',
+    visibleToClient: true,
+  },
+  openai_review_ready: {
+    eventType: 'openai',
+    title: 'AI lead review ready',
+    detail: 'AI lead review is ready to summarize new leads and recommend next actions.',
+    visibleToClient: true,
+  },
+  twilio_verified: {
+    eventType: 'sms',
+    title: 'SMS compliance verified',
+    detail: 'SMS follow-up is configured for contacts with recorded consent and required compliance language.',
+    visibleToClient: true,
+  },
+  launch_ready: {
+    eventType: 'launch',
+    title: 'Launch-ready check complete',
+    detail: 'Autovyne has completed the launch checklist and the account is ready for live monitored usage.',
+    visibleToClient: true,
+  },
   needs_review: {
     eventType: 'review',
     title: 'Needs Autovyne review',
@@ -50,16 +92,53 @@ function isAuthorized(req) {
   return hasAdminSession(req) || Boolean(process.env.ADMIN_API_KEY && req.signedCookies?.accounts_auth === 'authorized');
 }
 
+function normalizeFilters(query = {}) {
+  return {
+    search: sanitizeString(query.search || '').toLowerCase(),
+    status: sanitizeString(query.status || 'all') || 'all',
+    billing: sanitizeString(query.billing || 'all') || 'all',
+    readiness: sanitizeString(query.readiness || 'all') || 'all',
+  };
+}
+
+function readinessForAccount(account) {
+  const services = account.services || {};
+  const enabled = ['ai_calling', 'sms_followup', 'crm_sync', 'n8n_workflows', 'openai_qualification']
+    .filter(key => services[key]).length;
+  if (account.status === 'active' && enabled >= 4) return 'ready';
+  if (account.status === 'needs_attention' || enabled === 0) return 'review';
+  return 'setup';
+}
+
+function accountMatchesFilters(account, filters) {
+  const haystack = [
+    account.business_name,
+    account.contact_name,
+    account.email,
+    account.phone,
+    account.plan,
+  ].map(value => String(value || '').toLowerCase()).join(' ');
+  if (filters.search && !haystack.includes(filters.search)) return false;
+  if (filters.status !== 'all' && account.status !== filters.status) return false;
+  if (filters.billing !== 'all' && (account.billing_method || 'automatic') !== filters.billing) return false;
+  if (filters.readiness !== 'all' && readinessForAccount(account) !== filters.readiness) return false;
+  return true;
+}
+
 async function pageData(overrides = {}) {
   const [accounts, snapshot] = await Promise.all([
     listAccounts(),
     getAdminSnapshot(),
   ]);
+  const filters = overrides.filters || normalizeFilters();
+  const filteredAccounts = accounts.filter(account => accountMatchesFilters(account, filters));
   return {
     authorized: true,
     error: null,
     success: null,
     accounts,
+    filteredAccounts,
+    filters,
     snapshot,
     selectedAccount: null,
     selectedEditAccount: null,
@@ -105,6 +184,8 @@ router.get('/', async (req, res) => {
       error: null,
       success: null,
       accounts: [],
+      filteredAccounts: [],
+      filters: normalizeFilters(),
       snapshot: {},
       selectedAccount: null,
       selectedEditAccount: null,
@@ -113,10 +194,10 @@ router.get('/', async (req, res) => {
   }
 
   try {
-    res.render('admin-accounts', await pageData());
+    res.render('admin-accounts', await pageData({ filters: normalizeFilters(req.query) }));
   } catch (error) {
     console.error('[admin-accounts] load error:', error.message);
-    res.render('admin-accounts', await pageData({ error: 'Failed to load account dashboard.' }));
+    res.render('admin-accounts', await pageData({ error: 'Failed to load account dashboard.', filters: normalizeFilters(req.query) }));
   }
 });
 
@@ -128,6 +209,8 @@ router.post('/login', (req, res) => {
       error: 'Invalid key',
       success: null,
       accounts: [],
+      filteredAccounts: [],
+      filters: normalizeFilters(),
       snapshot: {},
       selectedAccount: null,
       selectedEditAccount: null,

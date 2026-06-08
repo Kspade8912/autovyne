@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Account Command Center - Autovyne</title>
   <style>
-    *{box-sizing:border-box}body{margin:0;background:#08080d;color:#eff2f7;font:14px 'Space Grotesk',system-ui,sans-serif}.wrap{max-width:1440px;margin:0 auto;padding:30px}.top{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;margin-bottom:22px}.sub,.mini{color:#8a8f9e}.mini{font-size:12px;line-height:1.5}.eyebrow{color:#00e87b;font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.1em}.top h1{font-size:clamp(2rem,4vw,3.4rem);line-height:1;margin:8px 0 10px;letter-spacing:-.05em}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}.card{background:#12141c;border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:20px;box-shadow:0 20px 70px rgba(0,0,0,.24)}.stat span,.metric span{display:block;color:#8a8f9e;font-size:11px;text-transform:uppercase;letter-spacing:.08em;font-weight:800}.stat strong,.metric strong{display:block;font-size:30px;margin-top:6px}.accent{color:#00e87b}.warn{color:#ffd166}.danger{color:#ff6b6b}.cols{display:grid;grid-template-columns:390px 1fr;gap:18px;align-items:start}.login{max-width:440px;margin:120px auto}.login h1{margin-top:0}label{display:block;color:#8a8f9e;font-size:12px;margin:12px 0 6px;font-weight:800;text-transform:uppercase;letter-spacing:.04em}input,select,textarea{width:100%;padding:11px 12px;border-radius:11px;border:1px solid rgba(255,255,255,.12);background:#0a0c12;color:#fff;font:14px inherit}select{cursor:pointer}textarea{min-height:96px;resize:vertical}.checks{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}.check{display:flex;gap:8px;align-items:center;background:#0a0c12;border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:10px;color:#cdd3df;text-transform:none;letter-spacing:0;font-size:13px}.check input{width:auto}.btn{display:inline-block;border:0;border-radius:11px;padding:11px 14px;background:#00e87b;color:#05070a;font-weight:900;cursor:pointer;text-decoration:none}.btn-secondary{background:#202432;color:#eff2f7}.btn-ghost{background:transparent;color:#eff2f7;border:1px solid rgba(255,255,255,.14)}.actions{display:flex;gap:10px;flex-wrap:wrap}.msg{padding:12px;border-radius:12px;margin-bottom:14px}.err{background:rgba(255,107,107,.12);color:#ff9d9d}.ok{background:rgba(0,232,123,.1);color:#00e87b}.table-wrap{overflow:auto}.table{width:100%;border-collapse:collapse}.table th{color:#8a8f9e;text-align:left;text-transform:uppercase;font-size:11px;letter-spacing:.08em;border-bottom:1px solid rgba(255,255,255,.08);padding:10px}.table td{border-bottom:1px solid rgba(255,255,255,.04);padding:12px 10px;vertical-align:top}.pill{display:inline-block;border-radius:999px;padding:4px 9px;background:#202432;color:#cdd3df;font-size:12px;margin:2px 2px 2px 0}.pill-on{background:rgba(0,232,123,.12);color:#00e87b}.section-title{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin:0 0 14px}.section-title h2{font-size:18px;margin:0}.recent{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}.event{padding:11px 0;border-bottom:1px solid rgba(255,255,255,.06)}.event:last-child{border-bottom:0}.steps{display:grid;gap:8px;margin:12px 0 16px}.step{display:grid;grid-template-columns:28px 1fr;gap:10px;align-items:start;padding:10px;border-radius:12px;background:rgba(255,255,255,.035)}.step-num{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:rgba(0,232,123,.12);color:#00e87b;font-weight:900}.form-band{padding:12px;border:1px solid rgba(0,232,123,.16);background:rgba(0,232,123,.055);border-radius:14px;margin:12px 0}.segmented{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0 14px}.segmented a{padding:10px;border-radius:11px;background:#0a0c12;color:#cdd3df;text-decoration:none;text-align:center;border:1px solid rgba(255,255,255,.08);font-weight:800}.segmented a:hover{border-color:rgba(0,232,123,.45)}@media(max-width:980px){.cols,.recent{grid-template-columns:1fr}.grid{grid-template-columns:repeat(2,1fr)}.top{flex-direction:column}}@media(max-width:640px){.grid,.checks,.segmented{grid-template-columns:1fr}.wrap{padding:18px}.actions{width:100%}.actions .btn{width:100%;text-align:center}}
+    *{box-sizing:border-box}body{margin:0;background:#08080d;color:#eff2f7;font:14px 'Space Grotesk',system-ui,sans-serif}.wrap{max-width:1440px;margin:0 auto;padding:30px}.top{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;margin-bottom:22px}.sub,.mini{color:#8a8f9e}.mini{font-size:12px;line-height:1.5}.eyebrow{color:#00e87b;font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.1em}.top h1{font-size:clamp(2rem,4vw,3.4rem);line-height:1;margin:8px 0 10px;letter-spacing:-.05em}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}.card{background:#12141c;border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:20px;box-shadow:0 20px 70px rgba(0,0,0,.24)}.stat span,.metric span{display:block;color:#8a8f9e;font-size:11px;text-transform:uppercase;letter-spacing:.08em;font-weight:800}.stat strong,.metric strong{display:block;font-size:30px;margin-top:6px}.accent{color:#00e87b}.warn{color:#ffd166}.danger{color:#ff6b6b}.cols{display:grid;grid-template-columns:390px 1fr;gap:18px;align-items:start}.login{max-width:440px;margin:120px auto}.login h1{margin-top:0}label{display:block;color:#8a8f9e;font-size:12px;margin:12px 0 6px;font-weight:800;text-transform:uppercase;letter-spacing:.04em}input,select,textarea{width:100%;padding:11px 12px;border-radius:11px;border:1px solid rgba(255,255,255,.12);background:#0a0c12;color:#fff;font:14px inherit}select{cursor:pointer}textarea{min-height:96px;resize:vertical}.checks{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}.check{display:flex;gap:8px;align-items:center;background:#0a0c12;border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:10px;color:#cdd3df;text-transform:none;letter-spacing:0;font-size:13px}.check input{width:auto}.btn{display:inline-block;border:0;border-radius:11px;padding:11px 14px;background:#00e87b;color:#05070a;font-weight:900;cursor:pointer;text-decoration:none}.btn-secondary{background:#202432;color:#eff2f7}.btn-ghost{background:transparent;color:#eff2f7;border:1px solid rgba(255,255,255,.14)}.actions{display:flex;gap:10px;flex-wrap:wrap}.msg{padding:12px;border-radius:12px;margin-bottom:14px}.err{background:rgba(255,107,107,.12);color:#ff9d9d}.ok{background:rgba(0,232,123,.1);color:#00e87b}.table-wrap{overflow:auto}.table{width:100%;border-collapse:collapse}.table th{color:#8a8f9e;text-align:left;text-transform:uppercase;font-size:11px;letter-spacing:.08em;border-bottom:1px solid rgba(255,255,255,.08);padding:10px}.table td{border-bottom:1px solid rgba(255,255,255,.04);padding:12px 10px;vertical-align:top}.pill{display:inline-block;border-radius:999px;padding:4px 9px;background:#202432;color:#cdd3df;font-size:12px;margin:2px 2px 2px 0}.pill-on{background:rgba(0,232,123,.12);color:#00e87b}.section-title{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin:0 0 14px}.section-title h2{font-size:18px;margin:0}.recent{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}.event{padding:11px 0;border-bottom:1px solid rgba(255,255,255,.06)}.event:last-child{border-bottom:0}.steps{display:grid;gap:8px;margin:12px 0 16px}.step{display:grid;grid-template-columns:28px 1fr;gap:10px;align-items:start;padding:10px;border-radius:12px;background:rgba(255,255,255,.035)}.step-num{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:rgba(0,232,123,.12);color:#00e87b;font-weight:900}.form-band{padding:12px;border:1px solid rgba(0,232,123,.16);background:rgba(0,232,123,.055);border-radius:14px;margin:12px 0}.segmented{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0 14px}.segmented a{padding:10px;border-radius:11px;background:#0a0c12;color:#cdd3df;text-decoration:none;text-align:center;border:1px solid rgba(255,255,255,.08);font-weight:800}.segmented a:hover{border-color:rgba(0,232,123,.45)}.filters{display:grid;grid-template-columns:2fr repeat(3,1fr) auto;gap:10px;align-items:end;margin:0 0 14px;padding:12px;border-radius:14px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.07)}.filters label{margin:0 0 5px}.health-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:10px 0 14px}.health{padding:12px;border-radius:14px;background:#0a0c12;border:1px solid rgba(255,255,255,.08)}.health strong{display:block;font-size:18px;margin-top:4px}.progress{height:8px;background:#202432;border-radius:999px;overflow:hidden;margin-top:8px}.progress span{display:block;height:100%;background:#00e87b;border-radius:999px}@media(max-width:980px){.cols,.recent,.filters{grid-template-columns:1fr}.grid,.health-grid{grid-template-columns:repeat(2,1fr)}.top{flex-direction:column}}@media(max-width:640px){.grid,.checks,.segmented,.health-grid{grid-template-columns:1fr}.wrap{padding:18px}.actions{width:100%}.actions .btn{width:100%;text-align:center}}
   </style>
 </head>
 <body>
@@ -25,11 +25,19 @@
   </div>
 <% } else {
   const accountsList = accounts || [];
+  const visibleAccounts = filteredAccounts || accountsList;
+  const activeFilters = filters || { search: '', status: 'all', billing: 'all', readiness: 'all' };
   const snap = snapshot || {};
   const activeAccounts = accountsList.filter(a => a.status === 'active').length;
   const setupAccounts = accountsList.filter(a => a.status === 'setup').length;
   const needsAttention = accountsList.filter(a => a.status === 'needs_attention').length;
   const automaticBilling = accountsList.filter(a => (a.billing_method || 'automatic') === 'automatic').length;
+  const readyAccounts = accountsList.filter(a => {
+    const s = a.services || {};
+    const count = ['ai_calling','sms_followup','crm_sync','n8n_workflows','openai_qualification'].filter(k => s[k]).length;
+    return a.status === 'active' && count >= 4;
+  }).length;
+  const setupPercent = accountsList.length ? Math.round((readyAccounts / accountsList.length) * 100) : 0;
   const editAccount = selectedEditAccount || null;
   const editServices = editAccount ? (editAccount.services || {}) : {};
   const editMetrics = editAccount ? (editAccount.metrics || {}) : {};
@@ -58,6 +66,13 @@
       <div class="card stat"><span>Active</span><strong><%= activeAccounts %></strong></div>
       <div class="card stat"><span>In Setup</span><strong class="warn"><%= setupAccounts %></strong></div>
       <div class="card stat"><span>Needs Attention</span><strong class="<%= needsAttention ? 'danger' : '' %>"><%= needsAttention %></strong></div>
+    </section>
+
+    <section class="grid">
+      <div class="card stat"><span>Automatic Billing</span><strong><%= automaticBilling %></strong><p class="mini">Stripe monthly accounts.</p></div>
+      <div class="card stat"><span>Launch Ready</span><strong class="accent"><%= readyAccounts %></strong><p class="mini">Active with most automation on.</p></div>
+      <div class="card stat"><span>Filtered View</span><strong><%= visibleAccounts.length %></strong><p class="mini">Accounts matching current filters.</p></div>
+      <div class="card stat"><span>Portfolio Readiness</span><strong class="<%= setupPercent >= 75 ? 'accent' : 'warn' %>"><%= setupPercent %>%</strong><div class="progress"><span style="width:<%= setupPercent %>%"></span></div></div>
     </section>
 
     <section class="cols">
@@ -140,6 +155,40 @@
             <p class="mini"><%= automaticBilling %> account(s) on automatic monthly billing. Give customers `/portal` plus their email and access code.</p>
           </div>
         </div>
+        <form class="filters" method="GET" action="/admin/accounts">
+          <div>
+            <label>Search</label>
+            <input name="search" placeholder="Business, owner, email, phone, plan" value="<%= activeFilters.search || '' %>">
+          </div>
+          <div>
+            <label>Status</label>
+            <select name="status">
+              <option value="all" <%= activeFilters.status === 'all' ? 'selected' : '' %>>All</option>
+              <option value="setup" <%= activeFilters.status === 'setup' ? 'selected' : '' %>>Setup</option>
+              <option value="active" <%= activeFilters.status === 'active' ? 'selected' : '' %>>Active</option>
+              <option value="paused" <%= activeFilters.status === 'paused' ? 'selected' : '' %>>Paused</option>
+              <option value="needs_attention" <%= activeFilters.status === 'needs_attention' ? 'selected' : '' %>>Needs attention</option>
+            </select>
+          </div>
+          <div>
+            <label>Billing</label>
+            <select name="billing">
+              <option value="all" <%= activeFilters.billing === 'all' ? 'selected' : '' %>>All</option>
+              <option value="automatic" <%= activeFilters.billing === 'automatic' ? 'selected' : '' %>>Automatic</option>
+              <option value="manual" <%= activeFilters.billing === 'manual' ? 'selected' : '' %>>Manual</option>
+            </select>
+          </div>
+          <div>
+            <label>Readiness</label>
+            <select name="readiness">
+              <option value="all" <%= activeFilters.readiness === 'all' ? 'selected' : '' %>>All</option>
+              <option value="ready" <%= activeFilters.readiness === 'ready' ? 'selected' : '' %>>Launch ready</option>
+              <option value="setup" <%= activeFilters.readiness === 'setup' ? 'selected' : '' %>>In setup</option>
+              <option value="review" <%= activeFilters.readiness === 'review' ? 'selected' : '' %>>Review</option>
+            </select>
+          </div>
+          <button class="btn" type="submit">Filter</button>
+        </form>
         <div class="segmented">
           <a href="#quick-action">Quick Update</a>
           <a href="#accounts-table">Accounts</a>
@@ -149,7 +198,7 @@
           <table class="table">
             <thead><tr><th>Account</th><th>Status</th><th>Billing</th><th>Services</th><th>Metrics</th><th>Actions</th></tr></thead>
             <tbody>
-            <% accountsList.forEach(function(a) { const s = a.services || {}; const m = a.metrics || {}; %>
+            <% visibleAccounts.forEach(function(a) { const s = a.services || {}; const m = a.metrics || {}; const enabled = ['ai_calling','sms_followup','crm_sync','n8n_workflows','openai_qualification'].filter(k => s[k]).length; const pct = Math.round((enabled / 5) * 100); %>
               <tr>
                 <td><strong><%= a.business_name %></strong><br><span class="mini"><%= a.email %><br><%= a.phone || 'No phone saved' %></span></td>
                 <td><span class="pill <%= a.status === 'active' ? 'pill-on' : '' %>"><%= a.status.replace(/_/g, ' ') %></span><br><span class="mini"><%= a.plan %></span></td>
@@ -158,6 +207,7 @@
                   <% [['ai_calling','AI calls'],['sms_followup','SMS'],['crm_sync','CRM'],['n8n_workflows','n8n'],['openai_qualification','OpenAI']].forEach(function(item){ %>
                     <span class="pill <%= s[item[0]] ? 'pill-on' : '' %>"><%= item[1] %></span>
                   <% }); %>
+                  <div class="progress"><span style="width:<%= pct %>%"></span></div>
                 </td>
                 <td class="mini">Calls: <%= m.calls_handled || 0 %><br>SMS: <%= m.sms_sent || 0 %><br>CRM: <%= m.crm_leads_synced || 0 %><br>Recovered: $<%= Number(m.estimated_revenue_recovered || 0).toLocaleString() %></td>
                 <td>
@@ -168,7 +218,7 @@
                 </td>
               </tr>
             <% }); %>
-            <% if (!accountsList.length) { %><tr><td colspan="6" class="sub">No managed accounts yet.</td></tr><% } %>
+            <% if (!visibleAccounts.length) { %><tr><td colspan="6" class="sub"><%= accountsList.length ? 'No accounts match these filters.' : 'No managed accounts yet.' %></td></tr><% } %>
             </tbody>
           </table>
         </div>
@@ -186,9 +236,16 @@
           <label>Update Type</label>
           <select name="quick_action" required>
             <option value="onboarding_started">Onboarding started</option>
+            <option value="payment_confirmed">Payment confirmed</option>
+            <option value="portal_activated">Portal activated</option>
             <option value="ai_calling_connected">AI calling connected</option>
             <option value="sms_ready">SMS follow-up ready</option>
             <option value="crm_connected">CRM sync connected</option>
+            <option value="hubspot_connected">HubSpot connected</option>
+            <option value="n8n_connected">n8n workflow connected</option>
+            <option value="openai_review_ready">OpenAI lead review ready</option>
+            <option value="twilio_verified">Twilio/SMS compliance verified</option>
+            <option value="launch_ready">Launch-ready check complete</option>
             <option value="needs_review">Needs internal review</option>
           </select>
           <label>Visibility</label>
@@ -211,6 +268,10 @@
             <option value="ai_calling">AI calling</option>
             <option value="sms">SMS</option>
             <option value="crm">CRM</option>
+            <option value="workflow">Workflow</option>
+            <option value="openai">OpenAI</option>
+            <option value="portal">Portal</option>
+            <option value="launch">Launch</option>
             <option value="billing">Billing</option>
             <option value="review">Review needed</option>
           </select>
