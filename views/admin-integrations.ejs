@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Integration Health - Autovyne</title>
+  <style>
+    *{box-sizing:border-box}body{margin:0;background:#08080d;color:#eff2f7;font:14px 'Space Grotesk',system-ui,sans-serif}.wrap{max-width:1180px;margin:0 auto;padding:32px}.top{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;margin-bottom:22px}.badge{display:inline-block;color:#00e87b;background:rgba(0,232,123,.1);border:1px solid rgba(0,232,123,.22);border-radius:999px;padding:5px 12px;font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.08em}h1{font-size:clamp(2rem,4vw,3.3rem);line-height:1.05;margin:14px 0 10px;letter-spacing:-.05em}.sub,.mini{color:#8a8f9e;line-height:1.6}.actions{display:flex;gap:10px;flex-wrap:wrap}.btn{display:inline-block;border:0;border-radius:11px;padding:11px 14px;background:#00e87b;color:#05070a;font-weight:900;text-decoration:none}.btn-dark{background:#202432;color:#eff2f7}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:18px 0}.card{background:#12141c;border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:20px;box-shadow:0 20px 70px rgba(0,0,0,.24)}.stat span{display:block;color:#8a8f9e;font-size:11px;text-transform:uppercase;letter-spacing:.08em;font-weight:800}.stat strong{display:block;font-size:34px;margin-top:6px}.accent{color:#00e87b}.warn{color:#ffd166}.table{width:100%;border-collapse:collapse}.table th{color:#8a8f9e;text-align:left;text-transform:uppercase;font-size:11px;letter-spacing:.08em;border-bottom:1px solid rgba(255,255,255,.08);padding:10px}.table td{border-bottom:1px solid rgba(255,255,255,.05);padding:14px 10px;vertical-align:top}.pill{display:inline-block;border-radius:999px;padding:5px 10px;background:#202432;color:#cdd3df;font-weight:800;font-size:12px}.pill-on{background:rgba(0,232,123,.12);color:#00e87b}.pill-warn{background:rgba(255,209,102,.12);color:#ffd166}.checklist{display:grid;gap:10px}.check{padding:12px 14px;border-radius:14px;background:#0a0c12;border:1px solid rgba(255,255,255,.08)}@media(max-width:820px){.grid{grid-template-columns:1fr 1fr}.top{flex-direction:column}}@media(max-width:560px){.grid{grid-template-columns:1fr}.wrap{padding:18px}.actions .btn{width:100%;text-align:center}}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="top">
+      <div>
+        <span class="badge">Integration Health</span>
+        <h1>AI stack readiness in one view.</h1>
+        <p class="sub">This checks whether the environment is ready for customer signup, payment activation, AI lead review, CRM handoff, automation workflows, and SMS setup. Secret values are never shown.</p>
+      </div>
+      <div class="actions">
+        <a class="btn" href="/admin/accounts">Accounts</a>
+        <a class="btn btn-dark" href="/admin">Admin Hub</a>
+      </div>
+    </section>
+
+    <section class="grid">
+      <div class="card stat"><span>Ready</span><strong class="accent"><%= readyCount %></strong></div>
+      <div class="card stat"><span>Total Checks</span><strong><%= totalCount %></strong></div>
+      <div class="card stat"><span>Needs Review</span><strong class="<%= totalCount - readyCount ? 'warn' : 'accent' %>"><%= totalCount - readyCount %></strong></div>
+      <div class="card stat"><span>Launch Score</span><strong class="<%= readyCount === totalCount ? 'accent' : 'warn' %>"><%= Math.round((readyCount / totalCount) * 100) %>%</strong></div>
+    </section>
+
+    <section class="card">
+      <table class="table">
+        <thead><tr><th>Area</th><th>System</th><th>Status</th><th>What It Means</th></tr></thead>
+        <tbody>
+          <% rows.forEach(function(row) { %>
+            <tr>
+              <td><%= row.group %></td>
+              <td><strong><%= row.name %></strong></td>
+              <td><span class="pill <%= row.ready ? 'pill-on' : 'pill-warn' %>"><%= row.ready ? 'Ready' : 'Review' %></span></td>
+              <td class="mini"><%= row.detail %></td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="grid">
+      <div class="card">
+        <span class="badge">Customer Flow</span>
+        <div class="checklist">
+          <div class="check">Signup creates an order.</div>
+          <div class="check">Stripe Checkout collects subscription payment.</div>
+          <div class="check">Webhook activates the portal account.</div>
+        </div>
+      </div>
+      <div class="card">
+        <span class="badge">Automation Flow</span>
+        <div class="checklist">
+          <div class="check">OpenAI qualifies and summarizes lead context.</div>
+          <div class="check">HubSpot receives CRM contact updates.</div>
+          <div class="check">n8n receives account and lead events.</div>
+        </div>
+      </div>
+      <div class="card">
+        <span class="badge">SMS Guardrails</span>
+        <div class="checklist">
+          <div class="check">Consent is recorded before SMS eligibility.</div>
+          <div class="check">Twilio sender settings must be configured.</div>
+          <div class="check">STOP/HELP language lives in public terms.</div>
+        </div>
+      </div>
+      <div class="card">
+        <span class="badge">Admin Habit</span>
+        <div class="checklist">
+          <div class="check">Use quick updates to keep customer portals current.</div>
+          <div class="check">Check SMS Proof before outreach.</div>
+          <div class="check">Use filters to find review accounts fast.</div>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

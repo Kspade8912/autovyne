@@ -35,7 +35,7 @@ global.fetch = async (url, options) => {
 const openai = require('./services/openai');
 const hubspot = require('./services/hubspot');
 const n8n = require('./services/n8n');
-const { processNewLead } = require('./services/integrations');
+const { getConfigurationStatus, processNewLead } = require('./services/integrations');
 const { SMS_CONSENT_TEXT, hasSmsConsent } = require('./lib/sms-consent');
 
 const lead = {
@@ -83,6 +83,14 @@ const lead = {
   assert.equal(optedOutN8n.lead.phone, null);
   assert.equal(hasSmsConsent(false), false);
   assert.ok(SMS_CONSENT_TEXT.includes('Reply STOP to opt out and HELP for help.'));
+
+  const status = getConfigurationStatus();
+  assert.equal(status.openai.configured, true);
+  assert.equal(status.hubspot.configured, true);
+  assert.equal(status.n8n.configured, true);
+  assert.equal(typeof status.stripe.checkoutConfigured, 'boolean');
+  assert.equal(typeof status.stripe.webhookConfigured, 'boolean');
+  assert.equal(typeof status.twilio.accountConfigured, 'boolean');
 
   requests.length = 0;
   await n8n.sendQuestionEvent({
