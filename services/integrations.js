@@ -2,6 +2,7 @@ const openai = require('./openai');
 const hubspot = require('./hubspot');
 const n8n = require('./n8n');
 const stripe = require('./stripe');
+const twilio = require('./twilio');
 
 async function runStep(name, fn) {
   try {
@@ -50,6 +51,7 @@ function getConfigurationStatus() {
       },
     },
     twilio: {
+      configured: twilio.isConfigured(),
       accountConfigured: Boolean(process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN),
       senderConfigured: Boolean(process.env.TWILIO_PHONE_NUMBER || process.env.TWILIO_MESSAGING_SERVICE_SID),
       messagingServiceConfigured: Boolean(process.env.TWILIO_MESSAGING_SERVICE_SID),

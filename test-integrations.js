@@ -5,6 +5,9 @@ process.env.OPENAI_MODEL = 'gpt-5.4-mini';
 process.env.HUBSPOT_ACCESS_TOKEN = 'test-hubspot-token';
 process.env.N8N_WEBHOOK_URL = 'https://n8n.example/webhook/autovyne';
 process.env.N8N_WEBHOOK_SECRET = 'test-n8n-secret';
+process.env.TWILIO_ACCOUNT_SID = 'AC_test';
+process.env.TWILIO_AUTH_TOKEN = 'test-twilio-token';
+process.env.TWILIO_PHONE_NUMBER = '+15555550000';
 
 const requests = [];
 global.fetch = async (url, options) => {
@@ -24,6 +27,9 @@ global.fetch = async (url, options) => {
   if (url.includes('hubapi.com')) {
     body = { results: [{ id: 'hubspot-contact-1' }] };
   }
+  if (url.includes('api.twilio.com')) {
+    body = { sid: 'SM_test', status: 'queued' };
+  }
 
   return {
     ok: true,
@@ -35,6 +41,7 @@ global.fetch = async (url, options) => {
 const openai = require('./services/openai');
 const hubspot = require('./services/hubspot');
 const n8n = require('./services/n8n');
+const twilio = require('./services/twilio');
 const { getConfigurationStatus, processNewLead } = require('./services/integrations');
 const { SMS_CONSENT_TEXT, hasSmsConsent } = require('./lib/sms-consent');
 
@@ -91,6 +98,30 @@ const lead = {
   assert.equal(typeof status.stripe.checkoutConfigured, 'boolean');
   assert.equal(typeof status.stripe.webhookConfigured, 'boolean');
   assert.equal(typeof status.twilio.accountConfigured, 'boolean');
+  assert.equal(status.twilio.configured, true);
+
+  requests.length = 0;
+  const skippedSms = await twilio.sendSms({
+    to: '+15555550100',
+    body: 'Autovyne test',
+    smsConsent: false,
+  });
+  assert.equal(skippedSms.skipped, true);
+  assert.equal(skippedSms.reason, 'sms_consent_required');
+  assert.equal(requests.length, 0);
+
+  const sentSms = await twilio.sendSms({
+    to: '+15555550100',
+    body: 'Autovyne test',
+    smsConsent: true,
+  });
+  assert.equal(sentSms.sid, 'SM_test');
+  const twilioRequest = requests.find(request => request.url.includes('api.twilio.com'));
+  assert.ok(twilioRequest);
+  assert.equal(twilioRequest.options.headers.Authorization.startsWith('Basic '), true);
+  const twilioBody = new URLSearchParams(twilioRequest.options.body);
+  assert.equal(twilioBody.get('To'), '+15555550100');
+  assert.equal(twilioBody.get('From'), '+15555550000');
 
   requests.length = 0;
   await n8n.sendQuestionEvent({
