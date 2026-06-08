@@ -71,6 +71,7 @@
       </div>
       <div class="actions">
         <a class="btn btn-secondary" href="/admin">Admin Hub</a>
+        <a class="btn btn-secondary" href="/admin/questions">Questions</a>
         <a class="btn btn-secondary" href="/admin/analytics">Analytics</a>
         <a class="btn btn-secondary" href="/admin/compliance">SMS Proof</a>
       </div>
@@ -412,8 +413,8 @@
         <% if (!(snap.leads || []).length) { %><p class="mini">No recent leads yet.</p><% } %>
       </div>
       <div class="card">
-        <h2>Recent Questions</h2>
-        <% (snap.questions || []).slice(0,6).forEach(function(q){ %><div class="event"><strong><%= q.business_name || q.name %></strong><p class="mini">Question - <%= q.email %> - <%= q.question %></p></div><% }); %>
+        <div class="section-title"><h2>Recent Questions</h2><a class="btn btn-ghost" href="/admin/questions">Open Queue</a></div>
+        <% (snap.questions || []).slice(0,6).forEach(function(q){ %><div class="event"><strong><%= q.business_name || q.name %></strong><p class="mini">Question - <%= q.email %> - <%= q.status || 'new' %> - <%= q.question %></p></div><% }); %>
         <% if (!(snap.questions || []).length) { %><p class="mini">No recent questions yet.</p><% } %>
       </div>
     </section>

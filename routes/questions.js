@@ -38,6 +38,9 @@ router.post('/', limiter, async (req, res) => {
     businessName: sanitizeString(req.body.business_name),
     email,
     phone: sanitizeString(req.body.phone),
+    category: sanitizeString(req.body.category) || 'general',
+    urgency: sanitizeString(req.body.urgency) || 'normal',
+    contactPreference: sanitizeString(req.body.contact_preference) || 'email',
     question: sanitizeString(req.body.question),
     smsConsent: hasSmsConsent(req.body.sms_consent),
   };

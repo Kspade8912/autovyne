@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Support Queue - Autovyne</title>
+  <style>
+    *{box-sizing:border-box}body{margin:0;background:#08080d;color:#eff2f7;font:14px 'Space Grotesk',system-ui,sans-serif}.wrap{max-width:1280px;margin:0 auto;padding:30px}.top{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;margin-bottom:20px}.eyebrow{color:#00e87b;font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.1em}h1{font-size:clamp(2rem,4vw,3.2rem);line-height:1;margin:8px 0 10px;letter-spacing:-.05em}.sub,.mini{color:#8a8f9e}.mini{font-size:12px;line-height:1.5}.card{background:#12141c;border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:20px;box-shadow:0 20px 70px rgba(0,0,0,.24)}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px}.stat span{display:block;color:#8a8f9e;font-size:11px;text-transform:uppercase;letter-spacing:.08em;font-weight:800}.stat strong{display:block;font-size:30px;margin-top:6px}.accent{color:#00e87b}.warn{color:#ffd166}.danger{color:#ff6b6b}.btn{display:inline-block;border:0;border-radius:11px;padding:11px 14px;background:#00e87b;color:#05070a;font-weight:900;cursor:pointer;text-decoration:none}.btn-secondary{background:#202432;color:#eff2f7}.btn-ghost{background:transparent;color:#eff2f7;border:1px solid rgba(255,255,255,.14)}.actions{display:flex;gap:10px;flex-wrap:wrap}.msg{padding:12px;border-radius:12px;margin-bottom:14px}.err{background:rgba(255,107,107,.12);color:#ff9d9d}.ok{background:rgba(0,232,123,.1);color:#00e87b}.filters{display:grid;grid-template-columns:1fr 1fr auto;gap:10px;align-items:end;margin-bottom:18px}label{display:block;color:#8a8f9e;font-size:12px;margin:12px 0 6px;font-weight:800;text-transform:uppercase;letter-spacing:.04em}select,textarea,input{width:100%;padding:11px 12px;border-radius:11px;border:1px solid rgba(255,255,255,.12);background:#0a0c12;color:#fff;font:14px inherit}textarea{min-height:78px;resize:vertical}.queue{display:grid;gap:14px}.question{display:grid;grid-template-columns:1fr 360px;gap:16px}.pill{display:inline-block;border-radius:999px;padding:4px 9px;background:#202432;color:#cdd3df;font-size:12px;margin:2px 2px 2px 0}.pill-on{background:rgba(0,232,123,.12);color:#00e87b}.pill-warn{background:rgba(255,209,102,.12);color:#ffd166}.pill-danger{background:rgba(255,107,107,.14);color:#ff9d9d}.question-text{white-space:pre-wrap;line-height:1.6;color:#dde3ee}.contact{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:12px 0}.contact div{background:#0a0c12;border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:10px}.reply-box{background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:14px}.empty{text-align:center;padding:46px;color:#8a8f9e}.preset{margin-top:8px}@media(max-width:900px){.grid,.filters,.question{grid-template-columns:1fr}.top{flex-direction:column}.contact{grid-template-columns:1fr}.actions .btn{flex:1;text-align:center}}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <div class="top">
+      <div>
+        <div class="eyebrow">Autovyne Support Queue</div>
+        <h1>Questions, follow-up, and owner notes.</h1>
+        <p class="sub">Use this page to see who needs help, what they asked for, and what follow-up should happen next.</p>
+      </div>
+      <div class="actions">
+        <a class="btn btn-secondary" href="/admin">Admin Hub</a>
+        <a class="btn btn-secondary" href="/admin/accounts">Accounts</a>
+        <a class="btn btn-secondary" href="/admin/compliance">SMS Proof</a>
+      </div>
+    </div>
+
+    <% if (error) { %><div class="msg err"><%= error %></div><% } %>
+    <% if (success) { %><div class="msg ok"><%= success %></div><% } %>
+
+    <section class="grid">
+      <div class="card stat"><span>Total in View</span><strong class="accent"><%= questions.length %></strong></div>
+      <div class="card stat"><span>Open Follow-Ups</span><strong class="<%= openCount ? 'warn' : 'accent' %>"><%= openCount %></strong></div>
+      <div class="card stat"><span>Urgent</span><strong class="<%= urgentCount ? 'danger' : 'accent' %>"><%= urgentCount %></strong></div>
+    </section>
+
+    <section class="card">
+      <form class="filters" method="GET" action="/admin/questions">
+        <div>
+          <label>Status</label>
+          <select name="status">
+            <option value="all" <%= filters.status === 'all' ? 'selected' : '' %>>All</option>
+            <option value="new" <%= filters.status === 'new' ? 'selected' : '' %>>New</option>
+            <option value="reviewing" <%= filters.status === 'reviewing' ? 'selected' : '' %>>Reviewing</option>
+            <option value="replied" <%= filters.status === 'replied' ? 'selected' : '' %>>Replied</option>
+            <option value="closed" <%= filters.status === 'closed' ? 'selected' : '' %>>Closed</option>
+          </select>
+        </div>
+        <div>
+          <label>Category</label>
+          <select name="category">
+            <option value="all" <%= filters.category === 'all' ? 'selected' : '' %>>All</option>
+            <option value="general" <%= filters.category === 'general' ? 'selected' : '' %>>General</option>
+            <option value="signup" <%= filters.category === 'signup' ? 'selected' : '' %>>Signing up</option>
+            <option value="billing" <%= filters.category === 'billing' ? 'selected' : '' %>>Billing</option>
+            <option value="onboarding" <%= filters.category === 'onboarding' ? 'selected' : '' %>>Onboarding</option>
+            <option value="ai_calling" <%= filters.category === 'ai_calling' ? 'selected' : '' %>>AI calling</option>
+            <option value="sms" <%= filters.category === 'sms' ? 'selected' : '' %>>SMS</option>
+            <option value="crm" <%= filters.category === 'crm' ? 'selected' : '' %>>CRM/n8n</option>
+            <option value="support" <%= filters.category === 'support' ? 'selected' : '' %>>Support</option>
+          </select>
+        </div>
+        <button class="btn">Filter Queue</button>
+      </form>
+
+      <div class="queue">
+        <% questions.forEach(function(q) { %>
+          <article class="question card">
+            <div>
+              <span class="pill <%= q.status === 'new' ? 'pill-warn' : q.status === 'closed' ? '' : 'pill-on' %>"><%= q.status.replace(/_/g, ' ') %></span>
+              <span class="pill <%= q.urgency === 'urgent' ? 'pill-danger' : q.urgency === 'soon' ? 'pill-warn' : '' %>"><%= q.urgency %></span>
+              <span class="pill"><%= q.category.replace(/_/g, ' ') %></span>
+              <h2><%= q.business_name || q.name %></h2>
+              <p class="mini">Submitted <%= new Date(q.created_at).toLocaleString() %></p>
+              <div class="contact">
+                <div><strong><%= q.name %></strong><p class="mini">Contact name</p></div>
+                <div><strong><%= q.contact_preference || 'email' %></strong><p class="mini">Preferred follow-up</p></div>
+                <div><strong><%= q.email %></strong><p class="mini">Email</p></div>
+                <div><strong><%= q.phone || 'No phone' %></strong><p class="mini">Phone</p></div>
+              </div>
+              <p class="question-text"><%= q.question %></p>
+              <% if (q.owner_note) { %><p class="mini"><strong>Owner note:</strong> <%= q.owner_note %></p><% } %>
+              <% if (q.admin_reply) { %><p class="mini"><strong>Reply draft:</strong> <%= q.admin_reply %></p><% } %>
+              <div class="actions">
+                <a class="btn btn-ghost" href="mailto:<%= q.email %>?subject=Autovyne follow-up">Email</a>
+                <% if (q.phone) { %><a class="btn btn-ghost" href="tel:<%= q.phone %>">Call</a><% } %>
+              </div>
+            </div>
+            <form class="reply-box" method="POST" action="/admin/questions/<%= q.id %>">
+              <label>Status</label>
+              <select name="status">
+                <option value="new" <%= q.status === 'new' ? 'selected' : '' %>>New</option>
+                <option value="reviewing" <%= q.status === 'reviewing' ? 'selected' : '' %>>Reviewing</option>
+                <option value="replied" <%= q.status === 'replied' ? 'selected' : '' %>>Replied</option>
+                <option value="closed" <%= q.status === 'closed' ? 'selected' : '' %>>Closed</option>
+              </select>
+              <label>Note Preset</label>
+              <select class="preset" onchange="if(this.value) this.form.owner_note.value=this.value">
+                <option value="">Choose a note</option>
+                <option value="Needs personal owner follow-up today.">Needs follow-up today</option>
+                <option value="Good fit for onboarding conversation.">Good onboarding fit</option>
+                <option value="Billing/payment question; review Stripe or account record.">Billing review</option>
+                <option value="SMS/AI workflow question; confirm consent before messaging.">SMS or AI workflow review</option>
+              </select>
+              <label>Owner Note</label>
+              <textarea name="owner_note" placeholder="Private note for yourself."><%= q.owner_note || '' %></textarea>
+              <label>Reply Draft</label>
+              <textarea name="admin_reply" placeholder="Draft what you sent or plan to send."><%= q.admin_reply || '' %></textarea>
+              <button class="btn" style="width:100%;margin-top:12px">Save Question</button>
+            </form>
+          </article>
+        <% }); %>
+        <% if (!questions.length) { %><div class="empty">No questions match this filter.</div><% } %>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

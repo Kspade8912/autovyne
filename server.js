@@ -136,6 +136,7 @@ app.use('/admin/integrations', require('./routes/admin-integrations'));
 app.use('/admin/analytics', require('./routes/admin-analytics'));
 app.use('/admin/accounts', require('./routes/admin-accounts'));
 app.use('/admin/compliance', require('./routes/admin-compliance'));
+app.use('/admin/questions', require('./routes/admin-questions'));
 app.use('/portal', require('./routes/portal'));
 app.use('/signup', require('./routes/signup'));
 app.use('/questions', require('./routes/questions'));
