@@ -35,6 +35,23 @@ const pool = new Pool({
   ssl: process.env.DATABASE_URL?.includes('localhost') ? false : { rejectUnauthorized: false },
 });
 
+async function secureMigrationTrackingTable(client) {
+  await client.query(`
+    ALTER TABLE public._migrations ENABLE ROW LEVEL SECURITY;
+
+    DO $$
+    BEGIN
+      IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'anon') THEN
+        REVOKE ALL ON TABLE public._migrations FROM anon;
+      END IF;
+
+      IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'authenticated') THEN
+        REVOKE ALL ON TABLE public._migrations FROM authenticated;
+      END IF;
+    END $$;
+  `);
+}
+
 async function migrate() {
   console.log('Running migrations...');
 
@@ -48,6 +65,7 @@ async function migrate() {
         applied_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
       )
     `);
+    await secureMigrationTrackingTable(client);
 
     // Run migrations from migrations/ folder, tracked in _migrations table
     await runFolderMigrations(client);
