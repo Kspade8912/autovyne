@@ -98,3 +98,40 @@ Start with one vertical and one offer:
 - Promise: show the opportunity using the prospect’s numbers, without guaranteeing results
 
 Measure: researched leads, approvals, contact attempts, replies, qualified replies, booked calls, and closed clients.
+
+## Shared Industry AI Pattern
+
+Every industry AI uses the same Autovyne operating pattern:
+
+1. Capture the lead or customer request.
+2. Identify missed-call, follow-up, booking, or CRM risk.
+3. Apply the industry profile for language, urgency, and escalation.
+4. Produce a short next action that a human can review.
+5. Never send SMS unless consent proof exists.
+6. Never give medical, legal, financial, or emergency advice.
+
+Industry-specific defining traits:
+
+- **HVAC / Plumbing / Electric**: urgency-first dispatcher for emergency service calls and fast technician handoff.
+- **Contractors**: estimate-to-job coordinator for project details, walkthroughs, and quote follow-up.
+- **Towing / Automotive**: fast triage and appointment router for urgent tow/repair versus scheduled service.
+- **Restaurants / Hospitality**: reservation and guest-experience concierge for bookings, events, catering, and rush-hour missed calls.
+- **Medical / Dental**: careful patient-intake assistant that routes scheduling and escalates clinical or urgent requests.
+- **Hair / Beauty**: booking and rebooking stylist for appointments, waitlists, cancellations, and retention.
+- **Legal / Law Firm**: careful intake screener that captures matter type and routes to human review without legal advice.
+- **Gym / Fitness Studio**: membership and class-growth assistant for trials, membership questions, and class bookings.
+- **Real Estate**: lead response and showing coordinator for buyer/seller speed-to-lead.
+- **Other Local Business**: general local-business lead capture assistant.
+
+If OpenAI is temporarily at capacity, Autovyne should still save the lead/account, continue CRM/n8n handoff where possible, and mark the AI brief as fallback/pending instead of blocking operations.
+
+## Tomorrow Demo Account Checklist
+
+1. Create a demo account in `/admin/accounts`.
+2. Choose the target industry profile, starting with HVAC unless the prospect is in another vertical.
+3. Use SMB Bundle or Professional so the demo shows the full stack.
+4. Set status to `setup` first, then use one-click account operations to show progress.
+5. Add visible customer updates: payment confirmed, onboarding started, AI calling connected, CRM connected, workflow connected.
+6. Open `/portal` with the demo email and portal password/access code to confirm the customer view.
+7. Use `/admin/launch` and `/admin/integrations` before cold calling.
+8. During calls, use the industry trait, two discovery questions, and the no-guarantee ROI demo at `/demo`.

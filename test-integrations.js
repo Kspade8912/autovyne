@@ -70,6 +70,10 @@ const lead = {
 (async () => {
   const qualification = await openai.qualifyLead(lead);
   assert.equal(qualification.priority, 'high');
+  const openaiBody = JSON.parse(requests[0].options.body);
+  const openaiInput = JSON.parse(openaiBody.input);
+  assert.equal(openaiInput.industry_profile.defining_trait, 'Urgency-first dispatcher');
+  assert.equal(openaiInput.industry_profile.key, 'hvac');
 
   const contact = await hubspot.upsertLead(lead);
   assert.equal(contact.id, 'hubspot-contact-1');
@@ -88,6 +92,7 @@ const lead = {
 
   const n8nBody = JSON.parse(requests[2].options.body);
   assert.equal(n8nBody.sms_eligible, true);
+  assert.equal(n8nBody.industry_profile.defining_trait, 'Urgency-first dispatcher');
 
   requests.length = 0;
   await processNewLead({ ...lead, sms_consent: false });
@@ -133,7 +138,7 @@ const lead = {
 
   const adminAnswer = await askAdminAssistant({
     question: 'What needs attention?',
-    accounts: [{ id: 1, business_name: 'Example HVAC', status: 'setup', services: {}, metrics: {} }],
+    accounts: [{ id: 1, business_name: 'Example HVAC', industry: 'hvac', status: 'setup', services: {}, metrics: {} }],
     snapshot: { leads: [], questions: [], consents: [] },
     integrationStatus: status,
   });
@@ -141,7 +146,7 @@ const lead = {
 
   const customerAnswer = await askCustomerAssistant({
     question: 'What is my status?',
-    account: { business_name: 'Example HVAC', status: 'setup', services: {}, metrics: {} },
+    account: { business_name: 'Example HVAC', industry: 'hvac', status: 'setup', services: {}, metrics: {} },
     events: [],
   });
   assert.ok(customerAnswer.includes('setup'));
@@ -170,6 +175,28 @@ const lead = {
   const optedInQuestion = JSON.parse(requests[0].options.body);
   assert.equal(optedInQuestion.sms_eligible, true);
   assert.equal(optedInQuestion.question.phone, '+15555550100');
+
+  const workingFetch = global.fetch;
+  global.fetch = async (url, options) => {
+    if (url.includes('api.openai.com')) {
+      return {
+        ok: false,
+        status: 429,
+        text: async () => JSON.stringify({ error: { message: 'model is at capacity' } }),
+      };
+    }
+    return workingFetch(url, options);
+  };
+  const fallbackQualification = await openai.qualifyLead(lead);
+  assert.equal(fallbackQualification.ai_status, 'fallback_pending_capacity_or_provider_issue');
+  assert.equal(fallbackQualification.industry_trait, 'Urgency-first dispatcher');
+  const fallbackAssistant = await askCustomerAssistant({
+    question: 'What now?',
+    account: { business_name: 'Example HVAC', industry: 'hvac', status: 'setup', services: {}, metrics: {} },
+    events: [],
+  });
+  assert.ok(fallbackAssistant.includes('AI provider is busy'));
+  global.fetch = workingFetch;
 
   console.log('Integration adapter smoke test passed.');
 })().catch(error => {

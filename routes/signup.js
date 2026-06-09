@@ -19,6 +19,7 @@ const {
   markSignupPaid,
 } = require('../db/signup-orders');
 const { createRateLimiter, sanitizeString, validateSubmission } = require('../lib/security');
+const { normalizeIndustry } = require('../lib/industry-ai-profiles');
 const { SMS_CONSENT_TEXT, getRequestIp, hasSmsConsent } = require('../lib/sms-consent');
 const n8n = require('../services/n8n');
 const stripe = require('../services/stripe');
@@ -97,6 +98,7 @@ async function activatePaidOrder(order, session = {}) {
     contactName: order.contact_name,
     email: order.email,
     phone: order.phone,
+    industry: normalizeIndustry(order.industry),
     status: 'setup',
     plan: order.plan,
     billingMethod: order.billing_method || 'automatic',
@@ -157,6 +159,7 @@ async function createManualBillingAccount(order) {
     contactName: order.contact_name,
     email: order.email,
     phone: order.phone,
+    industry: normalizeIndustry(order.industry),
     status: 'needs_attention',
     plan: order.plan,
     billingMethod: 'manual',
@@ -291,7 +294,7 @@ router.post('/', limiter, async (req, res) => {
     contactName: sanitizeString(req.body.contact_name),
     email: sanitizeString(req.body.email || '').toLowerCase(),
     phone: sanitizeString(req.body.phone),
-    industry: sanitizeString(req.body.industry),
+    industry: normalizeIndustry(sanitizeString(req.body.industry)),
     websiteUrl: sanitizeString(req.body.website_url),
     currentTools: sanitizeString(req.body.current_tools),
     plan: validPlan(req.body.plan),

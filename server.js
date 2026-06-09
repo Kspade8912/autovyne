@@ -129,6 +129,7 @@ app.use('/medical-and-dental', require('./routes/medical-and-dental'));
 app.use('/api/leads', require('./routes/leads'));
 app.use('/simulator', require('./routes/simulator'));
 app.use('/demo', require('./routes/demo'));
+app.use('/tutorial', require('./routes/tutorial'));
 app.use('/api/analytics', require('./routes/analytics'));
 app.use('/api/integrations', require('./routes/integrations'));
 app.use('/admin', require('./routes/admin'));

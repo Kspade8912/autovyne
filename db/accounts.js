@@ -42,6 +42,7 @@ async function createOrUpdateAccount({
   contactName,
   email,
   phone,
+  industry,
   status,
   plan,
   billingMethod,
@@ -57,12 +58,13 @@ async function createOrUpdateAccount({
 
   const result = await pool.query(
     `INSERT INTO client_accounts
-       (business_name, contact_name, email, phone, status, plan, billing_method, access_code_hash, services, metrics, notes)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
+       (business_name, contact_name, email, phone, industry, status, plan, billing_method, access_code_hash, services, metrics, notes)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
      ON CONFLICT (email) DO UPDATE SET
        business_name = EXCLUDED.business_name,
        contact_name = EXCLUDED.contact_name,
        phone = EXCLUDED.phone,
+       industry = EXCLUDED.industry,
        status = EXCLUDED.status,
        plan = EXCLUDED.plan,
        billing_method = EXCLUDED.billing_method,
@@ -77,6 +79,7 @@ async function createOrUpdateAccount({
       contactName || null,
       normalizedEmail,
       phone || null,
+      industry || null,
       status || 'setup',
       plan || 'starter',
       normalizeBillingMethod(billingMethod),
@@ -95,6 +98,7 @@ async function updateAccountById({
   contactName,
   email,
   phone,
+  industry,
   status,
   plan,
   billingMethod,
@@ -114,13 +118,14 @@ async function updateAccountById({
        contact_name = $3,
        email = $4,
        phone = $5,
-       status = $6,
-       plan = $7,
-       billing_method = $8,
-       access_code_hash = CASE WHEN $9::BOOLEAN THEN $10 ELSE access_code_hash END,
-       services = $11,
-       metrics = $12,
-       notes = $13,
+       industry = $6,
+       status = $7,
+       plan = $8,
+       billing_method = $9,
+       access_code_hash = CASE WHEN $10::BOOLEAN THEN $11 ELSE access_code_hash END,
+       services = $12,
+       metrics = $13,
+       notes = $14,
        updated_at = NOW()
      WHERE id = $1
      RETURNING *`,
@@ -130,6 +135,7 @@ async function updateAccountById({
       contactName || null,
       normalizedEmail,
       phone || null,
+      industry || null,
       status || 'setup',
       plan || 'starter',
       normalizeBillingMethod(billingMethod),
@@ -148,6 +154,7 @@ async function createOrUpdateAccountWithHash({
   contactName,
   email,
   phone,
+  industry,
   status,
   plan,
   billingMethod,
@@ -167,14 +174,15 @@ async function createOrUpdateAccountWithHash({
 
   const result = await pool.query(
     `INSERT INTO client_accounts
-       (business_name, contact_name, email, phone, status, plan, billing_method, access_code_hash,
+       (business_name, contact_name, email, phone, industry, status, plan, billing_method, access_code_hash,
         services, metrics, notes, stripe_customer_id, stripe_checkout_session_id,
         stripe_subscription_id, paid_at, activated_at)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17)
      ON CONFLICT (email) DO UPDATE SET
        business_name = EXCLUDED.business_name,
        contact_name = EXCLUDED.contact_name,
        phone = EXCLUDED.phone,
+       industry = EXCLUDED.industry,
        status = EXCLUDED.status,
        plan = EXCLUDED.plan,
        billing_method = EXCLUDED.billing_method,
@@ -194,6 +202,7 @@ async function createOrUpdateAccountWithHash({
       contactName || null,
       normalizedEmail,
       phone || null,
+      industry || null,
       status || 'active',
       plan || 'starter',
       normalizeBillingMethod(billingMethod),

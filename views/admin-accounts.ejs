@@ -164,6 +164,12 @@
             <label>Contact Name</label><input name="contact_name" placeholder="Owner or manager name" value="<%= editAccount ? (editAccount.contact_name || '') : '' %>">
             <label>Email</label><input name="email" type="email" required placeholder="customer@email.com" value="<%= editAccount ? editAccount.email : '' %>">
             <label>Phone</label><input name="phone" placeholder="Business phone" value="<%= editAccount ? (editAccount.phone || '') : '' %>">
+            <label>Industry AI Profile</label>
+            <select name="industry">
+              <% Object.keys(industryProfiles || {}).forEach(function(key) { %>
+                <option value="<%= key %>" <%= isSelected(key, editAccount && editAccount.industry) ? 'selected' : '' %>><%= industryProfiles[key].label %> - <%= industryProfiles[key].definingTrait %></option>
+              <% }); %>
+            </select>
             <label>Portal Access Code</label><input name="access_code" <%= editAccount ? '' : 'required' %> placeholder="<%= editAccount ? 'Leave blank to keep current code' : 'Give this code to the customer' %>">
           </details>
           <details class="fold" open>

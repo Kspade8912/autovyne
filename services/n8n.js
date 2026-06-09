@@ -1,4 +1,5 @@
 const { fetchJson } = require('../lib/http');
+const { compactIndustryProfile } = require('../lib/industry-ai-profiles');
 
 function isConfigured() {
   return Boolean(process.env.N8N_WEBHOOK_URL && process.env.N8N_WEBHOOK_SECRET);
@@ -17,6 +18,7 @@ async function sendLeadEvent(lead, qualification) {
       event: 'lead.created',
       sent_at: new Date().toISOString(),
       lead,
+      industry_profile: compactIndustryProfile(lead.industry),
       sms_eligible: Boolean(lead.sms_consent && lead.phone),
       qualification,
     }),
@@ -63,6 +65,7 @@ async function sendPaidSignupEvent({ order, account }) {
         email: order.email,
         phone: smsEligible ? order.phone : null,
         industry: order.industry,
+        industry_profile: compactIndustryProfile(order.industry),
         website_url: order.website_url,
         current_tools: order.current_tools,
         plan: order.plan,
@@ -101,6 +104,7 @@ async function sendManualSignupEvent({ order, account }) {
         email: order.email,
         phone: smsEligible ? order.phone : null,
         industry: order.industry,
+        industry_profile: compactIndustryProfile(order.industry),
         website_url: order.website_url,
         current_tools: order.current_tools,
         plan: order.plan,

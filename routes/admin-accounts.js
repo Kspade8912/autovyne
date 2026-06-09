@@ -10,6 +10,7 @@ const {
 } = require('../db/accounts');
 const { sanitizeString } = require('../lib/security');
 const { hasAdminSession, setAdminSession } = require('../lib/admin-auth');
+const { INDUSTRY_AI_PROFILES, normalizeIndustry } = require('../lib/industry-ai-profiles');
 const {
   filterServicesForPlan,
   getPlanServiceBundle,
@@ -218,6 +219,7 @@ async function pageData(overrides = {}) {
     selectedEvents: [],
     assistantQuestion: '',
     assistantResponse: null,
+    industryProfiles: INDUSTRY_AI_PROFILES,
     planServiceBundles: PLAN_SERVICE_BUNDLES,
     planServiceNotes: PLAN_SERVICE_NOTES,
     serviceDefinitions: SERVICE_DEFINITIONS,
@@ -232,6 +234,7 @@ function accountInput(body) {
     contactName: sanitizeString(body.contact_name),
     email: sanitizeString(body.email),
     phone: sanitizeString(body.phone),
+    industry: normalizeIndustry(body.industry),
     status: sanitizeString(body.status) || 'setup',
     plan,
     billingMethod: sanitizeString(body.billing_method) || 'automatic',
@@ -434,6 +437,7 @@ router.post('/operation', async (req, res) => {
       contactName: account.contact_name,
       email: account.email,
       phone: account.phone,
+      industry: account.industry,
       status: operation.status,
       plan: account.plan,
       billingMethod: account.billing_method,
