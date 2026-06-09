@@ -1,19 +1,11 @@
 const { Router } = require('express');
 const pool = require('../db');
 const { getConfigurationStatus } = require('../services/integrations');
+const { requireAdminApiAccess } = require('../lib/admin-api-auth');
 
 const router = Router();
 
-router.get('/status', async (req, res) => {
-  const adminKey = process.env.ADMIN_API_KEY;
-  const token = (req.headers.authorization || '').startsWith('Bearer ')
-    ? req.headers.authorization.slice(7)
-    : '';
-
-  if (!adminKey || token !== adminKey) {
-    return res.status(401).json({ error: 'Unauthorized' });
-  }
-
+router.get('/status', requireAdminApiAccess, async (req, res) => {
   const status = getConfigurationStatus();
   try {
     await pool.query('SELECT 1');

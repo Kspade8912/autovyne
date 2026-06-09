@@ -11,6 +11,7 @@ const { logEvent } = require('../db/analytics');
 const { processNewLead } = require('../services/integrations');
 const { recordSmsConsent } = require('../db/compliance');
 const { SMS_CONSENT_TEXT, hasSmsConsent, getRequestIp } = require('../lib/sms-consent');
+const { requireAdminApiAccess } = require('../lib/admin-api-auth');
 
 const router = Router();
 
@@ -22,20 +23,8 @@ const submissionLimiter = createRateLimiter({
 });
 
 // GET /api/leads — list all leads (newest first), internal use only.
-// Requires Authorization: Bearer <ADMIN_API_KEY> header.
-router.get('/', (req, res, next) => {
-  const adminKey = process.env.ADMIN_API_KEY;
-  if (!adminKey) {
-    // ADMIN_API_KEY not configured — close the endpoint entirely
-    return res.status(403).json({ error: 'Forbidden' });
-  }
-  const auth = req.headers['authorization'] || '';
-  const token = auth.startsWith('Bearer ') ? auth.slice(7) : '';
-  if (token !== adminKey) {
-    return res.status(401).json({ error: 'Unauthorized' });
-  }
-  next();
-}, async (_req, res) => {
+// Accepts either a signed admin session cookie or Authorization: Bearer <ADMIN_API_KEY>.
+router.get('/', requireAdminApiAccess, async (_req, res) => {
   try {
     const leads = await listLeads({ limit: 100 });
     res.json({ leads, count: leads.length });

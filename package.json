@@ -7,7 +7,7 @@
     "dev": "node server.js",
     "build": "npm run migrate",
     "migrate": "node migrate.js",
-    "test": "node test-simulator.js && node test-integrations.js && node test-stripe.js && node test-questions.js"
+    "test": "node test-simulator.js && node test-integrations.js && node test-stripe.js && node test-questions.js && node test-admin-auth.js"
   },
   "dependencies": {
     "cookie-parser": "^1.4.6",

@@ -6,6 +6,7 @@
 const { Router } = require('express');
 const { logEvent, getDailyPageViews, getDailyFormSubmissions, getTopReferrers, getTopPages, getTotalStats } = require('../db/analytics');
 const crypto = require('crypto');
+const { requireAdminApiAccess } = require('../lib/admin-api-auth');
 
 const router = Router();
 
@@ -44,15 +45,9 @@ router.post('/', async (req, res) => {
   }
 });
 
-// GET /api/analytics — admin dashboard data (requires ADMIN_API_KEY)
-router.get('/', async (req, res) => {
-  const adminKey = process.env.ADMIN_API_KEY;
-  if (!adminKey) return res.status(403).json({ error: 'Forbidden' });
-
-  const auth = (req.headers['authorization'] || '').startsWith('Bearer ')
-    ? req.headers['authorization'].slice(7) : '';
-  if (auth !== adminKey) return res.status(401).json({ error: 'Unauthorized' });
-
+// GET /api/analytics — admin dashboard data.
+// Accepts either a signed admin session cookie or Authorization: Bearer <ADMIN_API_KEY>.
+router.get('/', requireAdminApiAccess, async (req, res) => {
   const days = Math.min(parseInt(req.query.days) || 30, 90);
 
   try {

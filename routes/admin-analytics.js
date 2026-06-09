@@ -5,7 +5,7 @@
  */
 const { Router } = require('express');
 const { getDailyPageViews, getDailyFormSubmissions, getTopReferrers, getTopPages, getTotalStats } = require('../db/analytics');
-const { hasAdminSession, setAdminSession } = require('../lib/admin-auth');
+const { hasAdminSession, setAdminSession, verifyAdminLogin } = require('../lib/admin-auth');
 
 const router = Router();
 
@@ -60,8 +60,7 @@ router.post('/', (req, res) => {
   const adminKey = process.env.ADMIN_API_KEY;
   if (!adminKey) return res.status(403).send('<h1>Forbidden</h1>');
 
-  const { key } = req.body;
-  if (key === adminKey) {
+  if (verifyAdminLogin(req.body)) {
     // Set a 24-hour signed cookie
     res.cookie('analytics_auth', adminKey, {
       httpOnly: true,
@@ -74,7 +73,7 @@ router.post('/', (req, res) => {
     return res.redirect('/admin/analytics');
   }
 
-  res.render('admin-analytics', { authorized: false, error: 'Invalid key', days: 30 });
+  res.render('admin-analytics', { authorized: false, error: 'Invalid admin login', days: 30 });
 });
 
 module.exports = router;

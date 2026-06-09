@@ -54,10 +54,15 @@
     <h1>Analytics</h1>
     <% if (error) { %><p style="color:#ef4444;font-size:0.82rem;margin-bottom:12px;"><%= error %></p><% } %>
     <form method="POST">
-      <label>Admin Key</label>
-      <input type="password" name="key" placeholder="Enter your admin key" autofocus>
+      <label>Username</label>
+      <input type="text" name="username" placeholder="Admin username" autocomplete="username" autofocus>
+      <label style="margin-top:12px">Password</label>
+      <input type="password" name="password" placeholder="Admin password" autocomplete="current-password">
+      <label style="margin-top:12px">Admin Key Fallback</label>
+      <input type="password" name="key" placeholder="Optional fallback key">
       <button type="submit">View Analytics</button>
     </form>
+    <p style="margin-top:14px;color:#7878a0;font-size:0.78rem;line-height:1.5;">Same login as the main <a href="/admin" style="color:#00e87b;text-decoration:none;">Admin Hub</a>.</p>
   </div>
 </div>
 <% } else { %>
