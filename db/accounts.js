@@ -232,6 +232,14 @@ async function getAccountByStripeSubscription(subscriptionId) {
   return result.rows[0] || null;
 }
 
+async function getAccountByStripeCustomer(customerId) {
+  const result = await pool.query(
+    'SELECT * FROM client_accounts WHERE stripe_customer_id = $1 LIMIT 1',
+    [customerId]
+  );
+  return result.rows[0] || null;
+}
+
 async function updateAccountStatusById({ id, status, notes }) {
   const result = await pool.query(
     `UPDATE client_accounts
@@ -317,6 +325,7 @@ module.exports = {
   defaultMetrics,
   defaultServices,
   getAccountById,
+  getAccountByStripeCustomer,
   getAccountByStripeSubscription,
   getAccountByLogin,
   getAdminSnapshot,

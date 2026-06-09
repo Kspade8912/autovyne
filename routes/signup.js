@@ -1,6 +1,7 @@
 const { Router } = require('express');
 const {
   createOrUpdateAccountWithHash,
+  getAccountByStripeCustomer,
   getAccountByStripeSubscription,
   hashAccessCode,
   normalizeBillingMethod,
@@ -198,9 +199,19 @@ async function markSessionPaidAndActivate(session) {
 }
 
 async function findAccountForStripeObject(object = {}) {
-  const subscriptionId = object.subscription?.id || object.subscription || object.id;
-  if (!subscriptionId) return null;
-  return getAccountByStripeSubscription(subscriptionId);
+  const subscriptionId = object.subscription?.id ||
+    object.subscription ||
+    object.parent?.subscription_details?.subscription ||
+    object.lines?.data?.find(line => line.subscription)?.subscription ||
+    null;
+  if (subscriptionId) {
+    const account = await getAccountByStripeSubscription(subscriptionId);
+    if (account) return account;
+  }
+
+  const customerId = object.customer?.id || object.customer || null;
+  if (customerId) return getAccountByStripeCustomer(customerId);
+  return null;
 }
 
 async function handleSubscriptionDeleted(subscription) {
