@@ -8,6 +8,7 @@ const crypto = require('crypto');
 const cookieParser = require('cookie-parser');
 const { buildLandingContext } = require('./lib/landing-context');
 const { createRateLimiter } = require('./lib/security');
+const { startLegalAuditMonitor } = require('./services/legal-audit-runner');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -135,6 +136,7 @@ app.use('/api/integrations', require('./routes/integrations'));
 app.use('/admin', require('./routes/admin'));
 app.use('/admin/integrations', require('./routes/admin-integrations'));
 app.use('/admin/launch', require('./routes/admin-launch'));
+app.use('/admin/legal-audits', require('./routes/admin-legal-audits'));
 app.use('/admin/analytics', require('./routes/admin-analytics'));
 app.use('/admin/accounts', require('./routes/admin-accounts'));
 app.use('/admin/compliance', require('./routes/admin-compliance'));
@@ -156,4 +158,5 @@ app.use((err, _req, res, _next) => {
 
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
+  startLegalAuditMonitor();
 });

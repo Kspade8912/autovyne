@@ -8,6 +8,7 @@ const {
   recordAccountEvent,
   updateAccountById,
 } = require('../db/accounts');
+const { getClientActionRequestById, updateClientActionRequestStatus } = require('../db/client-actions');
 const { sanitizeString } = require('../lib/security');
 const { hasAdminSession, setAdminSession } = require('../lib/admin-auth');
 const { INDUSTRY_AI_PROFILES, normalizeIndustry } = require('../lib/industry-ai-profiles');
@@ -489,6 +490,64 @@ router.post('/assistant', async (req, res) => {
       assistantQuestion,
       assistantResponse: 'The admin assistant could not answer right now. Check Integration Health and try again.',
     }));
+  }
+});
+
+router.post('/assistant.json', async (req, res) => {
+  if (!isAuthorized(req)) return res.status(401).json({ error: 'Admin login required.' });
+
+  const assistantQuestion = sanitizeString(req.body.question || req.body.assistant_question);
+  try {
+    const [accounts, snapshot] = await Promise.all([
+      listAccounts(),
+      getAdminSnapshot(),
+    ]);
+    const answer = await askAdminAssistant({
+      question: assistantQuestion,
+      accounts,
+      snapshot,
+      integrationStatus: getConfigurationStatus(),
+    });
+    res.json({
+      answer,
+      level: 'admin',
+      label: 'Autovyne Admin AI',
+      legalReviewCount: (snapshot.legalAudits || []).filter(audit => audit.status === 'needs_admin_review').length,
+    });
+  } catch (error) {
+    console.error('[admin-accounts] assistant json error:', error.message);
+    res.status(500).json({ error: 'The admin assistant could not answer right now.' });
+  }
+});
+
+router.post('/client-requests/:id/status', async (req, res) => {
+  if (!isAuthorized(req)) return res.status(401).redirect('/admin/accounts');
+
+  try {
+    const request = await getClientActionRequestById(parseInt(req.params.id, 10));
+    if (!request) {
+      return res.status(404).render('admin-accounts', await pageData({ error: 'Client request not found.' }));
+    }
+
+    const updated = await updateClientActionRequestStatus({
+      id: request.id,
+      status: sanitizeString(req.body.status),
+      adminNote: sanitizeString(req.body.admin_note),
+      reviewedBy: 'Autovyne admin',
+    });
+
+    await recordAccountEvent({
+      accountId: request.account_id,
+      eventType: 'customer_action_request',
+      title: `Client request ${String(updated.status).replace(/_/g, ' ')}`,
+      detail: updated.admin_note || `Autovyne updated the request status to ${String(updated.status).replace(/_/g, ' ')}.`,
+      visibleToClient: true,
+    });
+
+    res.redirect('/admin/accounts#client-requests');
+  } catch (error) {
+    console.error('[admin-accounts] client request status error:', error.message);
+    res.status(500).render('admin-accounts', await pageData({ error: 'Client request status could not be updated.' }));
   }
 });
 

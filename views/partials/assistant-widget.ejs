@@ -1,0 +1,38 @@
+<div
+  class="ai-widget"
+  id="<%= widgetId %>"
+  data-endpoint="<%= widgetEndpoint %>"
+  data-level="<%= widgetLevel || 'assistant' %>"
+  data-title="<%= widgetTitle %>"
+>
+  <button class="ai-widget-toggle" type="button" aria-expanded="false" aria-controls="<%= widgetId %>-panel">
+    <span><%= widgetTitle %></span>
+  </button>
+  <section class="ai-widget-panel" id="<%= widgetId %>-panel" aria-label="<%= widgetTitle %> chat">
+    <header class="ai-widget-header">
+      <div>
+        <strong><%= widgetTitle %></strong>
+        <span><%= widgetSubtitle || 'Ask a quick question.' %></span>
+      </div>
+      <button class="ai-widget-close" type="button" aria-label="Close assistant">Close</button>
+    </header>
+    <div class="ai-widget-messages" aria-live="polite">
+      <div class="ai-widget-message ai-widget-message-ai">Choose a prompt or type your own question. I will answer from the account information I am allowed to see.</div>
+    </div>
+    <form class="ai-widget-form">
+      <label for="<%= widgetId %>-prompt">Guided question</label>
+      <select id="<%= widgetId %>-prompt" class="ai-widget-prompt">
+        <option value="">Select a dropdown option</option>
+        <% (widgetPrompts || []).forEach(function(prompt) { %>
+          <option value="<%= prompt %>"><%= prompt %></option>
+        <% }); %>
+      </select>
+      <label for="<%= widgetId %>-input">Message</label>
+      <textarea id="<%= widgetId %>-input" class="ai-widget-input" rows="3" placeholder="Type your question..."></textarea>
+      <div class="ai-widget-actions">
+        <button class="ai-widget-voice" type="button">Talk</button>
+        <button class="ai-widget-send" type="submit">Send</button>
+      </div>
+    </form>
+  </section>
+</div>

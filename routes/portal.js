@@ -6,6 +6,7 @@ const { sanitizeString } = require('../lib/security');
 const { getRequestIp } = require('../lib/sms-consent');
 const stripe = require('../services/stripe');
 const { askCustomerAssistant } = require('../services/openai');
+const { createAuditFromClientAction } = require('../services/legal-audit-runner');
 
 const router = Router();
 
@@ -155,6 +156,29 @@ router.post('/assistant', async (req, res) => {
   }
 });
 
+router.post('/assistant.json', async (req, res) => {
+  const accountId = req.signedCookies?.portal_account_id;
+  if (!accountId) return res.status(401).json({ error: 'Log in before asking the portal assistant.' });
+
+  const assistantQuestion = sanitizeString(req.body.question || req.body.assistant_question);
+  try {
+    const account = await getAccountById(accountId);
+    if (!account) {
+      res.clearCookie('portal_account_id');
+      return res.status(401).json({ error: 'Log in before asking the portal assistant.' });
+    }
+    const [events, actionRequests] = await Promise.all([
+      listAccountEvents(account.id, { visibleOnly: true, limit: 30 }),
+      listClientActionRequests(account.id, { limit: 20 }),
+    ]);
+    const answer = await askCustomerAssistant({ question: assistantQuestion, account, events, actionRequests });
+    res.json({ answer, level: 'customer', label: 'Autovyne Helper' });
+  } catch (error) {
+    console.error('[portal] assistant json error:', error.message);
+    res.status(500).json({ error: 'The portal assistant could not answer right now.' });
+  }
+});
+
 router.post('/actions', async (req, res) => {
   const accountId = req.signedCookies?.portal_account_id;
   if (!accountId) return renderLogin(res, 'Log in before sending an account action request.');
@@ -196,6 +220,11 @@ router.post('/actions', async (req, res) => {
       ipAddress: getRequestIp(req),
       userAgent: req.headers['user-agent'] || null,
     });
+    createAuditFromClientAction({
+      ...actionRequest,
+      business_name: account.business_name,
+      account_email: account.email,
+    }).catch(error => console.error('[portal] legal audit error:', error.message));
 
     const target = subjectPhone
       ? ` for ${subjectName ? `${subjectName} at ` : ''}${subjectPhone}`

@@ -23,6 +23,12 @@ const fakePool = {
     if (sql.includes('FROM client_action_requests') && sql.includes('WHERE account_id')) {
       return { rows: [{ id: 55, account_id: params[0], request_type: 'block_contact' }] };
     }
+    if (sql.includes('FROM client_action_requests r') && sql.includes('WHERE r.id')) {
+      return { rows: [{ id: params[0], account_id: 7, request_type: 'block_contact', business_name: 'Demo' }] };
+    }
+    if (sql.includes('UPDATE client_action_requests')) {
+      return { rows: [{ id: params[0], status: params[1], admin_note: params[2] }] };
+    }
     if (sql.includes('JOIN client_accounts')) {
       return { rows: [] };
     }
@@ -44,8 +50,10 @@ const {
 } = require('./lib/client-action-requests');
 const {
   createClientActionRequest,
+  getClientActionRequestById,
   listClientActionRequests,
   listRecentClientActionRequests,
+  updateClientActionRequestStatus,
 } = require('./db/client-actions');
 
 assert.equal(normalizeActionType('not-real'), 'review_conversation');
@@ -72,6 +80,16 @@ assert.equal(complianceFlagsForType('block_contact').admin_review_required, true
 
   const recentRequests = await listRecentClientActionRequests();
   assert.deepEqual(recentRequests, []);
+
+  const found = await getClientActionRequestById(55);
+  assert.equal(found.request_type, 'block_contact');
+
+  const updated = await updateClientActionRequestStatus({
+    id: 55,
+    status: 'completed',
+    adminNote: 'Blocked in connected systems.',
+  });
+  assert.equal(updated.status, 'completed');
 
   console.log('Client action request smoke test passed.');
 })().catch(error => {

@@ -77,7 +77,7 @@ async function qualifyLead(lead) {
   }
 }
 
-async function askAssistant({ role, question, context, maxOutputTokens = 700 }) {
+async function askAssistant({ role, question, context, maxOutputTokens = 700, model }) {
   const cleanQuestion = String(question || '').trim();
   if (!cleanQuestion) return 'Ask a question and I will help from the information Autovyne has available.';
   if (!isConfigured()) {
@@ -92,7 +92,7 @@ async function askAssistant({ role, question, context, maxOutputTokens = 700 }) 
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: process.env.OPENAI_MODEL || 'gpt-5.4-mini',
+        model: model || process.env.OPENAI_MODEL || 'gpt-5.4-mini',
         store: false,
         max_output_tokens: maxOutputTokens,
         instructions: role,
@@ -143,9 +143,104 @@ async function askAdminAssistant({ question, accounts, snapshot, integrationStat
         form_source: consent.form_source,
         recorded_at: consent.recorded_at,
       })),
+      recent_client_requests: (snapshot?.clientRequests || []).slice(0, 10).map(request => ({
+        id: request.id,
+        business_name: request.business_name,
+        request_type: request.request_type,
+        priority: request.priority,
+        status: request.status,
+        reason: request.reason,
+        created_at: request.created_at,
+      })),
+      legal_audits: (snapshot?.legalAudits || []).slice(0, 10).map(audit => ({
+        id: audit.id,
+        business_name: audit.business_name,
+        risk_area: audit.risk_area,
+        severity: audit.severity,
+        status: audit.status,
+        title: audit.title,
+        recommended_action: audit.recommended_action,
+      })),
       integrations: integrationStatus,
     },
   });
+}
+
+async function askLegalAuditAssistant({ question, audits, snapshot }) {
+  return askAssistant({
+    question,
+    model: process.env.LEGAL_AUDIT_MODEL || process.env.OPENAI_MODEL || 'gpt-5.4-mini',
+    role: [
+      'You are Autovyne Legal Audit AI, a compliance-support assistant for an admin dashboard.',
+      'You operate at a stricter review level than the general Admin AI, but you cannot approve, dismiss, send, call, change billing, change consent, or take legal action.',
+      'You must route decisions back to the admin for approval.',
+      'Flag likely areas to review: TCPA/SMS consent, do-not-call, AI voice disclosure, privacy/data requests, subscription/cancellation, sensitive data minimization, and customer workflow instructions.',
+      'Do not provide legal advice. Provide practical review steps, missing evidence, and what the admin should verify.',
+    ].join(' '),
+    context: {
+      legal_audits: (audits || []).slice(0, 50),
+      recent_client_requests: (snapshot?.clientRequests || []).slice(0, 20),
+      recent_consents: (snapshot?.consents || []).slice(0, 20).map(consent => ({
+        consented: consent.consented,
+        form_source: consent.form_source,
+        recorded_at: consent.recorded_at,
+      })),
+    },
+    maxOutputTokens: 700,
+  });
+}
+
+async function runLegalAuditAIReview({ subject, draft }) {
+  if (!isConfigured() || process.env.LEGAL_AUDIT_AI_ENABLED === 'false') return draft;
+
+  try {
+    const response = await fetchJson('https://api.openai.com/v1/responses', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: process.env.LEGAL_AUDIT_MODEL || process.env.OPENAI_MODEL || 'gpt-5.4-mini',
+        store: false,
+        max_output_tokens: 550,
+        instructions: [
+          'You are Autovyne Legal Audit AI. Review the supplied operational event for compliance risk.',
+          'Return only compact JSON with keys: severity, title, summary, recommended_action, risk_area.',
+          'Allowed severity values: low, medium, high, critical.',
+          'Do not provide legal advice, do not approve action, and do not claim compliance is guaranteed.',
+          'Every output must require admin approval before action.',
+        ].join(' '),
+        input: JSON.stringify({ subject, draft }),
+      }),
+    }, 12000);
+
+    const output = extractOutputText(response).trim();
+    if (!output) return draft;
+    const parsed = JSON.parse(output.replace(/^```json\s*|\s*```$/g, ''));
+    return {
+      ...draft,
+      severity: parsed.severity || draft.severity,
+      title: parsed.title || draft.title,
+      summary: parsed.summary || draft.summary,
+      recommendedAction: parsed.recommended_action || draft.recommendedAction,
+      riskArea: parsed.risk_area || draft.riskArea,
+      auditModel: process.env.LEGAL_AUDIT_MODEL || process.env.OPENAI_MODEL || 'gpt-5.4-mini',
+      metadata: {
+        ...(draft.metadata || {}),
+        ai_reviewed: true,
+      },
+    };
+  } catch (error) {
+    console.error('[openai] legal audit fallback:', error.message);
+    return {
+      ...draft,
+      metadata: {
+        ...(draft.metadata || {}),
+        ai_status: 'fallback_rule_guided_review',
+      },
+    };
+  }
 }
 
 async function askCustomerAssistant({ question, account, events, actionRequests }) {
@@ -190,4 +285,11 @@ async function askCustomerAssistant({ question, account, events, actionRequests 
   });
 }
 
-module.exports = { askAdminAssistant, askCustomerAssistant, isConfigured, qualifyLead };
+module.exports = {
+  askAdminAssistant,
+  askCustomerAssistant,
+  askLegalAuditAssistant,
+  isConfigured,
+  qualifyLead,
+  runLegalAuditAIReview,
+};

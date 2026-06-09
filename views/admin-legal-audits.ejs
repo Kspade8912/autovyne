@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Legal Audit AI - Autovyne</title>
+  <link rel="stylesheet" href="/css/assistant-widget.css">
+  <style>
+    *{box-sizing:border-box}body{margin:0;background:#08080d;color:#eff2f7;font:14px 'Space Grotesk',system-ui,sans-serif}.wrap{max-width:1320px;margin:0 auto;padding:30px}.top{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;margin-bottom:22px}.eyebrow{color:#00e87b;font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.1em}h1{font-size:clamp(2rem,4vw,3.4rem);line-height:1;margin:8px 0 10px;letter-spacing:-.05em}.sub,.mini{color:#8a8f9e;line-height:1.5}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}.card{background:#12141c;border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:20px;box-shadow:0 20px 70px rgba(0,0,0,.24)}.stat span{display:block;color:#8a8f9e;font-size:11px;text-transform:uppercase;letter-spacing:.08em;font-weight:800}.stat strong{display:block;font-size:30px;margin-top:6px}.accent{color:#00e87b}.warn{color:#ffd166}.danger{color:#ff6b6b}.btn{display:inline-block;border:0;border-radius:11px;padding:11px 14px;background:#00e87b;color:#05070a;font-weight:900;cursor:pointer;text-decoration:none}.btn-secondary{background:#202432;color:#eff2f7}.btn-ghost{background:transparent;color:#eff2f7;border:1px solid rgba(255,255,255,.14)}.actions{display:flex;gap:10px;flex-wrap:wrap}.msg{padding:12px;border-radius:12px;margin-bottom:14px}.err{background:rgba(255,107,107,.12);color:#ff9d9d}.ok{background:rgba(0,232,123,.1);color:#00e87b}.filters{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px}.filters a{padding:10px 12px;border-radius:999px;background:#0a0c12;border:1px solid rgba(255,255,255,.08);color:#cdd3df;text-decoration:none;font-weight:800}.filters a.active{border-color:rgba(0,232,123,.5);color:#00e87b;background:rgba(0,232,123,.1)}.audit{display:grid;grid-template-columns:1fr 300px;gap:16px;margin-bottom:14px}.pill{display:inline-block;border-radius:999px;padding:4px 9px;background:#202432;color:#cdd3df;font-size:12px;margin:2px 2px 2px 0}.pill-high{background:rgba(255,209,102,.13);color:#ffd166}.pill-critical{background:rgba(255,107,107,.15);color:#ff9d9d}.pill-ok{background:rgba(0,232,123,.12);color:#00e87b}label{display:block;color:#8a8f9e;font-size:12px;margin:12px 0 6px;font-weight:800;text-transform:uppercase;letter-spacing:.04em}select,textarea{width:100%;padding:11px 12px;border-radius:11px;border:1px solid rgba(255,255,255,.12);background:#0a0c12;color:#fff;font:14px inherit}textarea{min-height:82px;resize:vertical}.assistant-answer{white-space:pre-wrap;background:#0a0c12;border:1px solid rgba(0,232,123,.18);border-radius:14px;padding:14px;color:#dfffee;margin-top:12px}@media(max-width:900px){.grid,.audit{grid-template-columns:1fr}.top{flex-direction:column}.actions .btn{flex:1;text-align:center}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <div>
+        <div class="eyebrow">Legal Audit AI</div>
+        <h1>Compliance-sensitive items waiting for admin approval.</h1>
+        <p class="sub">This AI watches customer control requests and flags legal-sensitive workflow decisions. It supports review only; it cannot approve or make changes by itself.</p>
+      </div>
+      <div class="actions">
+        <a class="btn btn-secondary" href="/admin">Admin Hub</a>
+        <a class="btn btn-secondary" href="/admin/accounts">Accounts</a>
+        <a class="btn btn-secondary" href="/admin/compliance">SMS Proof</a>
+        <form method="POST" action="/admin/legal-audits/run"><button class="btn" type="submit">Run Audit Now</button></form>
+      </div>
+    </div>
+
+    <% if (error) { %><div class="msg err"><%= error %></div><% } %>
+    <% if (success) { %><div class="msg ok"><%= success %></div><% } %>
+
+    <section class="grid">
+      <div class="card stat"><span>Needs Review</span><strong class="warn"><%= counts.needs_admin_review %></strong></div>
+      <div class="card stat"><span>Approved</span><strong class="accent"><%= counts.approved %></strong></div>
+      <div class="card stat"><span>Resolved</span><strong><%= counts.resolved %></strong></div>
+      <div class="card stat"><span>Total Recent</span><strong><%= counts.all %></strong></div>
+    </section>
+
+    <section class="card">
+      <h2>Ask Legal Audit AI</h2>
+      <p class="mini">Use this for stricter review guidance. It still routes decisions back to you for approval.</p>
+      <form method="POST" action="/admin/legal-audits/assistant">
+        <label>Quick prompt</label>
+        <select onchange="this.form.assistant_question.value=this.value">
+          <option value="">Choose a guided question</option>
+          <option value="What legal-sensitive items need my attention first?">What needs attention first?</option>
+          <option value="Which findings need proof before I approve them?">Which need proof?</option>
+          <option value="Summarize do-not-contact, consent, privacy, and billing risks in plain English.">Summarize risks</option>
+        </select>
+        <label>Your question</label>
+        <textarea name="assistant_question" placeholder="Example: What should I verify before approving these reviews?"><%= assistantQuestion || '' %></textarea>
+        <button class="btn" type="submit" style="margin-top:12px">Ask Legal Audit AI</button>
+      </form>
+      <% if (assistantResponse) { %><div class="assistant-answer"><%= assistantResponse %></div><% } %>
+    </section>
+
+    <div class="filters">
+      <a class="<%= status === 'needs_admin_review' ? 'active' : '' %>" href="/admin/legal-audits?status=needs_admin_review">Needs Review</a>
+      <a class="<%= status === 'approved' ? 'active' : '' %>" href="/admin/legal-audits?status=approved">Approved</a>
+      <a class="<%= status === 'resolved' ? 'active' : '' %>" href="/admin/legal-audits?status=resolved">Resolved</a>
+      <a class="<%= status === 'dismissed' ? 'active' : '' %>" href="/admin/legal-audits?status=dismissed">Dismissed</a>
+      <a class="<%= status === 'all' ? 'active' : '' %>" href="/admin/legal-audits?status=all">All</a>
+    </div>
+
+    <% audits.forEach(function(audit) { %>
+      <section class="card audit" id="audit-<%= audit.id %>">
+        <div>
+          <span class="pill <%= audit.severity === 'critical' ? 'pill-critical' : audit.severity === 'high' ? 'pill-high' : '' %>"><%= audit.severity %></span>
+          <span class="pill"><%= String(audit.risk_area || '').replace(/_/g, ' ') %></span>
+          <span class="pill <%= audit.status === 'approved' || audit.status === 'resolved' ? 'pill-ok' : '' %>"><%= String(audit.status || '').replace(/_/g, ' ') %></span>
+          <h2><%= audit.title %></h2>
+          <p class="sub"><%= audit.summary || 'No summary.' %></p>
+          <p><strong>Recommended admin check:</strong> <span class="mini"><%= audit.recommended_action || 'Review manually before action.' %></span></p>
+          <p class="mini">Account: <%= audit.business_name || 'No account linked' %> - Source: <%= audit.source_record_type %> #<%= audit.source_record_id || '-' %> - <%= new Date(audit.created_at).toLocaleString() %></p>
+          <% if (audit.account_id) { %><a class="btn btn-ghost" href="/admin/accounts/<%= audit.account_id %>/events">Open Account Activity</a><% } %>
+        </div>
+        <form method="POST" action="/admin/legal-audits/<%= audit.id %>/status">
+          <label>Decision</label>
+          <select name="status">
+            <option value="needs_admin_review" <%= audit.status === 'needs_admin_review' ? 'selected' : '' %>>Keep under review</option>
+            <option value="approved" <%= audit.status === 'approved' ? 'selected' : '' %>>Approve recommended review action</option>
+            <option value="resolved" <%= audit.status === 'resolved' ? 'selected' : '' %>>Resolved</option>
+            <option value="dismissed" <%= audit.status === 'dismissed' ? 'selected' : '' %>>Dismissed</option>
+          </select>
+          <label>Admin note</label>
+          <textarea name="resolution_note" placeholder="What did you verify or decide?"><%= audit.resolution_note || '' %></textarea>
+          <button class="btn" style="margin-top:12px">Save Decision</button>
+        </form>
+      </section>
+    <% }); %>
+    <% if (!audits.length) { %><section class="card"><p class="mini">No audits match this view.</p></section><% } %>
+  </div>
+
+  <%- include('partials/assistant-widget', {
+    widgetId: 'legal-audit-ai',
+    widgetTitle: 'Legal Audit AI',
+    widgetSubtitle: 'Higher-level compliance review. Admin approval still required.',
+    widgetEndpoint: '/admin/legal-audits/assistant.json',
+    widgetLevel: 'legal-audit',
+    widgetPrompts: [
+      'What legal-sensitive items need my attention first?',
+      'Which findings need proof before approval?',
+      'What should I verify for do-not-contact and consent?',
+      'Summarize privacy, billing, and sensitive-data risks.'
+    ]
+  }) %>
+  <script src="/js/assistant-widget.js"></script>
+</body>
+</html>
