@@ -10,6 +10,13 @@ const {
 } = require('../db/accounts');
 const { sanitizeString } = require('../lib/security');
 const { hasAdminSession, setAdminSession } = require('../lib/admin-auth');
+const {
+  filterServicesForPlan,
+  getPlanServiceBundle,
+  PLAN_SERVICE_BUNDLES,
+  PLAN_SERVICE_NOTES,
+  SERVICE_DEFINITIONS,
+} = require('../lib/plan-services');
 const { askAdminAssistant } = require('../services/openai');
 const { getConfigurationStatus } = require('../services/integrations');
 
@@ -211,28 +218,25 @@ async function pageData(overrides = {}) {
     selectedEvents: [],
     assistantQuestion: '',
     assistantResponse: null,
+    planServiceBundles: PLAN_SERVICE_BUNDLES,
+    planServiceNotes: PLAN_SERVICE_NOTES,
+    serviceDefinitions: SERVICE_DEFINITIONS,
     ...overrides,
   };
 }
 
 function accountInput(body) {
-  const servicePreset = sanitizeString(body.service_preset);
+  const plan = sanitizeString(body.plan) || 'starter';
   return {
     businessName: sanitizeString(body.business_name),
     contactName: sanitizeString(body.contact_name),
     email: sanitizeString(body.email),
     phone: sanitizeString(body.phone),
     status: sanitizeString(body.status) || 'setup',
-    plan: sanitizeString(body.plan) || 'starter',
+    plan,
     billingMethod: sanitizeString(body.billing_method) || 'automatic',
     accessCode: sanitizeString(body.access_code),
-    services: {
-      ai_calling: body.ai_calling === 'true' || servicePreset === 'calling' || servicePreset === 'full',
-      sms_followup: body.sms_followup === 'true' || servicePreset === 'sms' || servicePreset === 'full',
-      crm_sync: body.crm_sync === 'true' || servicePreset === 'crm' || servicePreset === 'full',
-      n8n_workflows: body.n8n_workflows === 'true' || servicePreset === 'workflow' || servicePreset === 'full',
-      openai_qualification: body.openai_qualification === 'true' || servicePreset === 'full',
-    },
+    services: getPlanServiceBundle(plan),
     metrics: {
       calls_handled: body.calls_handled,
       sms_sent: body.sms_sent,
@@ -252,6 +256,10 @@ function mergeServices(current = {}, updates = {}) {
     n8n_workflows: updates.n8n_workflows ?? Boolean(current.n8n_workflows),
     openai_qualification: updates.openai_qualification ?? Boolean(current.openai_qualification),
   };
+}
+
+function mergeServicesForPlan(plan, current = {}, updates = {}) {
+  return filterServicesForPlan(plan, mergeServices(current, updates));
 }
 
 router.get('/', async (req, res) => {
@@ -430,7 +438,7 @@ router.post('/operation', async (req, res) => {
       plan: account.plan,
       billingMethod: account.billing_method,
       accessCode: '',
-      services: mergeServices(account.services || {}, operation.services || {}),
+      services: mergeServicesForPlan(account.plan, account.services || {}, operation.services || {}),
       metrics: account.metrics || {},
       notes: operation.notes || account.notes,
     });

@@ -56,11 +56,9 @@
     .slice(0, 5);
   const setupPercent = accountsList.length ? Math.round((readyAccounts / accountsList.length) * 100) : 0;
   const editAccount = selectedEditAccount || null;
-  const editServices = editAccount ? (editAccount.services || {}) : {};
   const editMetrics = editAccount ? (editAccount.metrics || {}) : {};
   const formAction = editAccount ? `/admin/accounts/account/${editAccount.id}` : '/admin/accounts';
   const isSelected = (value, current) => String(value) === String(current || '');
-  const isChecked = (value) => Boolean(value) ? 'checked' : '';
 %>
   <div class="wrap">
     <div class="top">
@@ -178,7 +176,7 @@
               <option value="needs_attention" <%= isSelected('needs_attention', editAccount && editAccount.status) ? 'selected' : '' %>>Needs Attention - review required</option>
             </select>
             <label>Plan</label>
-            <select name="plan">
+            <select name="plan" id="plan-select">
               <option value="smb-bundle" <%= isSelected('smb-bundle', editAccount && editAccount.plan) ? 'selected' : '' %>>SMB Bundle - $149/month</option>
               <option value="starter" <%= isSelected('starter', editAccount && editAccount.plan) ? 'selected' : '' %>>Starter</option>
               <option value="professional" <%= isSelected('professional', editAccount && editAccount.plan) ? 'selected' : '' %>>Professional</option>
@@ -191,23 +189,18 @@
             </select>
           </details>
           <details class="fold" open>
-            <summary>Automation Services</summary>
-            <label>Automation Preset</label>
-            <select name="service_preset">
-              <option value="">Use switches below</option>
-              <option value="full">Full stack: AI calling, SMS, CRM, n8n, OpenAI</option>
-              <option value="calling">AI calling only</option>
-              <option value="sms">SMS follow-up only</option>
-              <option value="crm">CRM sync only</option>
-              <option value="workflow">n8n workflow only</option>
-            </select>
-            <div class="checks">
-              <label class="check"><input type="checkbox" name="ai_calling" value="true" <%= isChecked(editServices.ai_calling) %>> AI Calling</label>
-              <label class="check"><input type="checkbox" name="sms_followup" value="true" <%= isChecked(editServices.sms_followup) %>> SMS Follow-up</label>
-              <label class="check"><input type="checkbox" name="crm_sync" value="true" <%= isChecked(editServices.crm_sync) %>> CRM Sync</label>
-              <label class="check"><input type="checkbox" name="n8n_workflows" value="true" <%= isChecked(editServices.n8n_workflows) %>> n8n</label>
-              <label class="check"><input type="checkbox" name="openai_qualification" value="true" <%= isChecked(editServices.openai_qualification) %>> OpenAI Lead Review</label>
+            <summary>Package Services</summary>
+            <% const selectedPlanForServices = (editAccount && editAccount.plan) || 'smb-bundle'; const selectedBundle = planServiceBundles[selectedPlanForServices] || planServiceBundles.professional || {}; %>
+            <p class="mini" id="plan-service-note"><%= planServiceNotes[selectedPlanForServices] || planServiceNotes.professional %></p>
+            <div class="checks" id="plan-service-list">
+              <% serviceDefinitions.forEach(function(service) { const included = Boolean(selectedBundle[service.key]); %>
+                <div class="check">
+                  <span class="pill <%= included ? 'pill-on' : '' %>"><%= included ? 'Included' : 'Not in plan' %></span>
+                  <div><strong><%= service.label %></strong><br><span class="mini"><%= service.description %></span></div>
+                </div>
+              <% }); %>
             </div>
+            <p class="mini">Services are selected automatically from the package bought. Change the plan above if the customer upgrades or downgrades.</p>
           </details>
           <details class="fold">
             <summary>Metrics and Notes</summary>
@@ -428,5 +421,35 @@
     <% } %>
   </div>
 <% } %>
+<script>
+  (function() {
+    const planSelect = document.getElementById('plan-select');
+    const list = document.getElementById('plan-service-list');
+    const note = document.getElementById('plan-service-note');
+    if (!planSelect || !list || !note) return;
+
+    const serviceDefinitions = <%- JSON.stringify(typeof serviceDefinitions !== 'undefined' ? serviceDefinitions : []) %>;
+    const planServiceBundles = <%- JSON.stringify(typeof planServiceBundles !== 'undefined' ? planServiceBundles : {}) %>;
+    const planServiceNotes = <%- JSON.stringify(typeof planServiceNotes !== 'undefined' ? planServiceNotes : {}) %>;
+
+    function renderPlanServices() {
+      const plan = planSelect.value || 'professional';
+      const bundle = planServiceBundles[plan] || planServiceBundles.professional || {};
+      note.textContent = planServiceNotes[plan] || planServiceNotes.professional || '';
+      list.innerHTML = serviceDefinitions.map(function(service) {
+        const included = Boolean(bundle[service.key]);
+        return [
+          '<div class="check">',
+          '<span class="pill ' + (included ? 'pill-on' : '') + '">' + (included ? 'Included' : 'Not in plan') + '</span>',
+          '<div><strong>' + service.label + '</strong><br><span class="mini">' + service.description + '</span></div>',
+          '</div>'
+        ].join('');
+      }).join('');
+    }
+
+    planSelect.addEventListener('change', renderPlanServices);
+    renderPlanServices();
+  })();
+</script>
 </body>
 </html>
