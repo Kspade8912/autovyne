@@ -1059,6 +1059,14 @@ body {
   padding: 12px 14px;
   border-radius: 12px;
 }
+.portal-success {
+  margin: 18px 0;
+  color: var(--accent);
+  background: rgba(0, 232, 123, 0.1);
+  border: 1px solid rgba(0, 232, 123, 0.24);
+  padding: 12px 14px;
+  border-radius: 12px;
+}
 .portal-form { display: grid; gap: 10px; margin-top: 22px; }
 .portal-form label {
   color: var(--fg-muted);
@@ -1139,6 +1147,50 @@ body {
 }
 .portal-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items: start; }
 .portal-card h2 { font-family: var(--font-display); margin: 0 0 8px; }
+.portal-automation-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+  margin-top: 18px;
+}
+.portal-automation-card {
+  min-height: 100%;
+  padding: 16px;
+  border-radius: 16px;
+  background: rgba(255,255,255,0.035);
+  border: 1px solid rgba(255,255,255,0.06);
+}
+.portal-automation-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.portal-automation-top span:first-child {
+  display: block;
+  color: var(--fg-muted);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 800;
+}
+.portal-automation-top strong {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1.02rem;
+  margin-top: 4px;
+}
+.portal-automation-card p,
+.portal-automation-card small {
+  color: var(--fg-muted);
+  font-size: 0.86rem;
+  line-height: 1.5;
+}
+.portal-automation-card small {
+  display: block;
+  margin-top: 12px;
+}
 .portal-service-list,
 .portal-timeline { display: grid; gap: 12px; margin-top: 18px; }
 .portal-service {
@@ -1237,6 +1289,7 @@ body {
   .portal-status-strip,
   .portal-grid,
   .portal-two-col,
+  .portal-automation-grid,
   .portal-help-card,
   .portal-help-grid { grid-template-columns: 1fr; }
 }

@@ -38,6 +38,49 @@
       ['Automation Workflows', services.n8n_workflows, 'Runs the behind-the-scenes handoffs and notifications.'],
       ['AI Lead Review', services.openai_qualification, 'Summarizes leads and recommends the next best action.'],
     ];
+    const automationRows = [
+      {
+        title: 'Call Activity',
+        active: services.ai_calling,
+        system: 'Phone + AI routing',
+        doing: 'Tracks missed calls, answered calls, caller needs, and handoff notes.',
+        controls: 'Request call review, block a caller, or pause follow-up.'
+      },
+      {
+        title: 'Text Follow-up',
+        active: services.sms_followup,
+        system: 'Consent-based messaging',
+        doing: 'Sends approved account or lead follow-up messages only when consent records allow it.',
+        controls: 'Request opt-out review, pause texts, or update message rules.'
+      },
+      {
+        title: 'Lead Pipeline',
+        active: services.crm_sync,
+        system: 'CRM sync',
+        doing: 'Keeps lead status, owner follow-up, and customer handoff notes organized.',
+        controls: 'Request correction, review a lead, or update routing rules.'
+      },
+      {
+        title: 'Workflow Engine',
+        active: services.n8n_workflows,
+        system: 'Automation handoffs',
+        doing: 'Moves updates between the call system, AI, CRM, notifications, and this portal.',
+        controls: 'Request a workflow change without logging into another app.'
+      },
+      {
+        title: 'AI Review',
+        active: services.openai_qualification,
+        system: 'AI summary layer',
+        doing: 'Summarizes activity and helps Autovyne decide what needs attention next.',
+        controls: 'Request review if an AI summary or lead outcome looks wrong.'
+      },
+    ];
+    const complianceRows = [
+      ['Consent-aware follow-up', 'Texts and automated follow-up should only run where consent or another appropriate basis is recorded.'],
+      ['Do-not-contact handling', 'Block and opt-out requests are logged so Autovyne can review and stop follow-up where required.'],
+      ['Privacy/data requests', 'Owners can request access, correction, deletion review, or data-handling help from the portal.'],
+      ['Sensitive information caution', 'Autovyne should avoid exposing unnecessary call transcripts, payment details, health details, or private customer data in this portal.'],
+    ];
     const activeServices = serviceRows.filter(row => row[1]).length;
     const completion = Math.round((activeServices / serviceRows.length) * 100);
     const statusLabel = String(account.status || 'setup').replace(/_/g, ' ');
@@ -91,6 +134,90 @@
       <article class="portal-card portal-metric"><span>Texts Sent</span><strong><%= Number(metrics.sms_sent || 0).toLocaleString() %></strong><p>Approved SMS follow-up messages.</p></article>
       <article class="portal-card portal-metric"><span>Leads Moved</span><strong><%= Number(metrics.crm_leads_synced || 0).toLocaleString() %></strong><p>Leads sent into your CRM workflow.</p></article>
       <article class="portal-card portal-metric"><span>Estimated Recovery</span><strong>$<%= Number(metrics.estimated_revenue_recovered || 0).toLocaleString() %></strong><p>Estimated revenue preserved by follow-up.</p></article>
+    </section>
+
+    <section class="portal-card portal-help-card">
+      <div>
+        <h2>Automation Command Center</h2>
+        <p class="portal-muted">You do not need to download or manage the technical apps. This portal shows what each system is doing in plain English and gives you a safe place to request changes.</p>
+      </div>
+      <div class="portal-help-grid">
+        <div><strong>1. Watch</strong><p>See calls, texts, lead movement, and recovered value without logging into separate tools.</p></div>
+        <div><strong>2. Control</strong><p>Use Action Center to block callers, pause follow-up, request reviews, or update rules.</p></div>
+        <div><strong>3. Prove</strong><p>Requests are logged with dates so there is a clear account history.</p></div>
+      </div>
+    </section>
+
+    <section class="portal-card">
+      <h2>What Is Running Behind the Scenes</h2>
+      <p class="portal-muted">These are the jobs Autovyne is handling for your account. The outside apps stay behind the curtain; this is the business-owner version.</p>
+      <div class="portal-automation-grid">
+        <% automationRows.forEach(function(row) { %>
+          <article class="portal-automation-card">
+            <div class="portal-automation-top">
+              <div>
+                <span><%= row.system %></span>
+                <strong><%= row.title %></strong>
+              </div>
+              <span class="portal-pill <%= row.active ? 'portal-pill-on' : 'portal-pill-off' %>"><%= row.active ? 'Active' : 'Setup' %></span>
+            </div>
+            <p><%= row.doing %></p>
+            <small>Owner control: <%= row.controls %></small>
+          </article>
+        <% }); %>
+      </div>
+    </section>
+
+    <section class="portal-two-col">
+      <article class="portal-card">
+        <h2>Action Center</h2>
+        <p class="portal-muted">Send Autovyne a safe control request without touching the technical apps. Blocking a caller, pausing follow-up, or changing rules requires review so your account stays compliant.</p>
+        <% if (actionError) { %><p class="portal-error"><%= actionError %></p><% } %>
+        <% if (actionSuccess) { %><p class="portal-success"><%= actionSuccess %></p><% } %>
+        <form method="POST" action="/portal/actions" class="portal-form">
+          <label for="request_type">What do you want to do?</label>
+          <select id="request_type" name="request_type" required>
+            <% (actionOptions || []).forEach(function(option) { %>
+              <option value="<%= option.key %>"><%= option.label %></option>
+            <% }); %>
+          </select>
+          <label for="subject_phone">Caller / customer phone number, if this is about one person</label>
+          <input id="subject_phone" name="subject_phone" type="tel" placeholder="Example: 555-010-0199">
+          <label for="subject_name">Caller / customer name, if known</label>
+          <input id="subject_name" name="subject_name" placeholder="Example: Jordan Smith">
+          <label for="priority">Priority</label>
+          <select id="priority" name="priority">
+            <option value="normal">Normal</option>
+            <option value="high">High</option>
+            <option value="urgent">Urgent - stop/review quickly</option>
+          </select>
+          <label for="reason">What should Autovyne know?</label>
+          <textarea id="reason" name="reason" rows="4" required placeholder="Example: This customer already booked, so do not send follow-up texts or calls."></textarea>
+          <button class="btn-primary" type="submit">Submit Control Request</button>
+        </form>
+        <p class="portal-muted" style="margin-top:14px">Important: submitting a request records it immediately. Autovyne still reviews requests before changing outreach, billing, privacy, or automation settings.</p>
+      </article>
+
+      <article class="portal-card">
+        <h2>Your Control Requests</h2>
+        <p class="portal-muted">A simple history of changes, blocks, reviews, and privacy requests you sent from this portal.</p>
+        <% if ((actionRequests || []).length) { %>
+          <div class="portal-service-list">
+            <% actionRequests.forEach(function(request) { %>
+              <div class="portal-service">
+                <div>
+                  <strong><%= customerActionLabel(request.request_type) %></strong>
+                  <p><%= request.reason || 'No note provided.' %></p>
+                  <small><%= request.subject_phone ? `Phone: ${request.subject_phone} - ` : '' %><%= new Date(request.created_at).toLocaleString() %></small>
+                </div>
+                <span class="portal-pill <%= request.priority === 'urgent' || request.priority === 'high' ? 'portal-pill-off' : 'portal-pill-on' %>"><%= request.status %></span>
+              </div>
+            <% }); %>
+          </div>
+        <% } else { %>
+          <div class="portal-empty">No control requests yet. Use Action Center when something needs to be blocked, reviewed, paused, corrected, or updated.</div>
+        <% } %>
+      </article>
     </section>
 
     <section class="portal-two-col">
@@ -158,7 +285,7 @@
 
       <article class="portal-card">
         <h2>Autovyne Helper</h2>
-        <p class="portal-muted">Ask simple questions about your account status, setup progress, billing visibility, or recent updates. This helper cannot change settings or send messages.</p>
+        <p class="portal-muted">Ask simple questions about your account status, setup progress, control requests, billing visibility, or recent updates. This helper cannot change settings or send messages.</p>
         <form method="POST" action="/portal/assistant" class="portal-form">
           <label for="assistant_question">Question</label>
           <select onchange="this.form.assistant_question.value=this.value">
@@ -166,6 +293,7 @@
             <option value="What is my current account status?">What is my current account status?</option>
             <option value="What has Autovyne finished so far?">What has Autovyne finished so far?</option>
             <option value="What is still being set up?">What is still being set up?</option>
+            <option value="Which Action Center request should I submit?">Which Action Center request should I submit?</option>
             <option value="Who do I contact if something needs to change?">Who do I contact if something needs to change?</option>
           </select>
           <textarea id="assistant_question" name="assistant_question" rows="3" placeholder="Example: What is still being set up?"><%= assistantQuestion || '' %></textarea>
@@ -190,20 +318,21 @@
 
       <article class="portal-card">
         <h2>Helper Limits</h2>
-        <p class="portal-muted">For safety, the customer helper only explains what is visible in this portal. It cannot update billing, change SMS consent, edit workflows, or start/stop automation. Those requests go through Autovyne support.</p>
+        <p class="portal-muted">For safety, the customer helper only explains what is visible in this portal. It cannot update billing, change SMS consent, edit workflows, or start/stop automation by itself. Use Action Center for account control requests and Autovyne will review them.</p>
       </article>
     </section>
 
     <section class="portal-card portal-help-card">
       <div>
-        <h2>What You Can Expect</h2>
-        <p class="portal-muted">Autovyne keeps the technical setup in the background. This portal gives you the useful version: status, activity, and results.</p>
+        <h2>Compliance-Minded Controls</h2>
+        <p class="portal-muted">Autovyne keeps technical and sensitive details in the background. This portal gives you the useful version: status, activity, owner requests, and results.</p>
       </div>
       <div class="portal-help-grid">
-        <div><strong>1. Setup</strong><p>Autovyne connects calling, SMS, CRM, and workflow tools.</p></div>
-        <div><strong>2. Monitor</strong><p>You can check progress here without needing technical access.</p></div>
-        <div><strong>3. Improve</strong><p>As calls and leads come in, Autovyne updates the workflow.</p></div>
+        <% complianceRows.slice(0, 3).forEach(function(row) { %>
+          <div><strong><%= row[0] %></strong><p><%= row[1] %></p></div>
+        <% }); %>
       </div>
+      <p class="portal-muted" style="margin-top:16px"><%= complianceRows[3][1] %></p>
     </section>
   </main>
   <% } %>

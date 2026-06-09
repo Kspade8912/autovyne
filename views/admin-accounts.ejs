@@ -407,6 +407,17 @@
 
     <section class="recent" id="recent">
       <div class="card">
+        <h2>Client Action Requests</h2>
+        <% (snap.clientRequests || []).slice(0,6).forEach(function(r){ %>
+          <div class="event">
+            <strong><%= r.business_name %></strong>
+            <p class="mini"><%= String(r.request_type || '').replace(/_/g, ' ') %> - <%= r.priority %> - <%= r.status %><% if (r.subject_phone) { %> - <%= r.subject_phone %><% } %></p>
+            <p class="mini"><%= r.reason || 'No note provided.' %></p>
+          </div>
+        <% }); %>
+        <% if (!(snap.clientRequests || []).length) { %><p class="mini">No client action requests yet.</p><% } %>
+      </div>
+      <div class="card">
         <h2>Recent Leads</h2>
         <% (snap.leads || []).slice(0,6).forEach(function(lead){ %><div class="event"><strong><%= lead.business_name %></strong><p class="mini">Lead - <%= lead.industry %> - $<%= Number(lead.estimated_monthly_loss || 0).toLocaleString() %> estimated monthly loss</p></div><% }); %>
         <% if (!(snap.leads || []).length) { %><p class="mini">No recent leads yet.</p><% } %>

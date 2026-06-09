@@ -1,5 +1,6 @@
 const crypto = require('crypto');
 const pool = require('./index');
+const { listRecentClientActionRequests } = require('./client-actions');
 
 function portalSalt() {
   return process.env.PORTAL_CODE_SALT || process.env.COOKIE_SECRET || 'autovyne-portal-v1';
@@ -313,11 +314,12 @@ async function listAccountEvents(accountId, { visibleOnly = false, limit = 50 } 
 }
 
 async function getAdminSnapshot() {
-  const [leads, submissions, questions, consents] = await Promise.all([
+  const [leads, submissions, questions, consents, clientRequests] = await Promise.all([
     pool.query('SELECT * FROM leads ORDER BY created_at DESC LIMIT 20'),
     pool.query('SELECT * FROM intake_submissions ORDER BY created_at DESC LIMIT 20'),
     pool.query('SELECT * FROM questions ORDER BY created_at DESC LIMIT 20'),
     pool.query('SELECT * FROM sms_consent_records ORDER BY recorded_at DESC LIMIT 20'),
+    listRecentClientActionRequests({ limit: 20 }),
   ]);
 
   return {
@@ -325,6 +327,7 @@ async function getAdminSnapshot() {
     submissions: submissions.rows,
     questions: questions.rows,
     consents: consents.rows,
+    clientRequests,
   };
 }
 

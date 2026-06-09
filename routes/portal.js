@@ -1,6 +1,9 @@
 const { Router } = require('express');
-const { getAccountById, getAccountByLogin, listAccountEvents } = require('../db/accounts');
+const { getAccountById, getAccountByLogin, listAccountEvents, recordAccountEvent } = require('../db/accounts');
+const { createClientActionRequest, listClientActionRequests } = require('../db/client-actions');
+const { getActionDefinition, getActionOptions, customerActionLabel, normalizeActionType } = require('../lib/client-action-requests');
 const { sanitizeString } = require('../lib/security');
+const { getRequestIp } = require('../lib/sms-consent');
 const stripe = require('../services/stripe');
 const { askCustomerAssistant } = require('../services/openai');
 
@@ -18,7 +21,43 @@ function seo() {
 }
 
 function renderLogin(res, error = null) {
-  res.render('portal', { authorized: false, account: null, events: [], error, seo: seo(), assistantQuestion: '', assistantResponse: null });
+  res.render('portal', {
+    authorized: false,
+    account: null,
+    events: [],
+    actionRequests: [],
+    actionOptions: [],
+    customerActionLabel,
+    error,
+    actionError: null,
+    actionSuccess: null,
+    seo: seo(),
+    assistantQuestion: '',
+    assistantResponse: null,
+  });
+}
+
+async function loadPortalData(account, overrides = {}) {
+  const [events, actionRequests] = await Promise.all([
+    listAccountEvents(account.id, { visibleOnly: true, limit: 30 }),
+    listClientActionRequests(account.id, { limit: 20 }),
+  ]);
+
+  return {
+    authorized: true,
+    account,
+    events,
+    actionRequests,
+    actionOptions: getActionOptions(),
+    customerActionLabel,
+    error: null,
+    actionError: null,
+    actionSuccess: null,
+    seo: seo(),
+    assistantQuestion: '',
+    assistantResponse: null,
+    ...overrides,
+  };
 }
 
 router.get('/', async (req, res) => {
@@ -31,8 +70,7 @@ router.get('/', async (req, res) => {
       res.clearCookie('portal_account_id');
       return renderLogin(res);
     }
-    const events = await listAccountEvents(account.id, { visibleOnly: true, limit: 30 });
-    res.render('portal', { authorized: true, account, events, error: null, seo: seo(), assistantQuestion: '', assistantResponse: null });
+    res.render('portal', await loadPortalData(account));
   } catch (error) {
     console.error('[portal] load error:', error.message);
     renderLogin(res, 'The portal could not load right now. Please try again.');
@@ -88,13 +126,10 @@ router.post('/assistant', async (req, res) => {
       return renderLogin(res, 'Log in before asking the portal assistant.');
     }
     const events = await listAccountEvents(account.id, { visibleOnly: true, limit: 30 });
-    const assistantResponse = await askCustomerAssistant({ question: assistantQuestion, account, events });
+    const actionRequests = await listClientActionRequests(account.id, { limit: 20 });
+    const assistantResponse = await askCustomerAssistant({ question: assistantQuestion, account, events, actionRequests });
     res.render('portal', {
-      authorized: true,
-      account,
-      events,
-      error: null,
-      seo: seo(),
+      ...(await loadPortalData(account, { events, actionRequests })),
       assistantQuestion,
       assistantResponse,
     });
@@ -102,15 +137,92 @@ router.post('/assistant', async (req, res) => {
     console.error('[portal] assistant error:', error.message);
     const account = await getAccountById(accountId).catch(() => null);
     const events = account ? await listAccountEvents(account.id, { visibleOnly: true, limit: 30 }).catch(() => []) : [];
+    const actionRequests = account ? await listClientActionRequests(account.id, { limit: 20 }).catch(() => []) : [];
     res.status(500).render('portal', {
       authorized: Boolean(account),
       account,
       events,
+      actionRequests,
+      actionOptions: getActionOptions(),
+      customerActionLabel,
       error: null,
+      actionError: null,
+      actionSuccess: null,
       seo: seo(),
       assistantQuestion,
       assistantResponse: 'The portal assistant could not answer right now. Please use Submit a Question or email kwaun.autovyne@gmail.com.',
     });
+  }
+});
+
+router.post('/actions', async (req, res) => {
+  const accountId = req.signedCookies?.portal_account_id;
+  if (!accountId) return renderLogin(res, 'Log in before sending an account action request.');
+
+  try {
+    const account = await getAccountById(accountId);
+    if (!account) {
+      res.clearCookie('portal_account_id');
+      return renderLogin(res, 'Log in before sending an account action request.');
+    }
+
+    const requestType = normalizeActionType(req.body.request_type);
+    const definition = getActionDefinition(requestType);
+    const subjectPhone = sanitizeString(req.body.subject_phone);
+    const subjectName = sanitizeString(req.body.subject_name);
+    const priority = sanitizeString(req.body.priority);
+    const reason = sanitizeString(req.body.reason);
+
+    if (definition.requiresPhone && !subjectPhone) {
+      return res.status(400).render('portal', await loadPortalData(account, {
+        actionError: 'Enter the caller phone number so Autovyne knows who to block or review.',
+      }));
+    }
+
+    if (!reason || reason.length < 8) {
+      return res.status(400).render('portal', await loadPortalData(account, {
+        actionError: 'Add a short note so Autovyne understands what action you want.',
+      }));
+    }
+
+    const actionRequest = await createClientActionRequest({
+      accountId: account.id,
+      requestType,
+      subjectPhone,
+      subjectName,
+      priority,
+      reason,
+      requestedByEmail: account.email,
+      ipAddress: getRequestIp(req),
+      userAgent: req.headers['user-agent'] || null,
+    });
+
+    const target = subjectPhone
+      ? ` for ${subjectName ? `${subjectName} at ` : ''}${subjectPhone}`
+      : '';
+    await recordAccountEvent({
+      accountId: account.id,
+      eventType: 'customer_action_request',
+      title: `${definition.shortLabel} request submitted`,
+      detail: `Customer requested: ${definition.label}${target}. Autovyne will review this before changing automation or outreach.`,
+      metadata: {
+        request_id: actionRequest.id,
+        request_type: requestType,
+        compliance_flags: actionRequest.compliance_flags,
+      },
+      visibleToClient: true,
+    });
+
+    res.render('portal', await loadPortalData(account, {
+      actionSuccess: `${definition.shortLabel} request submitted. Autovyne will review it and keep the record in this portal.`,
+    }));
+  } catch (error) {
+    console.error('[portal] action request error:', error.message);
+    const account = await getAccountById(accountId).catch(() => null);
+    if (!account) return renderLogin(res, 'The action request could not be saved right now.');
+    res.status(500).render('portal', await loadPortalData(account, {
+      actionError: 'The action request could not be saved right now. Please email kwaun.autovyne@gmail.com.',
+    }));
   }
 });
 
@@ -125,15 +237,9 @@ router.post('/billing', async (req, res) => {
       return renderLogin(res, 'Log in before opening billing settings.');
     }
     if ((account.billing_method || 'automatic') !== 'automatic' || !account.stripe_customer_id) {
-      const events = await listAccountEvents(account.id, { visibleOnly: true, limit: 30 });
       return res.status(400).render('portal', {
-        authorized: true,
-        account,
-        events,
+        ...(await loadPortalData(account)),
         error: 'Billing portal is available after an automatic Stripe subscription is active. For help, email kwaun.autovyne@gmail.com.',
-        seo: seo(),
-        assistantQuestion: '',
-        assistantResponse: null,
       });
     }
 
@@ -146,11 +252,17 @@ router.post('/billing', async (req, res) => {
     console.error('[portal] billing portal error:', error.message);
     const account = await getAccountById(accountId).catch(() => null);
     const events = account ? await listAccountEvents(account.id, { visibleOnly: true, limit: 30 }).catch(() => []) : [];
+    const actionRequests = account ? await listClientActionRequests(account.id, { limit: 20 }).catch(() => []) : [];
     res.status(500).render('portal', {
       authorized: Boolean(account),
       account,
       events,
+      actionRequests,
+      actionOptions: getActionOptions(),
+      customerActionLabel,
       error: 'Billing settings could not open right now. Please email kwaun.autovyne@gmail.com.',
+      actionError: null,
+      actionSuccess: null,
       seo: seo(),
       assistantQuestion: '',
       assistantResponse: null,

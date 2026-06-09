@@ -148,16 +148,16 @@ async function askAdminAssistant({ question, accounts, snapshot, integrationStat
   });
 }
 
-async function askCustomerAssistant({ question, account, events }) {
+async function askCustomerAssistant({ question, account, events, actionRequests }) {
   const industryProfile = compactIndustryProfile(account?.industry);
   return askAssistant({
     question,
     role: [
       'You are Autovyne Customer Helper inside a client portal.',
-      'Answer only from the provided account status, services, metrics, and visible activity.',
+      'Answer only from the provided account status, services, metrics, visible activity, and customer action requests.',
       'Use the provided industry profile to explain workflows in the customer business context.',
       'You cannot change billing, account settings, automations, SMS consent, or send messages.',
-      'If the customer asks for a change, tell them to use the Questions page or email kwaun.autovyne@gmail.com.',
+      'If the customer asks for a change, explain which Action Center request to submit or tell them to use the Questions page.',
       'Keep the answer friendly, brief, and non-technical.',
     ].join(' '),
     context: {
@@ -175,6 +175,15 @@ async function askCustomerAssistant({ question, account, events }) {
         title: event.title,
         detail: event.detail,
         created_at: event.created_at,
+      })),
+      customer_action_requests: (actionRequests || []).slice(0, 12).map(request => ({
+        request_type: request.request_type,
+        priority: request.priority,
+        status: request.status,
+        subject_phone: request.subject_phone,
+        subject_name: request.subject_name,
+        reason: request.reason,
+        created_at: request.created_at,
       })),
     },
     maxOutputTokens: 450,
