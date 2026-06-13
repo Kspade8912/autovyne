@@ -4,12 +4,28 @@ const n8n = require('./n8n');
 const stripe = require('./stripe');
 const twilio = require('./twilio');
 
-async function runStep(name, fn) {
+async function logIntegrationIncident(payload) {
+  try {
+    const { recordIntegrationIncident } = require('../db/integration-incidents');
+    await recordIntegrationIncident(payload);
+  } catch (error) {
+    console.error('[integrations] incident log error:', error.message);
+  }
+}
+
+async function runStep(name, fn, context = {}) {
   try {
     const result = await fn();
     return { name, status: result ? 'sent' : 'skipped' };
   } catch (error) {
     console.error(`[integrations] ${name} error:`, error.message);
+    logIntegrationIncident({
+      provider: name,
+      operation: context.operation || 'lead.created',
+      severity: 'warning',
+      message: error.message,
+      context,
+    });
     return { name, status: 'failed', error: error.message };
   }
 }
@@ -20,14 +36,21 @@ async function processNewLead(lead) {
     ? lead
     : { ...lead, phone: null, sms_eligible: false };
 
+  const incidentContext = {
+    operation: 'lead.created',
+    lead_id: lead.id || null,
+    industry: lead.industry || null,
+    sms_eligible: Boolean(automationLead.sms_eligible ?? automationLead.sms_consent),
+  };
+
   const openaiResult = await runStep('openai', async () => {
     qualification = await openai.qualifyLead(automationLead);
     return qualification;
-  });
+  }, incidentContext);
 
   const [hubspotResult, n8nResult] = await Promise.all([
-    runStep('hubspot', () => hubspot.upsertLead(automationLead)),
-    runStep('n8n', () => n8n.sendLeadEvent(automationLead, qualification)),
+    runStep('hubspot', () => hubspot.upsertLead(automationLead), incidentContext),
+    runStep('n8n', () => n8n.sendLeadEvent(automationLead, qualification), incidentContext),
   ]);
 
   console.log('[integrations] lead processed:', lead.id, openaiResult.status, hubspotResult.status, n8nResult.status);

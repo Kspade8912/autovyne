@@ -2,6 +2,7 @@ const { Router } = require('express');
 const pool = require('../db');
 const { hasAdminSession } = require('../lib/admin-auth');
 const { getAdminSnapshot, listAccounts } = require('../db/accounts');
+const { listIntegrationIncidents } = require('../db/integration-incidents');
 const { getConfigurationStatus } = require('../services/integrations');
 
 const router = Router();
@@ -82,9 +83,10 @@ router.get('/', async (req, res) => {
   }
 
   try {
-    const [accounts, snapshot] = await Promise.all([
+    const [accounts, snapshot, incidents] = await Promise.all([
       listAccounts(),
       getAdminSnapshot(),
+      listIntegrationIncidents({ limit: 10 }),
     ]);
     const rows = launchRows({ integrations, dbReachable, accounts, snapshot });
     const readyCount = rows.filter(row => row.ready).length;
@@ -95,6 +97,7 @@ router.get('/', async (req, res) => {
       accounts,
       snapshot,
       integrations,
+      incidents,
     });
   } catch (error) {
     console.error('[admin-launch] load error:', error.message);
@@ -104,6 +107,7 @@ router.get('/', async (req, res) => {
       totalCount: 0,
       accounts: [],
       snapshot: { leads: [], questions: [], consents: [] },
+      incidents: [],
       integrations,
       error: 'Launch checklist could not be loaded.',
     });

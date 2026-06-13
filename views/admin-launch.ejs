@@ -30,7 +30,7 @@
       <div class="card stat"><span>Ready Checks</span><strong class="accent"><%= readyCount %></strong></div>
       <div class="card stat"><span>Total Checks</span><strong><%= totalCount %></strong></div>
       <div class="card stat"><span>Launch Score</span><strong class="<%= readyCount === totalCount ? 'accent' : 'warn' %>"><%= totalCount ? Math.round((readyCount / totalCount) * 100) : 0 %>%</strong><div class="bar"><span style="width:<%= totalCount ? Math.round((readyCount / totalCount) * 100) : 0 %>%"></span></div></div>
-      <div class="card stat"><span>Managed Accounts</span><strong><%= accounts.length %></strong></div>
+      <div class="card stat"><span>Open Alerts</span><strong class="<%= (incidents || []).length ? 'warn' : 'accent' %>"><%= (incidents || []).length %></strong><p class="mini">Integration failures needing review.</p></div>
     </section>
 
     <section class="card">
@@ -50,6 +50,28 @@
           <% if (!rows.length) { %><tr><td colspan="5" class="mini">Checklist is not available right now.</td></tr><% } %>
         </tbody>
       </table>
+    </section>
+
+    <section class="card">
+      <h2>Recent Automation Alerts</h2>
+      <% if ((incidents || []).length) { %>
+        <table class="table">
+          <thead><tr><th>Provider</th><th>Operation</th><th>Severity</th><th>Message</th><th>When</th></tr></thead>
+          <tbody>
+            <% incidents.forEach(function(incident) { %>
+              <tr>
+                <td><strong><%= incident.provider %></strong></td>
+                <td><%= String(incident.operation || '').replace(/_/g, ' ') %></td>
+                <td><span class="pill <%= incident.severity === 'critical' ? 'pill-warn' : '' %>"><%= incident.severity %></span></td>
+                <td class="mini"><%= incident.message %></td>
+                <td class="mini"><%= new Date(incident.created_at).toLocaleString() %></td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      <% } else { %>
+        <p class="mini">No recent OpenAI, HubSpot, n8n, Stripe, or Twilio failures have been logged. Keep checking this before and after outreach.</p>
+      <% } %>
     </section>
 
     <section class="two-col">
