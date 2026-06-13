@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Launch Test Center - Autovyne</title>
+  <style>
+    *{box-sizing:border-box}body{margin:0;background:#08080d;color:#eff2f7;font:14px 'Space Grotesk',system-ui,sans-serif}.wrap{max-width:1180px;margin:0 auto;padding:32px}.top{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;margin-bottom:22px}.badge{color:#00e87b;font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.1em}h1{font-size:clamp(2rem,5vw,3.7rem);line-height:1;margin:8px 0 10px;letter-spacing:-.05em}.sub,.mini{color:#8a8f9e;line-height:1.6}.actions{display:flex;gap:10px;flex-wrap:wrap}.btn{display:inline-block;border:0;border-radius:11px;padding:11px 14px;background:#00e87b;color:#05070a;font-weight:900;text-decoration:none;cursor:pointer}.btn-dark{background:#202432;color:#eff2f7}.card{background:#12141c;border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:20px;box-shadow:0 20px 70px rgba(0,0,0,.24);margin-bottom:16px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.row{display:grid;grid-template-columns:1.1fr .35fr .35fr 1.5fr;gap:12px;align-items:start;padding:13px 0;border-bottom:1px solid rgba(255,255,255,.06)}.row:last-child{border-bottom:0}.pill{display:inline-block;border-radius:999px;padding:5px 10px;background:#202432;color:#cdd3df;font-weight:900;font-size:12px}.pill-on{background:rgba(0,232,123,.12);color:#00e87b}.pill-warn{background:rgba(255,209,102,.12);color:#ffd166}.err{background:rgba(255,107,107,.12);color:#ff9d9d;padding:12px;border-radius:12px;margin-bottom:14px}@media(max-width:760px){.grid,.row{grid-template-columns:1fr}.top{flex-direction:column}.actions .btn{width:100%;text-align:center}}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="top">
+      <div>
+        <div class="badge">Admin Test Center</div>
+        <h1>One-click launch checks.</h1>
+        <p class="sub">Run this before outreach to confirm public pages, Twilio HELP webhook, and required integration keys look ready. Base URL: <%= baseUrl %></p>
+      </div>
+      <div class="actions">
+        <a class="btn" href="/admin/test-center?run=true">Run Checks</a>
+        <a class="btn btn-dark" href="/admin/launch">Launch Board</a>
+        <a class="btn btn-dark" href="/admin/outreach">Outreach</a>
+        <a class="btn btn-dark" href="/admin">Admin Hub</a>
+      </div>
+    </section>
+
+    <% if (typeof error !== 'undefined' && error) { %><div class="err"><%= error %></div><% } %>
+
+    <% if (!ran) { %>
+      <section class="card">
+        <h2>Ready when you are</h2>
+        <p class="mini">Click Run Checks. This uses safe GET checks plus a HELP-only Twilio webhook check. It does not send a real SMS or charge Stripe.</p>
+      </section>
+    <% } %>
+
+    <section class="grid">
+      <article class="card">
+        <h2>Public / Webhook Checks</h2>
+        <% if ((checks || []).length) { %>
+          <% checks.forEach(function(check) { %>
+            <div class="row">
+              <strong><%= check.label %></strong>
+              <span class="pill <%= check.ok ? 'pill-on' : 'pill-warn' %>"><%= check.ok ? 'Pass' : 'Review' %></span>
+              <span class="mini"><%= check.status %> / <%= check.ms %>ms</span>
+              <span class="mini"><%= check.detail %></span>
+            </div>
+          <% }); %>
+        <% } else { %>
+          <p class="mini">No checks run yet.</p>
+        <% } %>
+      </article>
+
+      <article class="card">
+        <h2>Configuration Checks</h2>
+        <% if ((configChecks || []).length) { %>
+          <% configChecks.forEach(function(check) { %>
+            <div class="row">
+              <strong><%= check.label %></strong>
+              <span class="pill <%= check.ok ? 'pill-on' : 'pill-warn' %>"><%= check.ok ? 'Ready' : 'Review' %></span>
+              <span class="mini"></span>
+              <span class="mini"><%= check.detail %></span>
+            </div>
+          <% }); %>
+        <% } else { %>
+          <p class="mini">No configuration checks run yet.</p>
+        <% } %>
+      </article>
+    </section>
+
+    <section class="card">
+      <h2>Manual Checks Still Required</h2>
+      <p class="mini">Stripe live Checkout needs a real test purchase/refund decision. Twilio toll-free verification needs final carrier approval. Legal terms need business/legal review before heavy outreach. n8n and HubSpot should be checked in their dashboards after the first real test event.</p>
+    </section>
+  </main>
+</body>
+</html>
