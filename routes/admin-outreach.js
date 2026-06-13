@@ -77,6 +77,32 @@ function parseLeadImport(rawText) {
     .filter(row => row.businessName);
 }
 
+function csvCell(value) {
+  const text = String(value ?? '');
+  return `"${text.replace(/"/g, '""')}"`;
+}
+
+function leadsToCsv(leads) {
+  const headers = [
+    'id',
+    'business_name',
+    'industry',
+    'contact_name',
+    'email',
+    'phone',
+    'website_url',
+    'stage',
+    'priority',
+    'do_not_contact',
+    'last_contacted_at',
+    'next_action_at',
+    'personalization_note',
+    'outreach_notes',
+  ];
+  const rows = leads.map(lead => headers.map(header => csvCell(lead[header])).join(','));
+  return [headers.join(','), ...rows].join('\n');
+}
+
 async function pageData(req, overrides = {}) {
   const activeStage = sanitizeString(req.query.stage || 'all') || 'all';
   const [leads, allLeads, duplicateGroups] = await Promise.all([
@@ -117,6 +143,22 @@ router.get('/', async (req, res) => {
       allLeads: [],
       stats: outreachStats([]),
     }));
+  }
+});
+
+router.get('/export.csv', async (req, res) => {
+  if (!process.env.ADMIN_API_KEY) return res.status(403).send('Forbidden');
+  if (!hasAdminSession(req)) return res.status(401).send('Admin login required');
+
+  try {
+    const stage = sanitizeString(req.query.stage || 'all') || 'all';
+    const leads = await listOutreachLeads({ stage, limit: 1000 });
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', `attachment; filename="autovyne-outreach-${stage}.csv"`);
+    res.send(leadsToCsv(leads));
+  } catch (error) {
+    console.error('[admin-outreach] export error:', error.message);
+    res.status(500).send('Export failed');
   }
 });
 
