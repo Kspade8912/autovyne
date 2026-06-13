@@ -152,6 +152,13 @@
             <p class="mini"><%= editAccount ? 'Update this account without changing the portal code unless you enter a new one.' : 'Use this to create a new account or update an existing email.' %></p>
           </div>
         </div>
+        <div class="form-band">
+          <strong>Need a sales demo account?</strong>
+          <p class="mini">Create or refresh a clean HVAC demo account with full-stack services, example metrics, visible portal activity, and a sample control request.</p>
+          <form method="POST" action="/admin/accounts/demo-account">
+            <button class="btn btn-secondary" type="submit">Create / Refresh Demo Account</button>
+          </form>
+        </div>
         <div class="steps">
           <div class="step"><span class="step-num">1</span><div><strong>Identify the customer</strong><p class="mini">Business name, email, phone, and portal code.</p></div></div>
           <div class="step"><span class="step-num">2</span><div><strong>Choose status and billing</strong><p class="mini">Setup, active, paused, or needs attention.</p></div></div>

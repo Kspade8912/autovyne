@@ -266,6 +266,78 @@ function mergeServicesForPlan(plan, current = {}, updates = {}) {
   return filterServicesForPlan(plan, mergeServices(current, updates));
 }
 
+async function createSalesDemoAccount() {
+  const accessCode = process.env.DEMO_PORTAL_ACCESS_CODE || 'AutovyneDemo2026!';
+  const account = await createOrUpdateAccount({
+    businessName: 'Autovyne Demo HVAC',
+    contactName: 'Demo Owner',
+    email: 'demo@autovyne.com',
+    phone: '+18555025051',
+    industry: 'hvac',
+    status: 'active',
+    plan: 'professional',
+    billingMethod: 'automatic',
+    accessCode,
+    services: getPlanServiceBundle('professional'),
+    metrics: {
+      calls_handled: 48,
+      sms_sent: 31,
+      crm_leads_synced: 19,
+      missed_calls_recovered: 14,
+      estimated_revenue_recovered: 8400,
+    },
+    notes: 'Demo account for sales calls, tutorial walkthroughs, and customer portal previews. Do not use for real customer data.',
+  });
+
+  const demoEvents = [
+    {
+      eventType: 'billing',
+      title: 'Payment confirmed',
+      detail: 'Demo subscription payment confirmed so the portal can show the paid customer experience.',
+    },
+    {
+      eventType: 'onboarding',
+      title: 'Onboarding started',
+      detail: 'Autovyne collected business goals, contact details, and workflow priorities for the demo account.',
+    },
+    {
+      eventType: 'ai_calling',
+      title: 'AI calling connected',
+      detail: 'The AI calling workflow is marked active for the demo portal.',
+    },
+    {
+      eventType: 'sms',
+      title: 'SMS follow-up ready',
+      detail: 'SMS follow-up is shown as ready for approved contacts with recorded consent.',
+    },
+    {
+      eventType: 'crm',
+      title: 'HubSpot CRM connected',
+      detail: 'Demo lead activity is shown as synced into the CRM workflow.',
+    },
+    {
+      eventType: 'workflow',
+      title: 'n8n workflow connected',
+      detail: 'Demo automation handoffs are active for call, message, CRM, and portal updates.',
+    },
+    {
+      eventType: 'customer_action_request',
+      title: 'Caller block request submitted',
+      detail: 'Demo owner requested that a booked caller stop receiving follow-up. Autovyne logged the request for review.',
+    },
+  ];
+
+  for (const event of demoEvents) {
+    await recordAccountEvent({
+      accountId: account.id,
+      ...event,
+      visibleToClient: true,
+    });
+  }
+
+  return { account, accessCode };
+}
+
 router.get('/', async (req, res) => {
   if (!process.env.ADMIN_API_KEY) return res.status(403).send('<h1>Forbidden</h1>');
   if (!isAuthorized(req)) {
@@ -460,6 +532,21 @@ router.post('/operation', async (req, res) => {
   } catch (error) {
     console.error('[admin-accounts] operation error:', error.message);
     res.status(500).render('admin-accounts', await pageData({ error: 'Account operation could not be saved.' }));
+  }
+});
+
+router.post('/demo-account', async (req, res) => {
+  if (!isAuthorized(req)) return res.status(401).redirect('/admin/accounts');
+
+  try {
+    const { account, accessCode } = await createSalesDemoAccount();
+    res.render('admin-accounts', await pageData({
+      success: `Demo account ready. Login at /portal with demo@autovyne.com and access code ${accessCode}.`,
+      selectedEditAccount: account,
+    }));
+  } catch (error) {
+    console.error('[admin-accounts] demo account error:', error.message);
+    res.status(500).render('admin-accounts', await pageData({ error: 'Demo account could not be created.' }));
   }
 });
 

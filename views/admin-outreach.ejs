@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Outreach Command Board - Autovyne</title>
+  <style>
+    *{box-sizing:border-box}body{margin:0;background:#08080d;color:#eff2f7;font:14px 'Space Grotesk',system-ui,sans-serif}.wrap{max-width:1440px;margin:0 auto;padding:30px}.top{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;margin-bottom:22px}.eyebrow{color:#00e87b;font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.1em}h1{font-size:clamp(2rem,4vw,3.5rem);line-height:1;margin:8px 0 10px;letter-spacing:-.05em}h2{margin:0 0 12px}.sub,.mini{color:#8a8f9e;line-height:1.6}.actions{display:flex;gap:10px;flex-wrap:wrap}.btn{display:inline-block;border:0;border-radius:11px;padding:11px 14px;background:#00e87b;color:#05070a;font-weight:900;cursor:pointer;text-decoration:none}.btn-dark{background:#202432;color:#eff2f7}.btn-ghost{background:transparent;color:#eff2f7;border:1px solid rgba(255,255,255,.14)}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}.card{background:#12141c;border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:20px;box-shadow:0 20px 70px rgba(0,0,0,.24)}.stat span{display:block;color:#8a8f9e;font-size:11px;text-transform:uppercase;letter-spacing:.08em;font-weight:800}.stat strong{display:block;font-size:32px;margin-top:6px}.accent{color:#00e87b}.warn{color:#ffd166}.danger{color:#ff6b6b}.filters{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 18px}.pill{display:inline-block;border-radius:999px;padding:6px 10px;background:#202432;color:#cdd3df;font-weight:800;font-size:12px;text-decoration:none}.pill-on{background:rgba(0,232,123,.12);color:#00e87b}.pill-warn{background:rgba(255,209,102,.12);color:#ffd166}.lead-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.lead-card{border:1px solid rgba(255,255,255,.08);border-radius:18px;background:rgba(255,255,255,.035);padding:18px}.lead-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.lead-head h3{margin:0 0 5px;font-size:1.25rem}.brief{display:grid;gap:10px;margin:14px 0}.brief-item{padding:12px;border-radius:14px;background:#0a0c12;border:1px solid rgba(255,255,255,.07)}label{display:block;color:#8a8f9e;font-size:11px;margin:10px 0 5px;font-weight:900;text-transform:uppercase;letter-spacing:.06em}input,select,textarea{width:100%;padding:10px 11px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:#0a0c12;color:#fff;font:14px inherit}textarea{min-height:72px;resize:vertical}.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.msg{padding:12px;border-radius:12px;margin-bottom:14px}.err{background:rgba(255,107,107,.12);color:#ff9d9d}.rule-list{display:grid;gap:10px;margin-top:12px}.rule{padding:12px;border-radius:14px;background:#0a0c12;border:1px solid rgba(255,255,255,.07)}@media(max-width:980px){.grid,.lead-grid{grid-template-columns:1fr 1fr}.top{flex-direction:column}}@media(max-width:680px){.grid,.lead-grid,.form-grid{grid-template-columns:1fr}.wrap{padding:18px}.actions .btn{width:100%;text-align:center}}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="top">
+      <div>
+        <div class="eyebrow">Autovyne Outreach</div>
+        <h1>Tomorrow's call board.</h1>
+        <p class="sub">Use this to review site leads, approve outreach, keep do-not-contact rules visible, and walk into each call with a simple industry-aware opener.</p>
+      </div>
+      <div class="actions">
+        <a class="btn btn-dark" href="/admin">Admin Hub</a>
+        <a class="btn btn-dark" href="/admin/accounts">Accounts</a>
+        <a class="btn btn-dark" href="/admin/launch">Launch Board</a>
+        <a class="btn" href="/demo">Open Demo</a>
+      </div>
+    </section>
+
+    <% if (error) { %><div class="msg err"><%= error %></div><% } %>
+    <% if (success) { %><div class="msg pill-on"><%= success %></div><% } %>
+
+    <section class="grid">
+      <div class="card stat"><span>Total Leads</span><strong><%= stats.total || 0 %></strong></div>
+      <div class="card stat"><span>Ready Today</span><strong class="accent"><%= stats.ready_today || 0 %></strong><p class="mini">Approved/contacted/replied/qualified with no future next action.</p></div>
+      <div class="card stat"><span>Approved</span><strong><%= stats.approved_for_outreach || 0 %></strong></div>
+      <div class="card stat"><span>Do Not Contact</span><strong class="<%= stats.do_not_contact ? 'danger' : '' %>"><%= stats.do_not_contact || 0 %></strong></div>
+    </section>
+
+    <section class="card">
+      <h2>Daily Rules Before You Dial</h2>
+      <div class="rule-list">
+        <div class="rule"><strong>Human approval first.</strong><br><span class="mini">Move a lead to approved for outreach before calling or sending anything.</span></div>
+        <div class="rule"><strong>Use verified facts only.</strong><br><span class="mini">Do not claim guaranteed revenue. Say the demo estimated opportunity from their numbers.</span></div>
+        <div class="rule"><strong>Respect opt-outs immediately.</strong><br><span class="mini">If anyone says stop, not interested, wrong number, or do not contact, mark Do Not Contact and stop future follow-up.</span></div>
+        <div class="rule"><strong>Primary CTA.</strong><br><span class="mini">Send people to <code>/demo</code> first, then <code>/signup</code> only when they want to move forward.</span></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Filter Pipeline</h2>
+      <div class="filters">
+        <a class="pill <%= activeStage === 'all' ? 'pill-on' : '' %>" href="/admin/outreach">All</a>
+        <% stages.forEach(function(stage) { %>
+          <a class="pill <%= activeStage === stage ? 'pill-on' : '' %>" href="/admin/outreach?stage=<%= stage %>"><%= stageLabel(stage) %> (<%= stats[stage] || 0 %>)</a>
+        <% }); %>
+      </div>
+
+      <div class="lead-grid">
+        <% leads.forEach(function(lead) { const brief = callBrief(lead); const nextValue = lead.next_action_at ? new Date(lead.next_action_at).toISOString().slice(0,16) : ''; const lastValue = lead.last_contacted_at ? new Date(lead.last_contacted_at).toISOString().slice(0,16) : ''; %>
+          <article class="lead-card" id="lead-<%= lead.id %>">
+            <div class="lead-head">
+              <div>
+                <h3><%= lead.business_name %></h3>
+                <p class="mini"><%= lead.industry %> - <%= lead.email || 'No email' %> - <%= lead.phone || 'No phone' %></p>
+              </div>
+              <div>
+                <span class="pill <%= lead.do_not_contact ? 'pill-warn' : lead.priority === 'high' ? 'pill-on' : '' %>"><%= lead.do_not_contact ? 'do not contact' : lead.priority %></span>
+                <span class="pill"><%= stageLabel(lead.stage) %></span>
+              </div>
+            </div>
+
+            <div class="brief">
+              <div class="brief-item"><strong>Call opener</strong><br><span class="mini"><%= brief.opener %></span></div>
+              <div class="brief-item"><strong>Pain angle</strong><br><span class="mini"><%= brief.pain %></span></div>
+              <div class="brief-item"><strong>Ask these</strong><br><span class="mini"><%= (brief.questions || []).slice(0,2).join(' ') || 'Ask how missed calls and follow-up are handled today.' %></span></div>
+              <div class="brief-item"><strong>Guardrail</strong><br><span class="mini"><%= brief.guardrail %></span></div>
+            </div>
+
+            <form method="POST" action="/admin/outreach/leads/<%= lead.id %>?stage=<%= activeStage %>">
+              <div class="form-grid">
+                <div>
+                  <label>Stage</label>
+                  <select name="stage">
+                    <% stages.forEach(function(stage) { %><option value="<%= stage %>" <%= lead.stage === stage ? 'selected' : '' %>><%= stageLabel(stage) %></option><% }); %>
+                  </select>
+                </div>
+                <div>
+                  <label>Priority</label>
+                  <select name="priority">
+                    <option value="low" <%= lead.priority === 'low' ? 'selected' : '' %>>Low</option>
+                    <option value="medium" <%= lead.priority === 'medium' ? 'selected' : '' %>>Medium</option>
+                    <option value="high" <%= lead.priority === 'high' ? 'selected' : '' %>>High</option>
+                  </select>
+                </div>
+                <div><label>Contact Name</label><input name="contact_name" value="<%= lead.contact_name || '' %>"></div>
+                <div><label>Owner</label><input name="owner" value="<%= lead.owner || 'Kwaun' %>"></div>
+                <div><label>Last Contacted</label><input type="datetime-local" name="last_contacted_at" value="<%= lastValue %>"></div>
+                <div><label>Next Action</label><input type="datetime-local" name="next_action_at" value="<%= nextValue %>"></div>
+              </div>
+              <label>Personalization Note</label>
+              <textarea name="personalization_note" placeholder="Verified reason this business might care."><%= lead.personalization_note || '' %></textarea>
+              <label>Outreach Notes</label>
+              <textarea name="outreach_notes" placeholder="Call result, objection, next step, or follow-up plan."><%= lead.outreach_notes || '' %></textarea>
+              <label>Contact Permission</label>
+              <select name="do_not_contact">
+                <option value="false" <%= !lead.do_not_contact ? 'selected' : '' %>>Can contact if stage is approved</option>
+                <option value="true" <%= lead.do_not_contact ? 'selected' : '' %>>Do not contact</option>
+              </select>
+              <button class="btn" type="submit" style="margin-top:12px;width:100%">Save Outreach Status</button>
+            </form>
+          </article>
+        <% }); %>
+        <% if (!leads.length) { %><p class="mini">No leads in this view yet. Run the demo/intake flow or use existing lead capture before outreach.</p><% } %>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
