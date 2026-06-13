@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Outreach Command Board - Autovyne</title>
   <style>
-    *{box-sizing:border-box}body{margin:0;background:#08080d;color:#eff2f7;font:14px 'Space Grotesk',system-ui,sans-serif}.wrap{max-width:1440px;margin:0 auto;padding:30px}.top{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;margin-bottom:22px}.eyebrow{color:#00e87b;font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.1em}h1{font-size:clamp(2rem,4vw,3.5rem);line-height:1;margin:8px 0 10px;letter-spacing:-.05em}h2{margin:0 0 12px}.sub,.mini{color:#8a8f9e;line-height:1.6}.actions{display:flex;gap:10px;flex-wrap:wrap}.btn{display:inline-block;border:0;border-radius:11px;padding:11px 14px;background:#00e87b;color:#05070a;font-weight:900;cursor:pointer;text-decoration:none}.btn-dark{background:#202432;color:#eff2f7}.btn-ghost{background:transparent;color:#eff2f7;border:1px solid rgba(255,255,255,.14)}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}.card{background:#12141c;border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:20px;box-shadow:0 20px 70px rgba(0,0,0,.24)}.stat span{display:block;color:#8a8f9e;font-size:11px;text-transform:uppercase;letter-spacing:.08em;font-weight:800}.stat strong{display:block;font-size:32px;margin-top:6px}.accent{color:#00e87b}.warn{color:#ffd166}.danger{color:#ff6b6b}.filters{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 18px}.pill{display:inline-block;border-radius:999px;padding:6px 10px;background:#202432;color:#cdd3df;font-weight:800;font-size:12px;text-decoration:none}.pill-on{background:rgba(0,232,123,.12);color:#00e87b}.pill-warn{background:rgba(255,209,102,.12);color:#ffd166}.lead-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.lead-card{border:1px solid rgba(255,255,255,.08);border-radius:18px;background:rgba(255,255,255,.035);padding:18px}.lead-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.lead-head h3{margin:0 0 5px;font-size:1.25rem}.brief{display:grid;gap:10px;margin:14px 0}.brief-item{padding:12px;border-radius:14px;background:#0a0c12;border:1px solid rgba(255,255,255,.07)}label{display:block;color:#8a8f9e;font-size:11px;margin:10px 0 5px;font-weight:900;text-transform:uppercase;letter-spacing:.06em}input,select,textarea{width:100%;padding:10px 11px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:#0a0c12;color:#fff;font:14px inherit}textarea{min-height:72px;resize:vertical}.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.msg{padding:12px;border-radius:12px;margin-bottom:14px}.err{background:rgba(255,107,107,.12);color:#ff9d9d}.rule-list{display:grid;gap:10px;margin-top:12px}.rule{padding:12px;border-radius:14px;background:#0a0c12;border:1px solid rgba(255,255,255,.07)}@media(max-width:980px){.grid,.lead-grid{grid-template-columns:1fr 1fr}.top{flex-direction:column}}@media(max-width:680px){.grid,.lead-grid,.form-grid{grid-template-columns:1fr}.wrap{padding:18px}.actions .btn{width:100%;text-align:center}}
+    *{box-sizing:border-box}body{margin:0;background:#08080d;color:#eff2f7;font:14px 'Space Grotesk',system-ui,sans-serif}.wrap{max-width:1440px;margin:0 auto;padding:30px}.top{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;margin-bottom:22px}.eyebrow{color:#00e87b;font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.1em}h1{font-size:clamp(2rem,4vw,3.5rem);line-height:1;margin:8px 0 10px;letter-spacing:-.05em}h2{margin:0 0 12px}.sub,.mini{color:#8a8f9e;line-height:1.6}.actions{display:flex;gap:10px;flex-wrap:wrap}.btn{display:inline-block;border:0;border-radius:11px;padding:11px 14px;background:#00e87b;color:#05070a;font-weight:900;cursor:pointer;text-decoration:none}.btn-dark{background:#202432;color:#eff2f7}.btn-ghost{background:transparent;color:#eff2f7;border:1px solid rgba(255,255,255,.14)}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}.card{background:#12141c;border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:20px;box-shadow:0 20px 70px rgba(0,0,0,.24)}.stat span{display:block;color:#8a8f9e;font-size:11px;text-transform:uppercase;letter-spacing:.08em;font-weight:800}.stat strong{display:block;font-size:32px;margin-top:6px}.accent{color:#00e87b}.warn{color:#ffd166}.danger{color:#ff6b6b}.filters{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 18px}.pill{display:inline-block;border-radius:999px;padding:6px 10px;background:#202432;color:#cdd3df;font-weight:800;font-size:12px;text-decoration:none}.pill-on{background:rgba(0,232,123,.12);color:#00e87b}.pill-warn{background:rgba(255,209,102,.12);color:#ffd166}.lead-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.lead-card{border:1px solid rgba(255,255,255,.08);border-radius:18px;background:rgba(255,255,255,.035);padding:18px}.lead-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.lead-head h3{margin:0 0 5px;font-size:1.25rem}.brief{display:grid;gap:10px;margin:14px 0}.brief-item{padding:12px;border-radius:14px;background:#0a0c12;border:1px solid rgba(255,255,255,.07)}label{display:block;color:#8a8f9e;font-size:11px;margin:10px 0 5px;font-weight:900;text-transform:uppercase;letter-spacing:.06em}input,select,textarea{width:100%;padding:10px 11px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:#0a0c12;color:#fff;font:14px inherit}textarea{min-height:72px;resize:vertical}.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.msg{padding:12px;border-radius:12px;margin-bottom:14px}.err{background:rgba(255,107,107,.12);color:#ff9d9d}.rule-list{display:grid;gap:10px;margin-top:12px}.rule{padding:12px;border-radius:14px;background:#0a0c12;border:1px solid rgba(255,255,255,.07)}@media(max-width:980px){.grid,.lead-grid{grid-template-columns:1fr 1fr}.top{flex-direction:column}}@media(max-width:680px){.grid,.lead-grid,.form-grid{grid-template-columns:1fr}.wrap{padding:18px}.actions .btn{width:100%;text-align:center}}@media print{body{background:#fff;color:#111}.top .actions,.filters,form,.grid,.rule-list,.card:nth-of-type(3){display:none}.wrap{padding:0}.card,.lead-card{box-shadow:none;border-color:#ccc;background:#fff;color:#111;break-inside:avoid}.mini,.sub{color:#444}.lead-grid{grid-template-columns:1fr}.brief-item{background:#f7f7f7;border-color:#ddd}}
   </style>
 </head>
 <body>
@@ -21,6 +21,7 @@
         <a class="btn btn-dark" href="/admin/accounts">Accounts</a>
         <a class="btn btn-dark" href="/admin/launch">Launch Board</a>
         <a class="btn" href="/demo">Open Demo</a>
+        <button class="btn btn-ghost" type="button" onclick="window.print()">Print Call Sheet</button>
       </div>
     </section>
 
@@ -52,7 +53,26 @@
           <a class="pill <%= activeStage === stage ? 'pill-on' : '' %>" href="/admin/outreach?stage=<%= stage %>"><%= stageLabel(stage) %> (<%= stats[stage] || 0 %>)</a>
         <% }); %>
       </div>
+    </section>
 
+    <section class="card">
+      <h2>Import Prospects</h2>
+      <p class="mini">Paste CSV or spreadsheet rows. Format: business name, industry, website, email, phone, contact name, personalization note. Imported leads start at researched so you can approve them before outreach.</p>
+      <form method="POST" action="/admin/outreach/import">
+        <label>Default Priority</label>
+        <select name="default_priority">
+          <option value="medium">Medium</option>
+          <option value="high">High</option>
+          <option value="low">Low</option>
+        </select>
+        <label>Lead Rows</label>
+        <textarea name="leads_csv" rows="5" placeholder="Smith HVAC, hvac, https://smithhvac.com, owner@smithhvac.com, 555-0100, Jordan Smith, Handles emergency AC calls"></textarea>
+        <button class="btn btn-dark" type="submit" style="margin-top:12px">Import Leads</button>
+      </form>
+    </section>
+
+    <section class="card">
+      <h2>Lead Call Sheets</h2>
       <div class="lead-grid">
         <% leads.forEach(function(lead) { const brief = callBrief(lead); const nextValue = lead.next_action_at ? new Date(lead.next_action_at).toISOString().slice(0,16) : ''; const lastValue = lead.last_contacted_at ? new Date(lead.last_contacted_at).toISOString().slice(0,16) : ''; %>
           <article class="lead-card" id="lead-<%= lead.id %>">

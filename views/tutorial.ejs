@@ -39,14 +39,18 @@
     .check-mark { width: 34px; height: 34px; border-radius: 12px; display: grid; place-items: center; background: rgba(0,232,123,.12); color: var(--accent); font-weight: 900; }
     .check-item b { display: block; margin-bottom: 4px; }
     .check-item span { color: var(--fg-muted); line-height: 1.55; }
+    .app-map { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 18px; }
+    .app-card { border: 1px solid rgba(255,255,255,.09); border-radius: 20px; background: rgba(255,255,255,.04); padding: 18px; }
+    .app-card strong { display: block; color: var(--accent); margin-bottom: 8px; }
+    .app-card p { margin: 0; color: var(--fg-muted); line-height: 1.55; font-size: .94rem; }
     @keyframes slowPan { from { transform: translate3d(-1%, -1%, 0) scale(1); } to { transform: translate3d(1%, 1%, 0) scale(1.05); } }
     @media (max-width: 920px) {
       .tutorial-hero { grid-template-columns: 1fr; }
-      .tutorial-grid { grid-template-columns: repeat(2, 1fr); }
+      .tutorial-grid, .app-map { grid-template-columns: repeat(2, 1fr); }
     }
     @media (max-width: 620px) {
       .tutorial-shell { padding: 46px 16px 70px; }
-      .tutorial-grid { grid-template-columns: 1fr; }
+      .tutorial-grid, .app-map { grid-template-columns: 1fr; }
       .player-screen { min-height: 300px; padding: 22px; }
     }
   </style>
@@ -101,6 +105,19 @@
         <h2>Activate Portal</h2>
         <p>After payment or approval, the portal opens with service status, onboarding updates, metrics, and help assistant access.</p>
       </article>
+    </section>
+
+    <section class="tutorial-section">
+      <h2>What the apps do behind the scenes</h2>
+      <p class="screen-caption">Customers do not need to download or learn all these tools. Autovyne connects them in the background and shows the plain-English status inside the client portal.</p>
+      <div class="app-map">
+        <article class="app-card"><strong>OpenAI</strong><p>Summarizes leads, explains account activity, powers the portal helper, and supports admin review without sending messages by itself.</p></article>
+        <article class="app-card"><strong>Twilio</strong><p>Handles approved SMS workflows, STOP/HELP replies, and phone-number messaging rules when consent records allow it.</p></article>
+        <article class="app-card"><strong>HubSpot</strong><p>Stores contacts and lead status so follow-up is organized instead of scattered across notes and inboxes.</p></article>
+        <article class="app-card"><strong>n8n</strong><p>Moves events between Autovyne, CRM, SMS, alerts, and onboarding workflows after the right checks pass.</p></article>
+        <article class="app-card"><strong>Stripe</strong><p>Runs secure monthly subscription checkout and lets automatic-billing customers manage payment settings.</p></article>
+        <article class="app-card"><strong>Supabase</strong><p>Stores portal accounts, consent proof, questions, activity, metrics, and compliance records.</p></article>
+      </div>
     </section>
 
     <section class="tutorial-section">

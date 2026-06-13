@@ -48,6 +48,42 @@ async function listOutreachLeads({ limit = 250, stage = 'all' } = {}) {
   return result.rows;
 }
 
+async function createOutreachLead({
+  businessName,
+  industry,
+  websiteUrl,
+  email,
+  phone,
+  contactName,
+  source = 'manual_import',
+  priority = 'medium',
+  personalizationNote,
+  outreachNotes,
+}) {
+  const result = await pool.query(
+    `INSERT INTO leads
+       (business_name, industry, monthly_call_volume, miss_rate_pct,
+        website_url, email, phone, sms_consent,
+        estimated_missed_leads, estimated_monthly_loss,
+        contact_name, source, stage, priority, personalization_note, outreach_notes)
+     VALUES ($1,$2,0,0,$3,$4,$5,FALSE,0,0,$6,$7,'researched',$8,$9,$10)
+     RETURNING *`,
+    [
+      cleanText(businessName, 240),
+      cleanText(industry || 'other-local-business', 120),
+      cleanText(websiteUrl, 300) || null,
+      cleanText(email, 240) || null,
+      cleanText(phone, 80) || null,
+      cleanText(contactName, 180) || null,
+      cleanText(source, 120) || 'manual_import',
+      normalizePriority(priority),
+      cleanText(personalizationNote, 600) || null,
+      cleanText(outreachNotes, 1200) || null,
+    ]
+  );
+  return result.rows[0];
+}
+
 async function updateLeadOutreach({
   id,
   stage,
@@ -105,6 +141,7 @@ function outreachStats(leads = []) {
 }
 
 module.exports = {
+  createOutreachLead,
   listOutreachLeads,
   outreachStats,
   STAGES,

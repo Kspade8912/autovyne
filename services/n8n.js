@@ -5,56 +5,75 @@ function isConfigured() {
   return Boolean(process.env.N8N_WEBHOOK_URL && process.env.N8N_WEBHOOK_SECRET);
 }
 
+async function logIntegrationIncident(payload) {
+  try {
+    const { recordIntegrationIncident } = require('../db/integration-incidents');
+    await recordIntegrationIncident(payload);
+  } catch (error) {
+    console.error('[n8n] incident log error:', error.message);
+  }
+}
+
+async function sendWorkflowEvent(payload, context = {}) {
+  try {
+    return await fetchJson(process.env.N8N_WEBHOOK_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Autovyne-Secret': process.env.N8N_WEBHOOK_SECRET,
+      },
+      body: JSON.stringify(payload),
+    }, 15000);
+  } catch (error) {
+    await logIntegrationIncident({
+      provider: 'n8n',
+      operation: payload.event || 'workflow.event',
+      severity: 'warning',
+      message: error.message,
+      context,
+    });
+    throw error;
+  }
+}
+
 async function sendLeadEvent(lead, qualification) {
   if (!isConfigured()) return null;
 
-  return fetchJson(process.env.N8N_WEBHOOK_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Autovyne-Secret': process.env.N8N_WEBHOOK_SECRET,
-    },
-    body: JSON.stringify({
+  return sendWorkflowEvent({
       event: 'lead.created',
       sent_at: new Date().toISOString(),
       lead,
       industry_profile: compactIndustryProfile(lead.industry),
       sms_eligible: Boolean(lead.sms_consent && lead.phone),
       qualification,
-    }),
-  }, 15000);
+    }, {
+      lead_id: lead.id || null,
+      industry: lead.industry || null,
+      sms_eligible: Boolean(lead.sms_consent && lead.phone),
+    });
 }
 
 async function sendQuestionEvent(question) {
   if (!isConfigured()) return null;
 
   const smsEligible = Boolean(question.smsConsent && question.phone);
-  return fetchJson(process.env.N8N_WEBHOOK_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Autovyne-Secret': process.env.N8N_WEBHOOK_SECRET,
-    },
-    body: JSON.stringify({
+  return sendWorkflowEvent({
       event: 'question.created',
       sent_at: new Date().toISOString(),
       sms_eligible: smsEligible,
       question: { ...question, phone: smsEligible ? question.phone : null },
-    }),
-  }, 15000);
+    }, {
+      email_present: Boolean(question.email),
+      sms_eligible: smsEligible,
+      category: question.category || null,
+    });
 }
 
 async function sendPaidSignupEvent({ order, account }) {
   if (!isConfigured()) return null;
 
   const smsEligible = Boolean(order.sms_consent && order.phone);
-  return fetchJson(process.env.N8N_WEBHOOK_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Autovyne-Secret': process.env.N8N_WEBHOOK_SECRET,
-    },
-    body: JSON.stringify({
+  return sendWorkflowEvent({
       event: 'account.paid',
       sent_at: new Date().toISOString(),
       sms_eligible: smsEligible,
@@ -79,21 +98,19 @@ async function sendPaidSignupEvent({ order, account }) {
         plan: account.plan,
         billing_method: account.billing_method || order.billing_method || 'automatic',
       },
-    }),
-  }, 15000);
+    }, {
+      order_id: order.id || null,
+      account_id: account.id || null,
+      plan: order.plan || null,
+      sms_eligible: smsEligible,
+    });
 }
 
 async function sendManualSignupEvent({ order, account }) {
   if (!isConfigured()) return null;
 
   const smsEligible = Boolean(order.sms_consent && order.phone);
-  return fetchJson(process.env.N8N_WEBHOOK_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Autovyne-Secret': process.env.N8N_WEBHOOK_SECRET,
-    },
-    body: JSON.stringify({
+  return sendWorkflowEvent({
       event: 'account.manual_billing_requested',
       sent_at: new Date().toISOString(),
       sms_eligible: smsEligible,
@@ -117,8 +134,12 @@ async function sendManualSignupEvent({ order, account }) {
         plan: account.plan,
         billing_method: 'manual',
       },
-    }),
-  }, 15000);
+    }, {
+      order_id: order.id || null,
+      account_id: account.id || null,
+      plan: order.plan || null,
+      sms_eligible: smsEligible,
+    });
 }
 
 module.exports = { isConfigured, sendLeadEvent, sendManualSignupEvent, sendPaidSignupEvent, sendQuestionEvent };
