@@ -60,6 +60,25 @@ async function createOutreachLead({
   personalizationNote,
   outreachNotes,
 }) {
+  const duplicate = await pool.query(
+    `SELECT *
+     FROM leads
+     WHERE
+       ($1::TEXT <> '' AND lower(email) = lower($1)) OR
+       ($2::TEXT <> '' AND phone = $2) OR
+       lower(business_name) = lower($3)
+     ORDER BY created_at DESC
+     LIMIT 1`,
+    [
+      cleanText(email, 240),
+      cleanText(phone, 80),
+      cleanText(businessName, 240),
+    ]
+  );
+  if (duplicate.rows[0]) {
+    return { ...duplicate.rows[0], duplicateSkipped: true };
+  }
+
   const result = await pool.query(
     `INSERT INTO leads
        (business_name, industry, monthly_call_volume, miss_rate_pct,
@@ -82,6 +101,46 @@ async function createOutreachLead({
     ]
   );
   return result.rows[0];
+}
+
+async function listDuplicateLeadGroups({ limit = 20 } = {}) {
+  const result = await pool.query(
+    `WITH normalized AS (
+       SELECT
+         id,
+         business_name,
+         email,
+         phone,
+         stage,
+         created_at,
+         CASE
+           WHEN NULLIF(email, '') IS NOT NULL THEN lower(email)
+           WHEN NULLIF(phone, '') IS NOT NULL THEN phone
+           ELSE lower(business_name)
+         END AS duplicate_key
+       FROM leads
+     )
+     SELECT
+       duplicate_key,
+       COUNT(*) AS lead_count,
+       MIN(created_at) AS first_seen_at,
+       MAX(created_at) AS last_seen_at,
+       json_agg(json_build_object(
+         'id', id,
+         'business_name', business_name,
+         'email', email,
+         'phone', phone,
+         'stage', stage,
+         'created_at', created_at
+       ) ORDER BY created_at DESC) AS leads
+     FROM normalized
+     GROUP BY duplicate_key
+     HAVING COUNT(*) > 1
+     ORDER BY MAX(created_at) DESC
+     LIMIT $1`,
+    [limit]
+  );
+  return result.rows;
 }
 
 async function updateLeadOutreach({
@@ -142,6 +201,7 @@ function outreachStats(leads = []) {
 
 module.exports = {
   createOutreachLead,
+  listDuplicateLeadGroups,
   listOutreachLeads,
   outreachStats,
   STAGES,

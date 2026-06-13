@@ -72,6 +72,27 @@
     </section>
 
     <section class="card">
+      <h2>Duplicate Watch</h2>
+      <p class="mini">Imports skip exact email, phone, or business-name duplicates. This panel shows any duplicate groups already in the lead table so you can clean them up later if needed.</p>
+      <% if ((duplicateGroups || []).length) { %>
+        <div class="rule-list">
+          <% duplicateGroups.forEach(function(group) { %>
+            <div class="rule">
+              <strong><%= group.duplicate_key %> - <%= group.lead_count %> records</strong>
+              <p class="mini">
+                <% (group.leads || []).slice(0,3).forEach(function(lead, index) { %>
+                  <%= index ? ' | ' : '' %>#<%= lead.id %> <%= lead.business_name %> (<%= lead.stage %>)
+                <% }); %>
+              </p>
+            </div>
+          <% }); %>
+        </div>
+      <% } else { %>
+        <p class="mini">No duplicate lead groups detected.</p>
+      <% } %>
+    </section>
+
+    <section class="card">
       <h2>Lead Call Sheets</h2>
       <div class="lead-grid">
         <% leads.forEach(function(lead) { const brief = callBrief(lead); const nextValue = lead.next_action_at ? new Date(lead.next_action_at).toISOString().slice(0,16) : ''; const lastValue = lead.last_contacted_at ? new Date(lead.last_contacted_at).toISOString().slice(0,16) : ''; %>

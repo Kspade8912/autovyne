@@ -4,6 +4,7 @@ const { sanitizeString } = require('../lib/security');
 const { compactIndustryProfile } = require('../lib/industry-ai-profiles');
 const {
   createOutreachLead,
+  listDuplicateLeadGroups,
   listOutreachLeads,
   outreachStats,
   STAGES,
@@ -78,16 +79,23 @@ function parseLeadImport(rawText) {
 
 async function pageData(req, overrides = {}) {
   const activeStage = sanitizeString(req.query.stage || 'all') || 'all';
-  const leads = await listOutreachLeads({ stage: activeStage, limit: 250 });
-  const allLeads = activeStage === 'all' ? leads : await listOutreachLeads({ stage: 'all', limit: 250 });
+  const [leads, allLeads, duplicateGroups] = await Promise.all([
+    listOutreachLeads({ stage: activeStage, limit: 250 }),
+    activeStage === 'all' ? Promise.resolve(null) : listOutreachLeads({ stage: 'all', limit: 250 }),
+    listDuplicateLeadGroups({ limit: 10 }),
+  ]);
+  const allLeadRows = allLeads || leads;
 
   return {
     activeStage,
     error: null,
-    success: null,
+    success: req.query.imported
+      ? `Imported ${req.query.imported} lead${req.query.imported === '1' ? '' : 's'}; skipped ${req.query.skipped || 0} duplicate${req.query.skipped === '1' ? '' : 's'}.`
+      : null,
     leads,
-    allLeads,
-    stats: outreachStats(allLeads),
+    allLeads: allLeadRows,
+    duplicateGroups,
+    stats: outreachStats(allLeadRows),
     stages: STAGES,
     stageLabel,
     callBrief,
@@ -153,16 +161,20 @@ router.post('/import', async (req, res) => {
       }));
     }
 
+    let imported = 0;
+    let skipped = 0;
     for (const row of rows.slice(0, 100)) {
-      await createOutreachLead({
+      const lead = await createOutreachLead({
         ...row,
         source: 'manual_outreach_import',
         priority: sanitizeString(req.body.default_priority) || 'medium',
         outreachNotes: 'Imported from Outreach Board for human-reviewed cold-call prep.',
       });
+      if (lead.duplicateSkipped) skipped += 1;
+      else imported += 1;
     }
 
-    res.redirect('/admin/outreach?stage=researched');
+    res.redirect(`/admin/outreach?stage=researched&imported=${imported}&skipped=${skipped}`);
   } catch (error) {
     console.error('[admin-outreach] import error:', error.message);
     res.status(500).render('admin-outreach', await pageData(req, { error: 'Lead import failed.' }));
