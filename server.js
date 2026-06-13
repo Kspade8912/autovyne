@@ -144,6 +144,7 @@ app.use('/admin/questions', require('./routes/admin-questions'));
 app.use('/portal', require('./routes/portal'));
 app.use('/signup', require('./routes/signup'));
 app.use('/questions', require('./routes/questions'));
+app.use('/twilio', require('./routes/twilio-webhooks'));
 app.use('/', require('./routes/public-pages'));
 
 // ── Error Handler (generic — no stack traces in production) ──────────────────
