@@ -46,11 +46,15 @@ Do not paste secret keys into chat, docs, GitHub, or tickets.
 Use `/admin` as the starting point.
 
 1. Open **Integration Health** and confirm the launch stack is ready.
-2. Open **Account Command Center**.
-3. Filter accounts by `Needs attention`, `In setup`, or `Launch ready`.
-4. Use quick updates instead of typing from scratch.
-5. Check **SMS Proof** before any SMS outreach.
-6. Keep customer-visible updates plain-English and useful.
+2. Run **Check Supabase Schema** before launch work starts.
+3. Run **Validate Stripe Prices** before promoting paid signup.
+4. Run **Send HubSpot Test** and confirm `integration-test@autovyne.com` appears in HubSpot.
+5. Run **Send n8n Test** and confirm the workflow receives `diagnostic.autovyne`.
+6. Open **Account Command Center**.
+7. Filter accounts by `Needs attention`, `In setup`, or `Launch ready`.
+8. Use quick updates instead of typing from scratch.
+9. Check **SMS Proof** before any SMS outreach.
+10. Keep customer-visible updates plain-English and useful.
 
 ## AI Stack Responsibilities
 
@@ -148,6 +152,12 @@ Run locally before pushing:
 node test-simulator.js
 node test-integrations.js
 node test-stripe.js
+node test-questions.js
+node test-admin-auth.js
+node test-plan-services.js
+node test-industry-ai-profiles.js
+node test-client-actions.js
+node test-legal-audits.js
 ```
 
 Live checks after Render deploy:
@@ -158,6 +168,7 @@ Live checks after Render deploy:
 - `/portal` loads.
 - `/admin/integrations` redirects to admin login when not signed in.
 - `/privacy`, `/terms`, and `/sms-terms` load publicly.
+- Logged-in admin can run Supabase, HubSpot, n8n, and Stripe diagnostics from `/admin/integrations`.
 
 ## When Something Fails
 
@@ -166,4 +177,5 @@ Live checks after Render deploy:
 - Portal does not activate: check Stripe webhook delivery logs.
 - n8n does not receive signup: check `N8N_WEBHOOK_URL` and `N8N_WEBHOOK_SECRET`.
 - HubSpot does not receive leads: check `HUBSPOT_ACCESS_TOKEN`.
+- Integration Health shows Supabase schema review: run migrations, then confirm required tables and `_migrations` RLS.
 - SMS should not send: confirm consent record exists before enabling SMS follow-up.

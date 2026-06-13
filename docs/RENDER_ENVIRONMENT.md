@@ -46,6 +46,8 @@ Add the variable name to `render.yaml` with `sync: false`, then enter its value 
 2. In **Connect**, copy the Session Pooler connection string.
 3. Enter it as `DATABASE_URL` in Render.
 4. Deploy once. `npm run build` creates the required tables and enables RLS.
+5. In Autovyne, open `/admin/integrations` and run **Check Supabase Schema**.
+6. Treat Supabase as launch-ready only when every required table is present and `_migrations` RLS is enabled.
 
 The server connects directly to Postgres. No Supabase service-role key is exposed or required.
 
@@ -62,6 +64,8 @@ OpenAI generates a factual lead qualification brief after each saved lead. Failu
 1. Create a HubSpot private app.
 2. Grant `crm.objects.contacts.write`.
 3. Enter its token as `HUBSPOT_ACCESS_TOKEN` in Render.
+4. In Autovyne, open `/admin/integrations` and run **Send HubSpot Test**.
+5. Confirm HubSpot contains/updates the diagnostic contact `integration-test@autovyne.com`.
 
 Leads with email addresses are upserted into HubSpot using email as the unique identifier.
 
@@ -71,6 +75,8 @@ Leads with email addresses are upserted into HubSpot using email as the unique i
 2. Enable Header Auth with header name `X-Autovyne-Secret`.
 3. Set the header value to the same random value used for `N8N_WEBHOOK_SECRET`.
 4. Activate the workflow and enter its production URL as `N8N_WEBHOOK_URL` in Render.
+5. In Autovyne, open `/admin/integrations` and run **Send n8n Test**.
+6. Confirm the workflow receives `diagnostic.autovyne`.
 
 The webhook receives `event`, `sent_at`, `lead`, and the OpenAI `qualification` brief.
 

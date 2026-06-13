@@ -33,4 +33,15 @@ async function upsertLead(lead) {
   return response?.results?.[0] || response;
 }
 
-module.exports = { isConfigured, upsertLead };
+async function sendDiagnosticContact() {
+  if (!isConfigured()) throw new Error('HubSpot is not configured.');
+
+  return upsertLead({
+    business_name: 'Autovyne Integration Test',
+    email: 'integration-test@autovyne.com',
+    website_url: 'https://autovyne-oj8a.onrender.com',
+    sms_consent: false,
+  });
+}
+
+module.exports = { isConfigured, sendDiagnosticContact, upsertLead };

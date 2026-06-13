@@ -92,6 +92,47 @@ async function retrieveCheckoutSession(sessionId) {
   return stripeGet(`/v1/checkout/sessions/${encodeURIComponent(sessionId)}`, params);
 }
 
+async function retrievePrice(priceId) {
+  return stripeGet(`/v1/prices/${encodeURIComponent(priceId)}`);
+}
+
+async function validateConfiguredPrices() {
+  const plans = Object.keys(PLAN_PRICE_ENV);
+  const rows = [];
+  for (const plan of plans) {
+    const priceId = getPlanPriceId(plan);
+    if (!priceId) {
+      rows.push({ plan, ready: false, detail: 'Missing price ID.' });
+      continue;
+    }
+
+    try {
+      const price = await retrievePrice(priceId);
+      rows.push({
+        plan,
+        ready: Boolean(price.id && price.active !== false),
+        priceId: price.id,
+        mode: price.livemode ? 'live' : 'test',
+        currency: price.currency,
+        interval: price.recurring?.interval || 'one_time',
+        amount: price.unit_amount,
+        detail: price.active === false ? 'Price exists but is inactive.' : 'Price exists and is active.',
+      });
+    } catch (error) {
+      rows.push({
+        plan,
+        ready: false,
+        priceId,
+        detail: error.message,
+      });
+    }
+  }
+  return {
+    ready: rows.every(row => row.ready),
+    rows,
+  };
+}
+
 async function createBillingPortalSession({ customerId, returnPath = '/portal' }) {
   if (!customerId) throw new Error('Stripe customer ID is required.');
 
@@ -147,6 +188,8 @@ module.exports = {
   getPlanPriceId,
   isConfigured,
   retrieveCheckoutSession,
+  retrievePrice,
   verifyWebhook,
+  validateConfiguredPrices,
   webhookConfigured,
 };

@@ -19,6 +19,7 @@
       <div class="actions">
         <a class="btn" href="/admin/accounts">Accounts</a>
         <a class="btn btn-dark" href="/admin/launch">Launch Checklist</a>
+        <a class="btn btn-dark" href="/admin/test-center">Test Center</a>
         <a class="btn btn-dark" href="/admin/questions">Support Queue</a>
         <a class="btn btn-dark" href="/admin">Admin Hub</a>
       </div>
@@ -30,6 +31,39 @@
       <div class="card stat"><span>Needs Review</span><strong class="<%= totalCount - readyCount ? 'warn' : 'accent' %>"><%= totalCount - readyCount %></strong></div>
       <div class="card stat"><span>Launch Score</span><strong class="<%= readyCount === totalCount ? 'accent' : 'warn' %>"><%= Math.round((readyCount / totalCount) * 100) %>%</strong></div>
     </section>
+
+    <% if (diagnosticResult) { %>
+      <section class="card">
+        <span class="badge">Diagnostic Result</span>
+        <h2><%= diagnosticResult.provider %></h2>
+        <p><span class="pill <%= diagnosticResult.ready ? 'pill-on' : 'pill-warn' %>"><%= diagnosticResult.ready ? 'Passed' : 'Review' %></span></p>
+        <p class="mini"><%= diagnosticResult.detail %></p>
+        <% if (diagnosticResult.tables) { %>
+          <div class="checklist">
+            <% diagnosticResult.tables.forEach(function(row) { %>
+              <div class="check"><span class="pill <%= row.ready ? 'pill-on' : 'pill-warn' %>"><%= row.ready ? 'Ready' : 'Missing' %></span> <%= row.table %></div>
+            <% }); %>
+            <div class="check"><span class="pill <%= diagnosticResult.migrationsRlsEnabled ? 'pill-on' : 'pill-warn' %>"><%= diagnosticResult.migrationsRlsEnabled ? 'Ready' : 'Review' %></span> `_migrations` RLS enabled</div>
+          </div>
+        <% } %>
+        <% if (diagnosticResult.rows) { %>
+          <table class="table">
+            <thead><tr><th>Plan</th><th>Status</th><th>Mode</th><th>Amount</th><th>Detail</th></tr></thead>
+            <tbody>
+              <% diagnosticResult.rows.forEach(function(row) { %>
+                <tr>
+                  <td><strong><%= row.plan %></strong><br><span class="mini"><%= row.priceId || '' %></span></td>
+                  <td><span class="pill <%= row.ready ? 'pill-on' : 'pill-warn' %>"><%= row.ready ? 'Ready' : 'Review' %></span></td>
+                  <td class="mini"><%= row.mode || '' %></td>
+                  <td class="mini"><%= row.amount ? `${String(row.currency || '').toUpperCase()} ${(Number(row.amount) / 100).toFixed(2)} / ${row.interval}` : '' %></td>
+                  <td class="mini"><%= row.detail %></td>
+                </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        <% } %>
+      </section>
+    <% } %>
 
     <section class="card">
       <table class="table">
@@ -46,6 +80,18 @@
           <% }); %>
         </tbody>
       </table>
+    </section>
+
+    <section class="card">
+      <span class="badge">Deep Diagnostics</span>
+      <h2>Run provider checks</h2>
+      <p class="mini">These buttons perform safe launch checks. HubSpot creates/updates a diagnostic contact, n8n sends a diagnostic webhook event, Stripe checks configured Price IDs, and Supabase verifies required tables/RLS. Secret values are never displayed.</p>
+      <div class="actions">
+        <form method="POST" action="/admin/integrations/diagnostics/supabase"><button class="btn" type="submit">Check Supabase Schema</button></form>
+        <form method="POST" action="/admin/integrations/diagnostics/hubspot"><button class="btn btn-dark" type="submit">Send HubSpot Test</button></form>
+        <form method="POST" action="/admin/integrations/diagnostics/n8n"><button class="btn btn-dark" type="submit">Send n8n Test</button></form>
+        <form method="POST" action="/admin/integrations/diagnostics/stripe-prices"><button class="btn btn-dark" type="submit">Validate Stripe Prices</button></form>
+      </div>
     </section>
 
     <section class="grid">

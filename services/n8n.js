@@ -142,4 +142,27 @@ async function sendManualSignupEvent({ order, account }) {
     });
 }
 
-module.exports = { isConfigured, sendLeadEvent, sendManualSignupEvent, sendPaidSignupEvent, sendQuestionEvent };
+async function sendDiagnosticEvent() {
+  if (!isConfigured()) throw new Error('n8n is not configured.');
+
+  return sendWorkflowEvent({
+    event: 'diagnostic.autovyne',
+    sent_at: new Date().toISOString(),
+    sms_eligible: false,
+    diagnostic: {
+      source: 'admin_integration_health',
+      message: 'Autovyne diagnostic event. No customer action required.',
+    },
+  }, {
+    source: 'admin_integration_health',
+  });
+}
+
+module.exports = {
+  isConfigured,
+  sendDiagnosticEvent,
+  sendLeadEvent,
+  sendManualSignupEvent,
+  sendPaidSignupEvent,
+  sendQuestionEvent,
+};

@@ -65,6 +65,8 @@ Use `/admin/compliance` for Twilio verification proof.
 
 Use `/admin/analytics` for site traffic and conversion signals.
 
+Use `/admin/integrations` for daily provider checks. The deep diagnostics do not expose secrets; they verify Supabase schema/RLS, HubSpot contact upsert, n8n webhook delivery, and Stripe monthly Price IDs.
+
 ## How The AI Pieces Correlate
 
 - OpenAI is the reasoning layer. It reads lead context and produces qualification, urgency, pain points, and next actions.

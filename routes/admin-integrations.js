@@ -1,7 +1,11 @@
 const { Router } = require('express');
 const pool = require('../db');
 const { hasAdminSession } = require('../lib/admin-auth');
+const { checkSupabaseSchema } = require('../db/diagnostics');
+const hubspot = require('../services/hubspot');
 const { getConfigurationStatus } = require('../services/integrations');
+const n8n = require('../services/n8n');
+const stripe = require('../services/stripe');
 
 const router = Router();
 
@@ -71,11 +75,10 @@ function flattenStatus(status) {
   ];
 }
 
-router.get('/', async (req, res) => {
-  if (!process.env.ADMIN_API_KEY) return res.status(403).send('<h1>Forbidden</h1>');
-  if (!hasAdminSession(req)) return res.redirect('/admin');
-
+async function pageData(overrides = {}) {
   const status = getConfigurationStatus();
+  let supabaseSchema = null;
+
   try {
     await pool.query('SELECT 1');
     status.supabase.reachable = true;
@@ -84,14 +87,97 @@ router.get('/', async (req, res) => {
     status.supabase.error = error.message;
   }
 
+  if (status.supabase.reachable) {
+    try {
+      supabaseSchema = await checkSupabaseSchema();
+    } catch (error) {
+      supabaseSchema = {
+        ready: false,
+        tables: [],
+        migrationsRlsEnabled: false,
+        detail: error.message,
+      };
+    }
+  }
+
   const rows = flattenStatus(status);
   const readyCount = rows.filter(row => row.ready).length;
-  res.render('admin-integrations', {
+  return {
     rows,
     readyCount,
     totalCount: rows.length,
     rawStatus: status,
-  });
+    supabaseSchema,
+    diagnosticResult: null,
+    ...overrides,
+  };
+}
+
+router.get('/', async (req, res) => {
+  if (!process.env.ADMIN_API_KEY) return res.status(403).send('<h1>Forbidden</h1>');
+  if (!hasAdminSession(req)) return res.redirect('/admin');
+
+  try {
+    res.render('admin-integrations', await pageData());
+  } catch (error) {
+    console.error('[admin-integrations] load error:', error.message);
+    res.status(500).render('admin-integrations', await pageData({
+      diagnosticResult: { provider: 'integration_health', ready: false, detail: 'Integration Health could not fully load.' },
+    }));
+  }
+});
+
+router.post('/diagnostics/:provider', async (req, res) => {
+  if (!process.env.ADMIN_API_KEY) return res.status(403).send('<h1>Forbidden</h1>');
+  if (!hasAdminSession(req)) return res.status(401).redirect('/admin');
+
+  const provider = req.params.provider;
+  let diagnosticResult = null;
+
+  try {
+    if (provider === 'supabase') {
+      diagnosticResult = {
+        provider: 'Supabase',
+        ...(await checkSupabaseSchema()),
+        detail: 'Checked required public tables and migration-table RLS.',
+      };
+    } else if (provider === 'hubspot') {
+      const result = await hubspot.sendDiagnosticContact();
+      diagnosticResult = {
+        provider: 'HubSpot',
+        ready: Boolean(result),
+        detail: 'Diagnostic contact upsert succeeded.',
+      };
+    } else if (provider === 'n8n') {
+      const result = await n8n.sendDiagnosticEvent();
+      diagnosticResult = {
+        provider: 'n8n',
+        ready: Boolean(result),
+        detail: 'Diagnostic workflow event was accepted by the configured webhook.',
+      };
+    } else if (provider === 'stripe-prices') {
+      diagnosticResult = {
+        provider: 'Stripe Prices',
+        ...(await stripe.validateConfiguredPrices()),
+        detail: 'Checked each configured monthly Price ID through Stripe.',
+      };
+    } else {
+      diagnosticResult = {
+        provider,
+        ready: false,
+        detail: 'Unknown diagnostic provider.',
+      };
+    }
+  } catch (error) {
+    console.error('[admin-integrations] diagnostic error:', error.message);
+    diagnosticResult = {
+      provider,
+      ready: false,
+      detail: error.message,
+    };
+  }
+
+  res.render('admin-integrations', await pageData({ diagnosticResult }));
 });
 
 module.exports = router;
