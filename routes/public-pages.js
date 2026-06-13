@@ -39,4 +39,11 @@ router.get('/sms-terms', (_req, res) => renderLegal(
   'Review the terms for Autovyne SMS Alerts & Automation, including opt-out and help instructions.'
 ));
 
+router.get('/sms-compliance', (_req, res) => renderLegal(
+  res,
+  'sms-compliance',
+  'SMS Compliance Review',
+  'Public review details for Autovyne SMS opt-in, message types, sample messages, and policy links.'
+));
+
 module.exports = router;

@@ -14,7 +14,7 @@
   <main class="legal-page">
     <header class="legal-header">
       <div class="hero-badge">Autovyne Legal</div>
-      <h1><%= page === 'privacy' ? 'Privacy Policy' : page === 'terms' ? 'Terms of Service' : 'SMS Terms' %></h1>
+      <h1><%= page === 'privacy' ? 'Privacy Policy' : page === 'terms' ? 'Terms of Service' : page === 'sms-compliance' ? 'SMS Compliance Review' : 'SMS Terms' %></h1>
       <p>Effective June 5, 2026</p>
     </header>
 
@@ -37,13 +37,23 @@
       <section><h2>Subscriptions, Payments, Minimum Service, and Refunds</h2><p>Paid service begins after Stripe checkout is completed for automatic monthly card payments or after Autovyne approves manual monthly billing. Unless a separate written agreement says otherwise, subscriptions include an initial one-month minimum service period so Autovyne can complete onboarding, AI setup, workflow configuration, and launch support. After the first month, service may be canceled before the next billing period according to the cancellation instructions provided in the applicable order form, customer agreement, or billing portal. [Subscription plans, billing timing, cancellation process, refund policy, company entity name, and business address will be stated in the applicable order form or customer agreement.]</p></section>
       <section><h2>Limitation of Liability</h2><p>To the maximum extent permitted by law, Autovyne and [Company Entity Name] will not be liable for indirect, incidental, special, consequential, exemplary, or lost-profit damages arising from use of the service. Any direct liability will be limited as stated in the applicable customer agreement or as required by law.</p></section>
       <section><h2>Contact</h2><p>Email: <a href="mailto:kwaun.autovyne@gmail.com">kwaun.autovyne@gmail.com</a><br>Business address placeholder: [Business Address]</p></section>
+    <% } else if (page === 'sms-compliance') { %>
+      <section><h2>Purpose</h2><p>This page summarizes the Autovyne SMS program for carrier and Twilio toll-free verification review. Autovyne sends business account, audit, onboarding, missed-call automation, and service update messages only to recipients who provide applicable consent.</p></section>
+      <section><h2>Business and Brand</h2><p><strong>Brand:</strong> Autovyne<br><strong>Website:</strong> <a href="/signup">https://autovyne.com/signup</a><br><strong>Contact:</strong> <a href="mailto:kwaun.autovyne@gmail.com">kwaun.autovyne@gmail.com</a><br><strong>Business address:</strong> [Business Address]</p></section>
+      <section><h2>SMS Program Name</h2><p>Autovyne SMS Alerts &amp; Automation.</p></section>
+      <section><h2>Message Types</h2><p>Messages may include account alerts, audit updates, onboarding updates, missed-call alerts, lead follow-up notices, appointment reminders, customer communication workflow updates, support follow-up, and service status notifications.</p></section>
+      <section><h2>Opt-In Workflow</h2><p>Businesses opt in by visiting the public Autovyne signup page at <a href="/signup">/signup</a> and checking an unchecked SMS consent checkbox near the phone number field. The checkbox is not pre-selected. The signup page displays the following consent language before submission:</p><p><strong>By checking this box, I consent to receive SMS messages from Autovyne related to my account, audit request, onboarding, missed-call automation, and service updates. Message frequency varies. Message and data rates may apply. Reply STOP to opt out and HELP for help. Consent is not a condition of purchase. View our Privacy Policy and SMS Terms.</strong></p></section>
+      <section><h2>Consent Recordkeeping</h2><p>Autovyne stores SMS consent status, consent timestamp, phone number, form source, IP address when available, user agent when available, and the exact consent text shown at submission. If the checkbox is not checked, the request may still be submitted, but the contact is not marked as SMS opted in.</p></section>
+      <section><h2>Sample Messages</h2><p><strong>Audit update:</strong> Autovyne: Your missed-call audit request was received. We will review your account setup next. Reply STOP to opt out or HELP for help.</p><p><strong>Onboarding update:</strong> Autovyne: Your onboarding checklist has been updated in your client portal. Message frequency varies. Reply STOP to opt out or HELP for help.</p><p><strong>Missed-call alert:</strong> Autovyne: Missed-call automation detected a new lead follow-up item for your business. Log in to your portal to review. Reply STOP to opt out or HELP for help.</p></section>
+      <section><h2>Opt-Out and Help</h2><p>Recipients can reply STOP to opt out and HELP for help. Message frequency varies. Message and data rates may apply. Consent is not a condition of purchase. Carriers are not liable for delayed or undelivered messages.</p></section>
+      <section><h2>Privacy and Data Sharing</h2><p><strong>No mobile information will be shared with third parties/affiliates for marketing/promotional purposes. All other categories exclude text messaging originator opt-in data and consent; this information will not be shared with any third parties.</strong></p><p>See the <a href="/privacy">Privacy Policy</a>, <a href="/terms">Terms of Service</a>, and <a href="/sms-terms">SMS Terms</a>.</p></section>
     <% } else { %>
       <section><h2>Program</h2><p><strong>Program name:</strong> Autovyne SMS Alerts &amp; Automation.</p></section>
       <section><h2>Message Types</h2><p>Messages may include account alerts, audit updates, onboarding updates, missed-call alerts, lead follow-up, appointment reminders, and customer communication workflows.</p></section>
       <section><h2>Frequency and Charges</h2><p>Message frequency varies. Message and data rates may apply. Consent is not a condition of purchase.</p></section>
       <section><h2>Opt Out and Help</h2><p>Reply STOP to opt out. Reply HELP for help. You may also contact <a href="mailto:kwaun.autovyne@gmail.com">kwaun.autovyne@gmail.com</a>.</p></section>
       <section><h2>Carrier Disclaimer</h2><p>Carriers are not liable for delayed or undelivered messages.</p></section>
-      <section><h2>Related Policies</h2><p>Review our <a href="/privacy">Privacy Policy</a> and <a href="/terms">Terms of Service</a>.</p></section>
+      <section><h2>Related Policies</h2><p>Review our <a href="/privacy">Privacy Policy</a>, <a href="/terms">Terms of Service</a>, and <a href="/sms-compliance">SMS Compliance Review</a>.</p></section>
     <% } %>
   </main>
   <%- include('partials/footer') %>
