@@ -27,6 +27,15 @@ const stripe = require('../services/stripe');
 const router = Router();
 const limiter = createRateLimiter({ windowMs: 15 * 60 * 1000, maxRequests: 5 });
 
+async function logIntegrationIncident(payload) {
+  try {
+    const { recordIntegrationIncident } = require('../db/integration-incidents');
+    await recordIntegrationIncident(payload);
+  } catch (error) {
+    console.error('[signup] incident log error:', error.message);
+  }
+}
+
 const PLAN_LABELS = {
   'smb-bundle': 'SMB Bundle',
   starter: 'Starter',
@@ -399,6 +408,16 @@ router.post('/stripe-webhook', async (req, res) => {
     res.json({ received: true });
   } catch (error) {
     console.error('[signup] stripe webhook error:', error.message);
+    await logIntegrationIncident({
+      provider: 'stripe',
+      operation: 'webhook.receive',
+      severity: 'critical',
+      message: error.message,
+      context: {
+        signature_present: Boolean(req.headers['stripe-signature']),
+        raw_body_present: Boolean(req.rawBody),
+      },
+    });
     res.status(400).json({ error: 'Webhook rejected' });
   }
 });

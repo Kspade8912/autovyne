@@ -1,5 +1,14 @@
 const { fetchJson } = require('../lib/http');
 
+async function logIntegrationIncident(payload) {
+  try {
+    const { recordIntegrationIncident } = require('../db/integration-incidents');
+    await recordIntegrationIncident(payload);
+  } catch (error) {
+    console.error('[twilio] incident log error:', error.message);
+  }
+}
+
 function isConfigured() {
   return Boolean(
     process.env.TWILIO_ACCOUNT_SID &&
@@ -34,14 +43,29 @@ async function sendSms({ to, body, smsConsent, statusCallbackUrl }) {
   }
   if (statusCallbackUrl) params.set('StatusCallback', statusCallbackUrl);
 
-  return fetchJson(`https://api.twilio.com/2010-04-01/Accounts/${encodeURIComponent(process.env.TWILIO_ACCOUNT_SID)}/Messages.json`, {
-    method: 'POST',
-    headers: {
-      Authorization: authHeader(),
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: params.toString(),
-  }, 15000);
+  try {
+    return await fetchJson(`https://api.twilio.com/2010-04-01/Accounts/${encodeURIComponent(process.env.TWILIO_ACCOUNT_SID)}/Messages.json`, {
+      method: 'POST',
+      headers: {
+        Authorization: authHeader(),
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: params.toString(),
+    }, 15000);
+  } catch (error) {
+    await logIntegrationIncident({
+      provider: 'twilio',
+      operation: 'sms.send',
+      severity: 'warning',
+      message: error.message,
+      context: {
+        to_present: Boolean(to),
+        body_length: String(body || '').length,
+        status_callback: Boolean(statusCallbackUrl),
+      },
+    });
+    throw error;
+  }
 }
 
 module.exports = { isConfigured, sendSms };
