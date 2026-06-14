@@ -10,8 +10,10 @@
   <link rel="stylesheet" href="/css/theme.css">
   <link rel="stylesheet" href="/css/assistant-widget.css">
 </head>
-<body>
-  <%- include('partials/nav') %>
+<body class="<%= authorized ? 'portal-app-body' : '' %>">
+  <% if (!authorized) { %>
+    <%- include('partials/nav') %>
+  <% } %>
 
   <% if (!authorized) { %>
   <main class="portal-shell portal-login">
@@ -100,14 +102,32 @@
           ? 'This account is paused. Automation will resume after Autovyne reactivates it.'
           : 'Your account is in setup. Autovyne is connecting the tools before activation.';
   %>
-  <main class="portal-shell">
+  <header class="portal-app-nav" aria-label="Client portal navigation">
+    <a href="/portal" class="portal-app-brand">
+      <span class="portal-brand-mark">A</span>
+      <span>
+        <strong>Autovyne</strong>
+        <small>Client Portal</small>
+      </span>
+    </a>
+    <div class="portal-app-actions">
+      <a class="portal-secondary-btn" href="/questions">Support</a>
+      <form method="POST" action="/portal/logout"><button class="portal-secondary-btn" type="submit">Log Out</button></form>
+    </div>
+  </header>
+
+  <main class="portal-shell portal-shell-app">
     <section class="portal-hero-panel">
       <div>
         <div class="hero-badge">Client Dashboard</div>
         <h1><%= account.business_name %></h1>
         <p class="portal-muted">A simple view of what Autovyne is setting up, what is active, and what has happened recently.</p>
       </div>
-      <form method="POST" action="/portal/logout"><button class="portal-secondary-btn" type="submit">Log Out</button></form>
+      <div class="portal-hero-summary">
+        <span><%= completion %>% setup</span>
+        <strong><%= activeServices %>/<%= serviceRows.length %></strong>
+        <small>Automation areas active</small>
+      </div>
     </section>
 
     <section class="portal-status-strip">
@@ -333,7 +353,16 @@
   </main>
   <% } %>
 
-  <%- include('partials/footer') %>
+  <% if (authorized) { %>
+    <footer class="portal-app-footer">
+      <span>Autovyne client portal</span>
+      <a href="mailto:kwaun.autovyne@gmail.com">kwaun.autovyne@gmail.com</a>
+      <a href="/privacy">Privacy</a>
+      <a href="/sms-terms">SMS Terms</a>
+    </footer>
+  <% } else { %>
+    <%- include('partials/footer') %>
+  <% } %>
   <% if (authorized) { %>
     <%- include('partials/assistant-widget', {
       widgetId: 'customer-ai-widget',
