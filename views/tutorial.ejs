@@ -10,7 +10,7 @@
   <%- themeCSS %>
   <style>
     .tutorial-shell { max-width: 1180px; margin: 0 auto; padding: 70px 24px 90px; }
-    .tutorial-hero { display: grid; grid-template-columns: 1fr .92fr; gap: 28px; align-items: center; margin-bottom: 38px; }
+    .tutorial-hero { display: grid; grid-template-columns: .92fr 1.08fr; gap: 28px; align-items: center; margin-bottom: 38px; }
     .tutorial-hero h1 { font-family: var(--font-display); font-size: clamp(2.4rem, 7vw, 5.4rem); line-height: .92; margin: 0 0 18px; letter-spacing: -.06em; }
     .tutorial-hero p { color: var(--fg-muted); font-size: 1.05rem; line-height: 1.7; max-width: 680px; }
     .tutorial-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 26px; }
@@ -20,7 +20,8 @@
     .player-top { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; border-bottom: 1px solid rgba(255,255,255,.08); color: var(--fg-muted); font-size: .82rem; }
     .player-dots { display: flex; gap: 6px; }
     .player-dot { width: 9px; height: 9px; border-radius: 50%; background: rgba(255,255,255,.25); }
-    .player-screen { min-height: 330px; padding: 28px; display: grid; align-content: space-between; position: relative; overflow: hidden; }
+    .player-screen { min-height: 330px; padding: 0; display: block; position: relative; overflow: hidden; background:#05070a; }
+    .tutorial-video-img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
     .player-screen:before { content: ""; position: absolute; inset: -35%; background: radial-gradient(circle at 20% 20%, rgba(0,232,123,.16), transparent 35%), radial-gradient(circle at 80% 50%, rgba(100,150,255,.18), transparent 32%); animation: slowPan 9s ease-in-out infinite alternate; }
     .screen-content { position: relative; z-index: 1; }
     .screen-step { color: var(--accent); font-weight: 800; font-size: .8rem; letter-spacing: .16em; text-transform: uppercase; }
@@ -34,6 +35,14 @@
     .tutorial-card p { margin: 0; color: var(--fg-muted); line-height: 1.6; font-size: .95rem; }
     .tutorial-section { margin-top: 54px; }
     .tutorial-section h2 { font-family: var(--font-display); font-size: clamp(2rem, 4vw, 3.4rem); margin: 0 0 16px; letter-spacing: -.05em; }
+    .demo-credentials { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 18px; }
+    .credential-box { border: 1px solid rgba(0,232,123,.18); border-radius: 18px; background: rgba(0,232,123,.07); padding: 16px; }
+    .credential-box span { display: block; color: var(--fg-muted); font-size: .74rem; font-weight: 900; text-transform: uppercase; letter-spacing: .12em; margin-bottom: 6px; }
+    .credential-box code { color: #fff; font: 700 1rem var(--font-display); word-break: break-word; }
+    .transcript { display: grid; gap: 10px; margin-top: 18px; }
+    .transcript details { border: 1px solid rgba(255,255,255,.09); border-radius: 16px; background: rgba(255,255,255,.04); padding: 14px 16px; }
+    .transcript summary { cursor: pointer; font-weight: 800; color: var(--fg); }
+    .transcript p { color: var(--fg-muted); margin: 10px 0 0; line-height: 1.6; }
     .checklist { display: grid; gap: 12px; }
     .check-item { display: grid; grid-template-columns: 34px 1fr; gap: 12px; align-items: start; padding: 16px; border-radius: 18px; border: 1px solid rgba(255,255,255,.09); background: rgba(255,255,255,.04); }
     .check-mark { width: 34px; height: 34px; border-radius: 12px; display: grid; place-items: center; background: rgba(0,232,123,.12); color: var(--accent); font-weight: 900; }
@@ -50,8 +59,8 @@
     }
     @media (max-width: 620px) {
       .tutorial-shell { padding: 46px 16px 70px; }
-      .tutorial-grid, .app-map { grid-template-columns: 1fr; }
-      .player-screen { min-height: 300px; padding: 22px; }
+      .tutorial-grid, .app-map, .demo-credentials { grid-template-columns: 1fr; }
+      .player-screen { min-height: auto; padding: 0; }
     }
   </style>
 </head>
@@ -61,7 +70,7 @@
     <section class="tutorial-hero">
       <div>
         <h1>Your Autovyne signup walkthrough.</h1>
-        <p>This quick overview shows the full path a new customer follows: run the live demo, sign up, choose payment, complete onboarding, and open the portal once Autovyne activates the account.</p>
+        <p>This quick overview shows the full path a new customer follows: sign up, choose payment, get activated, and use the client portal without needing to open every technical app behind the scenes.</p>
         <div class="tutorial-actions">
           <a class="tutorial-button primary" href="/signup">Start Signup</a>
           <a class="tutorial-button" href="/demo">Try ROI + Live Demo</a>
@@ -71,15 +80,10 @@
       <div class="tutorial-player" aria-label="Autovyne signup video overview">
         <div class="player-top">
           <div class="player-dots"><span class="player-dot"></span><span class="player-dot"></span><span class="player-dot"></span></div>
-          <span>Autovyne Tutorial</span>
+          <span>Autovyne Signup-to-Portal Walkthrough</span>
         </div>
         <div class="player-screen">
-          <div class="screen-content">
-            <div class="screen-step">Step 01</div>
-            <div class="screen-title">Start with the live demo.</div>
-            <div class="screen-caption">See missed-call value, lead follow-up, and automation impact before filling out the signup form.</div>
-          </div>
-          <div class="screen-narration">Narration: "First, use the ROI and live demo page. This helps you understand what Autovyne is tracking before your account is activated."</div>
+          <img class="tutorial-video-img" src="/media/autovyne-demo-walkthrough.gif" alt="Animated Autovyne walkthrough showing signup, payment, portal activation, dashboard usage, action center, and demo login details.">
         </div>
       </div>
     </section>
@@ -87,24 +91,33 @@
     <section class="tutorial-grid" aria-label="Step-by-step signup overview">
       <article class="tutorial-card">
         <strong>Step 01</strong>
-        <h2>Run the Demo</h2>
-        <p>Use ROI + Live Demo to estimate missed revenue and understand what the AI workflow will help recover.</p>
+        <h2>Start Signup</h2>
+        <p>Choose a monthly plan, enter business details, create a portal password, and choose whether SMS consent applies.</p>
       </article>
       <article class="tutorial-card">
         <strong>Step 02</strong>
-        <h2>Create Signup</h2>
-        <p>Enter the business owner details, phone number, website, industry, and SMS consent choice.</p>
+        <h2>Pay or Review</h2>
+        <p>Automatic billing goes through Stripe. Manual billing creates a review item before activation.</p>
       </article>
       <article class="tutorial-card">
         <strong>Step 03</strong>
-        <h2>Choose Billing</h2>
-        <p>Select automatic monthly subscription or manual billing so Autovyne knows how the account should be handled.</p>
+        <h2>Activate Account</h2>
+        <p>After payment or approval, the account opens with email plus the portal password or access code.</p>
       </article>
       <article class="tutorial-card">
         <strong>Step 04</strong>
-        <h2>Activate Portal</h2>
-        <p>After payment or approval, the portal opens with service status, onboarding updates, metrics, and help assistant access.</p>
+        <h2>Manage Portal</h2>
+        <p>Customers can see services, activity, recovered value, onboarding progress, and safe control requests.</p>
       </article>
+    </section>
+
+    <section class="tutorial-section">
+      <h2>Demo account for the video</h2>
+      <p class="screen-caption">Use this test account when recording sales walkthroughs, onboarding videos, or customer demos. It is intentionally separate from real customer data.</p>
+      <div class="demo-credentials">
+        <div class="credential-box"><span>Email</span><code>demo@autovyne.com</code></div>
+        <div class="credential-box"><span>Access Code</span><code>AutovyneDemo2026!</code></div>
+      </div>
     </section>
 
     <section class="tutorial-section">
@@ -139,6 +152,18 @@
           <div class="check-mark">4</div>
           <div><b>Industry-aware setup</b><span>The AI follows the same Autovyne workflow for every account, then adjusts wording and priorities for the customer industry.</span></div>
         </div>
+      </div>
+    </section>
+
+    <section class="tutorial-section">
+      <h2>Narration transcript</h2>
+      <div class="transcript">
+        <details open><summary>1. Signup</summary><p>First, the owner starts signup. They choose a plan, billing method, and enter the basic business details Autovyne needs for onboarding.</p></details>
+        <details><summary>2. Payment</summary><p>Next, payment decides the activation path. Stripe subscriptions can activate automatically after checkout, while manual billing stays under Autovyne review.</p></details>
+        <details><summary>3. Activation</summary><p>Once the account is approved, the client portal becomes the simple home base for status, setup progress, and customer support.</p></details>
+        <details><summary>4. Portal Usage</summary><p>Inside the portal, the customer does not need HubSpot, Twilio, n8n, or Stripe tabs. They see the plain-English version of what is happening.</p></details>
+        <details><summary>5. Control Requests</summary><p>If a customer wants to block a caller, pause follow-up, or request review, they use Action Center. Autovyne reviews requests before changing outreach.</p></details>
+        <details><summary>6. Demo Login</summary><p>For sales demos, use the demo account. It shows a live-style portal without exposing real customer data.</p></details>
       </div>
     </section>
   </main>
