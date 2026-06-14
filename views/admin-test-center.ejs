@@ -68,6 +68,39 @@
     </section>
 
     <section class="card">
+      <h2>Signup-to-Operations Rehearsal</h2>
+      <% if (rehearsal && (rehearsal.rows || []).length) { %>
+        <p class="mini">Operational score: <strong style="color:#00e87b"><%= rehearsal.score %>%</strong> — <%= rehearsal.doneCount %>/<%= rehearsal.totalCount %> ready, <%= rehearsal.reviewCount %> review, <%= rehearsal.manualCount %> manual.</p>
+        <% rehearsal.rows.forEach(function(item) { %>
+          <div class="row">
+            <strong><%= item.area %>: <%= item.title %></strong>
+            <span class="pill <%= item.status === 'done' ? 'pill-on' : 'pill-warn' %>"><%= labelStatus(item.status) %></span>
+            <span class="mini"><%= item.evidence %></span>
+            <span class="mini"><%= item.detail %><br><% if (item.href) { %><a href="<%= item.href %>" style="color:#00e87b"><%= item.action %></a><% } else { %><%= item.action %><% } %></span>
+          </div>
+        <% }); %>
+      <% } else { %>
+        <p class="mini">Run checks to rehearse the signup-to-operations path: Supabase, demo portal, OpenAI, HubSpot, n8n, support queue, consent/legal proof, and monitoring.</p>
+      <% } %>
+    </section>
+
+    <section class="card">
+      <h2>Daily Monitoring Routine</h2>
+      <% if ((monitoringRows || []).length) { %>
+        <% monitoringRows.forEach(function(item) { %>
+          <div class="row">
+            <strong><%= item.title %></strong>
+            <span class="pill <%= item.status === 'done' ? 'pill-on' : 'pill-warn' %>"><%= labelStatus(item.status) %></span>
+            <span class="mini"><%= item.evidence %></span>
+            <span class="mini"><%= item.detail %><br><% if (item.href) { %><a href="<%= item.href %>" style="color:#00e87b"><%= item.action %></a><% } else { %><%= item.action %><% } %></span>
+          </div>
+        <% }); %>
+      <% } else { %>
+        <p class="mini">Run checks to show the daily owner monitoring list.</p>
+      <% } %>
+    </section>
+
+    <section class="card">
       <h2>Manual Checks Still Required</h2>
       <% if ((manualTasks || []).length) { %>
         <% manualTasks.forEach(function(task) { %>

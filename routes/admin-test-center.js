@@ -3,6 +3,12 @@ const { hasAdminSession } = require('../lib/admin-auth');
 const { getConfigurationStatus } = require('../services/integrations');
 const { getAdminSnapshot, listAccounts } = require('../db/accounts');
 const { buildManualLaunchTasks, taskLabel } = require('../lib/manual-launch-tasks');
+const { listIntegrationIncidents } = require('../db/integration-incidents');
+const {
+  buildDailyMonitoringRows,
+  buildWorkflowRehearsal,
+  labelStatus,
+} = require('../lib/workflow-rehearsal');
 
 const router = Router();
 
@@ -85,15 +91,25 @@ async function runChecks() {
     },
   ];
 
-  const [accounts, snapshot] = await Promise.all([
+  const [accounts, snapshot, incidents] = await Promise.all([
     listAccounts().catch(() => []),
     getAdminSnapshot().catch(() => ({ consents: [] })),
+    listIntegrationIncidents({ limit: 10 }).catch(() => []),
   ]);
+  const rehearsal = buildWorkflowRehearsal({
+    integrations,
+    accounts,
+    snapshot,
+    incidents,
+    dbReachable: true,
+  });
 
   return {
     checks,
     configChecks,
     manualTasks: buildManualLaunchTasks({ integrations, accounts, snapshot }),
+    rehearsal,
+    monitoringRows: buildDailyMonitoringRows({ snapshot, incidents, accounts }),
   };
 }
 
@@ -104,12 +120,13 @@ router.get('/', async (req, res) => {
   try {
     const result = req.query.run === 'true'
       ? await runChecks()
-      : { checks: [], configChecks: [], manualTasks: [] };
+      : { checks: [], configChecks: [], manualTasks: [], rehearsal: null, monitoringRows: [] };
     res.render('admin-test-center', {
       ...result,
       baseUrl: publicBaseUrl(),
       ran: req.query.run === 'true',
       taskLabel,
+      labelStatus,
     });
   } catch (error) {
     console.error('[admin-test-center] error:', error.message);
@@ -117,9 +134,12 @@ router.get('/', async (req, res) => {
       checks: [],
       configChecks: [],
       manualTasks: [],
+      rehearsal: null,
+      monitoringRows: [],
       baseUrl: publicBaseUrl(),
       ran: true,
       taskLabel,
+      labelStatus,
       error: 'Test center could not run checks.',
     });
   }

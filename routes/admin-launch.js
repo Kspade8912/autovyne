@@ -6,6 +6,11 @@ const { listIntegrationIncidents } = require('../db/integration-incidents');
 const { getConfigurationStatus } = require('../services/integrations');
 const { buildManualLaunchTasks, taskLabel } = require('../lib/manual-launch-tasks');
 const { buildOnboardingChecklist } = require('../lib/onboarding-checklist');
+const {
+  buildDailyMonitoringRows,
+  buildWorkflowRehearsal,
+  labelStatus,
+} = require('../lib/workflow-rehearsal');
 
 const router = Router();
 
@@ -93,6 +98,13 @@ router.get('/', async (req, res) => {
     const rows = launchRows({ integrations, dbReachable, accounts, snapshot });
     const readyCount = rows.filter(row => row.ready).length;
     const manualTasks = buildManualLaunchTasks({ integrations, accounts, snapshot });
+    const workflowRehearsal = buildWorkflowRehearsal({
+      integrations,
+      accounts,
+      snapshot,
+      incidents,
+      dbReachable,
+    });
     const demoAccount = accounts.find(account => String(account.email || '').toLowerCase() === 'demo@autovyne.com') || null;
     res.render('admin-launch', {
       rows,
@@ -104,6 +116,9 @@ router.get('/', async (req, res) => {
       incidents,
       manualTasks,
       taskLabel,
+      workflowRehearsal,
+      monitoringRows: buildDailyMonitoringRows({ snapshot, incidents, accounts }),
+      labelStatus,
       demoAccount,
       demoChecklist: demoAccount ? buildOnboardingChecklist(demoAccount) : null,
     });
@@ -118,6 +133,9 @@ router.get('/', async (req, res) => {
       incidents: [],
       manualTasks: [],
       taskLabel,
+      workflowRehearsal: null,
+      monitoringRows: [],
+      labelStatus,
       demoAccount: null,
       demoChecklist: null,
       integrations,

@@ -1,4 +1,4 @@
-const { fetchJson } = require('../lib/http');
+const { fetchJsonWithRetry } = require('../lib/http');
 const { compactIndustryProfile } = require('../lib/industry-ai-profiles');
 
 function isConfigured() {
@@ -16,7 +16,7 @@ async function qualifyLead(lead) {
 
   const industryProfile = compactIndustryProfile(lead.industry);
   try {
-    const response = await fetchJson('https://api.openai.com/v1/responses', {
+    const response = await fetchJsonWithRetry('https://api.openai.com/v1/responses', {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
@@ -46,7 +46,7 @@ async function qualifyLead(lead) {
           },
         }),
       }),
-    }, 15000);
+    }, 15000, { retries: 2, baseDelayMs: 300 });
 
     const output = extractOutputText(response).trim();
     if (!output) return null;
@@ -85,7 +85,7 @@ async function askAssistant({ role, question, context, maxOutputTokens = 700, mo
   }
 
   try {
-    const response = await fetchJson('https://api.openai.com/v1/responses', {
+    const response = await fetchJsonWithRetry('https://api.openai.com/v1/responses', {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
@@ -101,7 +101,7 @@ async function askAssistant({ role, question, context, maxOutputTokens = 700, mo
           context,
         }),
       }),
-    }, 15000);
+    }, 15000, { retries: 2, baseDelayMs: 300 });
 
     return extractOutputText(response).trim() || 'I could not generate a helpful answer from the available account context.';
   } catch (error) {
@@ -194,7 +194,7 @@ async function runLegalAuditAIReview({ subject, draft }) {
   if (!isConfigured() || process.env.LEGAL_AUDIT_AI_ENABLED === 'false') return draft;
 
   try {
-    const response = await fetchJson('https://api.openai.com/v1/responses', {
+    const response = await fetchJsonWithRetry('https://api.openai.com/v1/responses', {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
@@ -213,7 +213,7 @@ async function runLegalAuditAIReview({ subject, draft }) {
         ].join(' '),
         input: JSON.stringify({ subject, draft }),
       }),
-    }, 12000);
+    }, 12000, { retries: 1, baseDelayMs: 300 });
 
     const output = extractOutputText(response).trim();
     if (!output) return draft;
