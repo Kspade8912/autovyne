@@ -23,6 +23,21 @@ global.fetch = async (url, options) => {
       }),
     };
   }
+  if (url.includes('/v1/prices/')) {
+    return {
+      ok: true,
+      status: 200,
+      text: async () => JSON.stringify({
+        id: url.split('/').pop(),
+        object: 'price',
+        active: true,
+        livemode: false,
+        currency: 'usd',
+        unit_amount: 29900,
+        recurring: { interval: 'month' },
+      }),
+    };
+  }
   return {
     ok: true,
     status: 200,
@@ -70,6 +85,11 @@ const stripe = require('./services/stripe');
   assert.equal(requests[1].url, 'https://api.stripe.com/v1/billing_portal/sessions');
   assert.equal(billingBody.get('customer'), 'cus_unit');
   assert.equal(billingBody.get('return_url'), 'https://autovyne.test/portal');
+
+  const priceStatus = await stripe.validateConfiguredPrices();
+  assert.equal(priceStatus.ready, true);
+  assert.equal(priceStatus.rows.length, 4);
+  assert.equal(priceStatus.rows.every(row => row.interval === 'month'), true);
 
   const event = {
     id: 'evt_unit',

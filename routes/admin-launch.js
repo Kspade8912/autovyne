@@ -4,6 +4,8 @@ const { hasAdminSession } = require('../lib/admin-auth');
 const { getAdminSnapshot, listAccounts } = require('../db/accounts');
 const { listIntegrationIncidents } = require('../db/integration-incidents');
 const { getConfigurationStatus } = require('../services/integrations');
+const { buildManualLaunchTasks, taskLabel } = require('../lib/manual-launch-tasks');
+const { buildOnboardingChecklist } = require('../lib/onboarding-checklist');
 
 const router = Router();
 
@@ -90,6 +92,8 @@ router.get('/', async (req, res) => {
     ]);
     const rows = launchRows({ integrations, dbReachable, accounts, snapshot });
     const readyCount = rows.filter(row => row.ready).length;
+    const manualTasks = buildManualLaunchTasks({ integrations, accounts, snapshot });
+    const demoAccount = accounts.find(account => String(account.email || '').toLowerCase() === 'demo@autovyne.com') || null;
     res.render('admin-launch', {
       rows,
       readyCount,
@@ -98,6 +102,10 @@ router.get('/', async (req, res) => {
       snapshot,
       integrations,
       incidents,
+      manualTasks,
+      taskLabel,
+      demoAccount,
+      demoChecklist: demoAccount ? buildOnboardingChecklist(demoAccount) : null,
     });
   } catch (error) {
     console.error('[admin-launch] load error:', error.message);
@@ -108,6 +116,10 @@ router.get('/', async (req, res) => {
       accounts: [],
       snapshot: { leads: [], questions: [], consents: [] },
       incidents: [],
+      manualTasks: [],
+      taskLabel,
+      demoAccount: null,
+      demoChecklist: null,
       integrations,
       error: 'Launch checklist could not be loaded.',
     });

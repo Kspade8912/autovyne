@@ -84,6 +84,7 @@
     ];
     const activeServices = serviceRows.filter(row => row[1]).length;
     const completion = Math.round((activeServices / serviceRows.length) * 100);
+    const checklist = onboardingChecklist || { rows: [], doneCount: 0, totalCount: 0, manualCount: 0, statusLabel: status => status };
     const statusLabel = String(account.status || 'setup').replace(/_/g, ' ');
     const billingMethod = account.billing_method || 'automatic';
     const paidAt = account.paid_at ? new Date(account.paid_at).toLocaleDateString() : null;
@@ -239,25 +240,19 @@
       </article>
 
       <article class="portal-card">
-        <h2>Account Timeline</h2>
-        <p class="portal-muted">A simple launch checklist so you can see where things stand.</p>
+        <h2>Onboarding Checklist</h2>
+        <p class="portal-muted"><%= checklist.doneCount %> of <%= checklist.totalCount %> launch steps complete. <%= checklist.manualCount ? `${checklist.manualCount} item(s) need Autovyne review or outside setup.` : 'No manual-review items are currently open in this view.' %></p>
         <div class="portal-service-list">
-          <div class="portal-service">
-            <div><strong>Signup received</strong><p>Autovyne has your business details and portal login.</p></div>
-            <span class="portal-pill portal-pill-on">Done</span>
-          </div>
-          <div class="portal-service">
-            <div><strong>Payment confirmed</strong><p><%= billingMethod === 'manual' ? 'Manual billing is being handled by Autovyne.' : 'Stripe subscription payment activates the account.' %></p></div>
-            <span class="portal-pill <%= paidAt || billingMethod === 'manual' ? 'portal-pill-on' : 'portal-pill-off' %>"><%= paidAt || billingMethod === 'manual' ? 'Done' : 'Waiting' %></span>
-          </div>
-          <div class="portal-service">
-            <div><strong>Portal activated</strong><p><%= activatedAt ? `Activated ${activatedAt}.` : 'This appears after payment or manual approval.' %></p></div>
-            <span class="portal-pill <%= activatedAt ? 'portal-pill-on' : 'portal-pill-off' %>"><%= activatedAt ? 'Done' : 'Setup' %></span>
-          </div>
-          <div class="portal-service">
-            <div><strong>Automation connected</strong><p>AI calling, SMS, CRM, and workflows are connected in stages.</p></div>
-            <span class="portal-pill <%= completion === 100 ? 'portal-pill-on' : 'portal-pill-off' %>"><%= completion === 100 ? 'Done' : `${completion}%` %></span>
-          </div>
+          <% checklist.rows.forEach(function(row) { %>
+            <div class="portal-service">
+              <div>
+                <strong><%= row.title %></strong>
+                <p><%= row.detail %></p>
+                <small>Owner: <%= row.owner %><%= row.manual && row.status !== 'done' ? ' - manual review' : '' %></small>
+              </div>
+              <span class="portal-pill <%= row.status === 'done' ? 'portal-pill-on' : 'portal-pill-off' %>"><%= checklist.statusLabel(row.status) %></span>
+            </div>
+          <% }); %>
         </div>
       </article>
     </section>

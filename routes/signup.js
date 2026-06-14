@@ -43,6 +43,29 @@ const PLAN_LABELS = {
   enterprise: 'Enterprise',
 };
 
+const PLAN_DETAILS = {
+  'smb-bundle': {
+    price: '$149/mo',
+    bestFor: 'Small local teams that want the full starter automation stack without a launch fee.',
+    includes: 'AI calling, consent-aware SMS follow-up, CRM sync, workflow automation, AI lead review, and guided onboarding.',
+  },
+  starter: {
+    price: '$299/mo',
+    bestFor: 'Businesses that want missed-call capture, SMS follow-up, CRM logging, and AI lead review.',
+    includes: 'Core AI calling, consent-aware SMS follow-up, CRM sync, AI lead review, and portal visibility.',
+  },
+  professional: {
+    price: '$599/mo',
+    bestFor: 'Businesses that want the full managed workflow across calls, SMS, CRM, and n8n automations.',
+    includes: 'Full automation stack, workflow handoffs, booking/follow-up support, customer portal controls, and monitoring.',
+  },
+  enterprise: {
+    price: '$1199/mo',
+    bestFor: 'Higher-touch accounts with custom workflows, deeper integrations, or more complex operating rules.',
+    includes: 'Full stack plus custom integration support, higher-touch onboarding, advanced workflow review, and owner support.',
+  },
+};
+
 function validPlan(plan) {
   return PLAN_LABELS[plan] ? plan : 'professional';
 }
@@ -57,6 +80,7 @@ function pageData(overrides = {}) {
     order: null,
     account: null,
     plans: PLAN_LABELS,
+    planDetails: PLAN_DETAILS,
     billingLabel,
     manualBilling: false,
     selectedPlan: 'professional',

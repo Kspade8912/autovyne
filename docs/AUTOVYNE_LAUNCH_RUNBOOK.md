@@ -2,6 +2,8 @@
 
 This runbook is the working checklist for taking Autovyne from signup to active customer management.
 
+For items that require outside-dashboard or human review, use `docs/MANUAL_SUPPORT_LAUNCH_TASKS.md`.
+
 ## Customer Flow
 
 1. Customer visits `/signup`.
@@ -134,15 +136,22 @@ What Autovyne does:
 For each paid customer:
 
 1. Confirm payment and account activation.
-2. Confirm SMS consent before SMS workflows.
-3. Connect or create CRM destination.
-4. Configure AI call workflow.
-5. Configure missed-call/SMS follow-up workflow.
-6. Add quick admin update: `Onboarding started`.
-7. Add quick admin update: `AI calling connected`.
-8. Add quick admin update: `HubSpot connected`.
-9. Add quick admin update: `n8n workflow connected`.
-10. Add quick admin update: `Launch-ready check complete`.
+2. Review business profile: hours, services, booking rules, service area, escalation contact, FAQs, and tone.
+3. Confirm SMS consent before SMS workflows.
+4. Connect or create CRM destination.
+5. Configure AI call workflow.
+6. Configure missed-call/SMS follow-up workflow.
+7. Configure n8n workflow handoff and alerts.
+8. Get customer approval for scripts, routing, and launch behavior.
+9. Add quick admin update: `Onboarding started`.
+10. Add quick admin update: `Business profile reviewed`.
+11. Add quick admin update: `Scripts and rules approved`.
+12. Add quick admin update: `AI calling connected`.
+13. Add quick admin update: `HubSpot connected`.
+14. Add quick admin update: `n8n workflow connected`.
+15. Add quick admin update: `Customer launch approval received`.
+16. Add quick admin update: `Launch-ready check complete`.
+17. Add quick admin update: `Launch monitoring started`.
 
 ## Launch Smoke Tests
 

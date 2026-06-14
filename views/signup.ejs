@@ -32,6 +32,26 @@
     </section>
 
     <section class="portal-card">
+      <h2>Choose the monthly plan that matches the setup you want.</h2>
+      <p class="portal-muted">All plans are monthly subscriptions. After payment, Autovyne activates the portal, reviews your onboarding details, and starts setup in stages.</p>
+      <div class="portal-automation-grid">
+        <% Object.keys(planDetails || {}).forEach(function(key) { const detail = planDetails[key]; %>
+          <article class="portal-automation-card">
+            <div class="portal-automation-top">
+              <div>
+                <span><%= detail.price %></span>
+                <strong><%= plans[key] %></strong>
+              </div>
+              <span class="portal-pill <%= selectedPlan === key ? 'portal-pill-on' : 'portal-pill-off' %>"><%= selectedPlan === key ? 'Selected' : 'Option' %></span>
+            </div>
+            <p><%= detail.bestFor %></p>
+            <small><%= detail.includes %></small>
+          </article>
+        <% }); %>
+      </div>
+    </section>
+
+    <section class="portal-card">
       <% if (error) { %><p class="portal-error"><%= error %></p><% } %>
       <% if (!stripeConfigured) { %>
         <p class="portal-error">Automatic card payments are not live yet. Manual monthly billing requests can still be submitted.</p>

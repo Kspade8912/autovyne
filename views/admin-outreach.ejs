@@ -37,6 +37,24 @@
     </section>
 
     <section class="card">
+      <h2>Launch-Day Call Tracker</h2>
+      <p class="mini"><%= launchPlan.nextMove %> Keep this board as your source of truth so you do not bounce between spreadsheets, HubSpot, and notes during calls.</p>
+      <div class="grid">
+        <div class="card stat"><span>Call First</span><strong class="accent"><%= (launchPlan.readyToday || []).length %></strong><p class="mini">Approved and due now.</p></div>
+        <div class="card stat"><span>Research / Approve</span><strong class="warn"><%= (launchPlan.needsApproval || []).length %></strong><p class="mini">Not ready for calling yet.</p></div>
+        <div class="card stat"><span>Booked</span><strong><%= (launchPlan.booked || []).length %></strong><p class="mini">Demo or follow-up scheduled.</p></div>
+        <div class="card stat"><span>Do Not Touch</span><strong class="<%= (launchPlan.blocked || []).length ? 'danger' : '' %>"><%= (launchPlan.blocked || []).length %></strong><p class="mini">Respect suppression.</p></div>
+      </div>
+      <% if ((launchPlan.readyToday || []).length) { %>
+        <div class="rule-list">
+          <% launchPlan.readyToday.slice(0, 5).forEach(function(lead) { %>
+            <div class="rule"><strong><%= lead.business_name %></strong><br><span class="mini"><%= lead.phone || lead.email || 'No contact saved' %> - <a href="#lead-<%= lead.id %>" style="color:#00e87b">open call sheet</a></span></div>
+          <% }); %>
+        </div>
+      <% } %>
+    </section>
+
+    <section class="card">
       <h2>Daily Rules Before You Dial</h2>
       <div class="rule-list">
         <div class="rule"><strong>Human approval first.</strong><br><span class="mini">Move a lead to approved for outreach before calling or sending anything.</span></div>
@@ -151,6 +169,30 @@
           </article>
         <% }); %>
         <% if (!leads.length) { %><p class="mini">No leads in this view yet. Run the demo/intake flow or use existing lead capture before outreach.</p><% } %>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Sales Flow, Offer, and Scripts</h2>
+      <p class="mini">Use this last, after the lead is researched and approved for outreach. Keep calls simple: problem, question, demo, then signup only if they want to move forward.</p>
+      <div class="rule-list">
+        <div class="rule">
+          <strong>Simple sales flow</strong>
+          <ol class="mini" style="padding-left:18px;margin-top:8px">
+            <% (simpleSalesFlow || []).forEach(function(item) { %><li><%= item %></li><% }); %>
+          </ol>
+        </div>
+        <% (offerPoints || []).forEach(function(point) { %>
+          <div class="rule"><strong><%= point.label %></strong><br><span class="mini"><%= point.detail %></span></div>
+        <% }); %>
+      </div>
+      <div class="lead-grid" style="margin-top:14px">
+        <% (scriptBlocks || []).forEach(function(script) { %>
+          <article class="lead-card">
+            <h3><%= script.title %></h3>
+            <p class="mini" style="white-space:pre-wrap"><%= script.body %></p>
+          </article>
+        <% }); %>
       </div>
     </section>
   </main>

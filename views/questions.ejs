@@ -23,8 +23,13 @@
       <h1>What do you want to automate?</h1>
       <p class="intake-sub">Ask about onboarding, AI agents, calling, messaging, integrations, or a workflow you want built.</p>
     </div>
+    <section class="value-grid three-col" style="margin-bottom:28px">
+      <article class="value-card"><h3>Onboarding Help</h3><p>Ask what Autovyne needs from you before AI calling, SMS, CRM, or workflow setup can go live.</p></article>
+      <article class="value-card"><h3>Account Support</h3><p>Use this for billing, portal access, service status, or setup questions. Urgent items are reviewed first.</p></article>
+      <article class="value-card"><h3>Safe Follow-Up</h3><p>SMS replies only happen where consent is recorded. Email remains the default support path.</p></article>
+    </section>
     <% if (submitted) { %>
-      <div class="success-card"><h2>Question received.</h2><p>We will follow up at the email you provided.</p></div>
+      <div class="success-card"><h2>Question received.</h2><p>We will follow up at the email you provided. If this affects billing, privacy, SMS consent, or automation rules, Autovyne will review it before making changes.</p></div>
     <% } else { %>
       <% if (error) { %><div class="form-error"><%= error %></div><% } %>
       <form class="intake-form" method="POST">

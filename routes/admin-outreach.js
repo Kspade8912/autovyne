@@ -2,6 +2,7 @@ const { Router } = require('express');
 const { hasAdminSession } = require('../lib/admin-auth');
 const { sanitizeString } = require('../lib/security');
 const { compactIndustryProfile } = require('../lib/industry-ai-profiles');
+const { OFFER_POINTS, SCRIPT_BLOCKS, SIMPLE_SALES_FLOW } = require('../lib/sales-playbook');
 const {
   createOutreachLead,
   listDuplicateLeadGroups,
@@ -103,6 +104,37 @@ function leadsToCsv(leads) {
   return [headers.join(','), ...rows].join('\n');
 }
 
+function launchDayPlan(leads = []) {
+  const now = new Date();
+  const callableStages = ['approved_for_outreach', 'contacted', 'replied', 'qualified'];
+  const readyToday = leads
+    .filter(lead => !lead.do_not_contact)
+    .filter(lead => callableStages.includes(lead.stage))
+    .filter(lead => !lead.next_action_at || new Date(lead.next_action_at) <= now)
+    .slice(0, 12);
+  const needsApproval = leads
+    .filter(lead => !lead.do_not_contact && ['new', 'researched'].includes(lead.stage))
+    .slice(0, 8);
+  const booked = leads
+    .filter(lead => lead.stage === 'booked')
+    .slice(0, 8);
+  const blocked = leads
+    .filter(lead => lead.do_not_contact)
+    .slice(0, 8);
+
+  return {
+    readyToday,
+    needsApproval,
+    booked,
+    blocked,
+    nextMove: readyToday.length
+      ? 'Start with Ready Today and keep notes after each call.'
+      : needsApproval.length
+        ? 'Research and approve prospects before calling.'
+        : 'Import or capture more prospects before starting calls.',
+  };
+}
+
 async function pageData(req, overrides = {}) {
   const activeStage = sanitizeString(req.query.stage || 'all') || 'all';
   const [leads, allLeads, duplicateGroups] = await Promise.all([
@@ -122,6 +154,10 @@ async function pageData(req, overrides = {}) {
     allLeads: allLeadRows,
     duplicateGroups,
     stats: outreachStats(allLeadRows),
+    launchPlan: launchDayPlan(allLeadRows),
+    offerPoints: OFFER_POINTS,
+    scriptBlocks: SCRIPT_BLOCKS,
+    simpleSalesFlow: SIMPLE_SALES_FLOW,
     stages: STAGES,
     stageLabel,
     callBrief,

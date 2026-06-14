@@ -55,6 +55,56 @@
     </section>
 
     <section class="card">
+      <h2>Manual Support Required</h2>
+      <p class="mini">These are the items the software can track or guide, but a human still has to verify, approve, or finish in an outside dashboard before scale-up.</p>
+      <table class="table">
+        <thead><tr><th>Task</th><th>Status</th><th>Owner</th><th>Why It Matters</th><th>Next Move</th></tr></thead>
+        <tbody>
+          <% (manualTasks || []).forEach(function(task) { %>
+            <tr>
+              <td><strong><%= task.title %></strong></td>
+              <td><span class="pill <%= task.status === 'done' ? 'pill-on' : 'pill-warn' %>"><%= taskLabel(task.status) %></span></td>
+              <td class="mini"><%= task.owner %></td>
+              <td class="mini"><%= task.detail %></td>
+              <td class="mini"><% if (task.href) { %><a href="<%= task.href %>" style="color:#00e87b"><%= task.action %></a><% } else { %><%= task.action %><% } %></td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="two-col">
+      <div class="card">
+        <h2>Demo Account Readiness</h2>
+        <% if (demoAccount && demoChecklist) { %>
+          <p class="mini"><strong><%= demoAccount.business_name %></strong> is available for sales walkthroughs. Checklist: <%= demoChecklist.doneCount %>/<%= demoChecklist.totalCount %> complete.</p>
+          <div class="checklist">
+            <% demoChecklist.rows.slice(0, 6).forEach(function(row) { %>
+              <div class="check">
+                <span class="pill <%= row.status === 'done' ? 'pill-on' : 'pill-warn' %>"><%= demoChecklist.statusLabel(row.status) %></span>
+                <strong><%= row.title %></strong><br>
+                <span class="mini"><%= row.detail %></span>
+              </div>
+            <% }); %>
+          </div>
+        <% } else { %>
+          <p class="mini">No demo account exists yet. Create it before cold calls so prospects can see the real portal experience.</p>
+          <a class="btn" href="/admin/accounts">Create Demo Account</a>
+        <% } %>
+      </div>
+
+      <div class="card">
+        <h2>Cold Call Go / No-Go</h2>
+        <div class="checklist">
+          <div class="check"><strong>Go for manual calls</strong><br><span class="mini">Allowed when site, demo, payment signup, HubSpot, n8n, and admin tracking are working.</span></div>
+          <div class="check"><strong>No mass SMS yet</strong><br><span class="mini">Wait until Twilio sender approval and consent proof are confirmed for each recipient.</span></div>
+          <div class="check"><strong>Use Render URL if needed</strong><br><span class="mini">Use the verified Render URL until autovyne.com passes HTTPS checks.</span></div>
+          <div class="check"><strong>No guaranteed ROI claims</strong><br><span class="mini">Use the calculator as an estimate, then offer a demo and audit.</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
       <h2>Recent Automation Alerts</h2>
       <% if ((incidents || []).length) { %>
         <table class="table">

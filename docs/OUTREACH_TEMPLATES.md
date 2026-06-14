@@ -2,6 +2,8 @@
 
 Use these as human-reviewed starting points. Replace bracketed text only with verified information.
 
+For the complete sales flow, offer summary, objection handling, and bottom-of-page scripts, use `docs/SALES_PLAYBOOK.md`. The admin call board also shows these scripts at the bottom of `/admin/outreach`.
+
 ## Cold Call Opener
 
 Hi [name], this is [rep] with Autovyne. I noticed [verified observation]. We help local [industry] businesses respond to missed calls and web leads faster. I made a quick revenue-impact simulator for businesses like yours. Would it be unreasonable to take 30 seconds and see whether it is relevant?

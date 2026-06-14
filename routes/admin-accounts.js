@@ -43,6 +43,24 @@ const QUICK_ACTIONS = {
     detail: 'The customer portal is active so the business owner can view setup status, activity, and account progress.',
     visibleToClient: true,
   },
+  business_profile_received: {
+    eventType: 'onboarding',
+    title: 'Business profile reviewed',
+    detail: 'Autovyne reviewed the business details, service area, basic contact rules, and onboarding goals for this account.',
+    visibleToClient: true,
+  },
+  scripts_approved: {
+    eventType: 'onboarding',
+    title: 'Scripts and rules approved',
+    detail: 'Autovyne reviewed the customer-facing call, follow-up, and escalation rules before turning on automation.',
+    visibleToClient: true,
+  },
+  calendar_connected: {
+    eventType: 'workflow',
+    title: 'Booking or routing path connected',
+    detail: 'Autovyne connected or documented the booking, routing, or escalation path for customer inquiries.',
+    visibleToClient: true,
+  },
   ai_calling_connected: {
     eventType: 'ai_calling',
     title: 'AI calling connected',
@@ -89,6 +107,18 @@ const QUICK_ACTIONS = {
     eventType: 'launch',
     title: 'Launch-ready check complete',
     detail: 'Autovyne has completed the launch checklist and the account is ready for live monitored usage.',
+    visibleToClient: true,
+  },
+  customer_approval_received: {
+    eventType: 'launch',
+    title: 'Customer launch approval received',
+    detail: 'The customer approved the visible setup direction, scripts, or workflow behavior for monitored launch.',
+    visibleToClient: true,
+  },
+  monitoring_started: {
+    eventType: 'launch',
+    title: 'Launch monitoring started',
+    detail: 'Autovyne started monitoring account activity, follow-up results, support requests, and automation health.',
     visibleToClient: true,
   },
   needs_review: {

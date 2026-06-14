@@ -69,7 +69,18 @@
 
     <section class="card">
       <h2>Manual Checks Still Required</h2>
-      <p class="mini">Stripe live Checkout needs a real test purchase/refund decision. Twilio toll-free verification needs final carrier approval. Legal terms need business/legal review before heavy outreach. n8n and HubSpot should be checked in their dashboards after the first real test event.</p>
+      <% if ((manualTasks || []).length) { %>
+        <% manualTasks.forEach(function(task) { %>
+          <div class="row">
+            <strong><%= task.title %></strong>
+            <span class="pill <%= task.status === 'done' ? 'pill-on' : 'pill-warn' %>"><%= taskLabel(task.status) %></span>
+            <span class="mini"><%= task.owner %></span>
+            <span class="mini"><%= task.detail %><br><% if (task.href) { %><a href="<%= task.href %>" style="color:#00e87b"><%= task.action %></a><% } else { %><%= task.action %><% } %></span>
+          </div>
+        <% }); %>
+      <% } else { %>
+        <p class="mini">Run checks to show the current manual-support list. Stripe live Checkout needs a real test purchase/refund decision. Twilio toll-free verification needs final carrier approval. Legal terms need business/legal review before heavy outreach. n8n and HubSpot should be checked in their dashboards after the first real test event.</p>
+      <% } %>
     </section>
   </main>
 </body>

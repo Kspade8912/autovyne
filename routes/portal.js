@@ -7,6 +7,7 @@ const { getRequestIp } = require('../lib/sms-consent');
 const stripe = require('../services/stripe');
 const { askCustomerAssistant } = require('../services/openai');
 const { createAuditFromClientAction } = require('../services/legal-audit-runner');
+const { buildOnboardingChecklist } = require('../lib/onboarding-checklist');
 
 const router = Router();
 
@@ -25,6 +26,7 @@ function renderLogin(res, error = null) {
   res.render('portal', {
     authorized: false,
     account: null,
+    onboardingChecklist: null,
     events: [],
     actionRequests: [],
     actionOptions: [],
@@ -47,6 +49,7 @@ async function loadPortalData(account, overrides = {}) {
   return {
     authorized: true,
     account,
+    onboardingChecklist: buildOnboardingChecklist(account),
     events,
     actionRequests,
     actionOptions: getActionOptions(),
@@ -89,8 +92,14 @@ router.post('/login', async (req, res) => {
     if (!account) return res.status(401).render('portal', {
       authorized: false,
       account: null,
+      onboardingChecklist: null,
       events: [],
+      actionRequests: [],
+      actionOptions: [],
+      customerActionLabel,
       error: 'Invalid email or access code.',
+      actionError: null,
+      actionSuccess: null,
       seo: seo(),
       assistantQuestion: '',
       assistantResponse: null,
@@ -142,6 +151,7 @@ router.post('/assistant', async (req, res) => {
     res.status(500).render('portal', {
       authorized: Boolean(account),
       account,
+      onboardingChecklist: account ? buildOnboardingChecklist(account) : null,
       events,
       actionRequests,
       actionOptions: getActionOptions(),
@@ -285,6 +295,7 @@ router.post('/billing', async (req, res) => {
     res.status(500).render('portal', {
       authorized: Boolean(account),
       account,
+      onboardingChecklist: account ? buildOnboardingChecklist(account) : null,
       events,
       actionRequests,
       actionOptions: getActionOptions(),

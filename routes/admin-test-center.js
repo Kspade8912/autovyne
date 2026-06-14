@@ -1,6 +1,8 @@
 const { Router } = require('express');
 const { hasAdminSession } = require('../lib/admin-auth');
 const { getConfigurationStatus } = require('../services/integrations');
+const { getAdminSnapshot, listAccounts } = require('../db/accounts');
+const { buildManualLaunchTasks, taskLabel } = require('../lib/manual-launch-tasks');
 
 const router = Router();
 
@@ -83,7 +85,16 @@ async function runChecks() {
     },
   ];
 
-  return { checks, configChecks };
+  const [accounts, snapshot] = await Promise.all([
+    listAccounts().catch(() => []),
+    getAdminSnapshot().catch(() => ({ consents: [] })),
+  ]);
+
+  return {
+    checks,
+    configChecks,
+    manualTasks: buildManualLaunchTasks({ integrations, accounts, snapshot }),
+  };
 }
 
 router.get('/', async (req, res) => {
@@ -93,19 +104,22 @@ router.get('/', async (req, res) => {
   try {
     const result = req.query.run === 'true'
       ? await runChecks()
-      : { checks: [], configChecks: [] };
+      : { checks: [], configChecks: [], manualTasks: [] };
     res.render('admin-test-center', {
       ...result,
       baseUrl: publicBaseUrl(),
       ran: req.query.run === 'true',
+      taskLabel,
     });
   } catch (error) {
     console.error('[admin-test-center] error:', error.message);
     res.status(500).render('admin-test-center', {
       checks: [],
       configChecks: [],
+      manualTasks: [],
       baseUrl: publicBaseUrl(),
       ran: true,
+      taskLabel,
       error: 'Test center could not run checks.',
     });
   }
