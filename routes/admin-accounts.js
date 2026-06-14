@@ -9,6 +9,7 @@ const {
   updateAccountById,
 } = require('../db/accounts');
 const { getClientActionRequestById, updateClientActionRequestStatus } = require('../db/client-actions');
+const { createCalendarItem } = require('../db/portal-calendar');
 const { sanitizeString } = require('../lib/security');
 const { hasAdminSession, setAdminSession } = require('../lib/admin-auth');
 const { INDUSTRY_AI_PROFILES, normalizeIndustry } = require('../lib/industry-ai-profiles');
@@ -19,6 +20,7 @@ const {
   PLAN_SERVICE_NOTES,
   SERVICE_DEFINITIONS,
 } = require('../lib/plan-services');
+const { preferenceSummary, preferencesFromBody } = require('../lib/business-preferences');
 const { askAdminAssistant } = require('../services/openai');
 const { getConfigurationStatus } = require('../services/integrations');
 
@@ -28,7 +30,7 @@ const QUICK_ACTIONS = {
   onboarding_started: {
     eventType: 'onboarding',
     title: 'Onboarding started',
-    detail: 'Autovyne has started setting up the account, automation tools, and customer follow-up workflow.',
+    detail: 'Autovyne has started setting up the account, CLEAR Stack, and customer follow-up flow.',
     visibleToClient: true,
   },
   payment_confirmed: {
@@ -63,44 +65,44 @@ const QUICK_ACTIONS = {
   },
   ai_calling_connected: {
     eventType: 'ai_calling',
-    title: 'AI calling connected',
-    detail: 'The AI calling workflow has been connected and is ready for monitored testing.',
+    title: 'Call follow-up connected',
+    detail: 'The call follow-up workflow has been connected and is ready for monitored testing.',
     visibleToClient: true,
   },
   sms_ready: {
     eventType: 'sms',
-    title: 'SMS follow-up ready',
-    detail: 'SMS follow-up is ready for approved contacts with recorded consent.',
+    title: 'Text follow-up ready',
+    detail: 'Text follow-up is ready for approved contacts with recorded consent.',
     visibleToClient: true,
   },
   crm_connected: {
     eventType: 'crm',
-    title: 'CRM sync connected',
-    detail: 'Lead and account updates are connected to the CRM workflow.',
+    title: 'Lead tracker connected',
+    detail: 'Lead and account updates are connected to the account tracking workflow.',
     visibleToClient: true,
   },
   hubspot_connected: {
     eventType: 'crm',
-    title: 'HubSpot connected',
-    detail: 'HubSpot CRM syncing has been connected for lead and customer workflow updates.',
+    title: 'Lead hub connected',
+    detail: 'The lead hub is connected for customer workflow updates.',
     visibleToClient: true,
   },
   n8n_connected: {
     eventType: 'workflow',
-    title: 'Automation workflow connected',
-    detail: 'The n8n automation workflow is connected for lead handoff, notifications, and internal follow-up.',
+    title: 'Booking and follow-up flow connected',
+    detail: 'The owner handoff flow is connected for lead handoff, notifications, and internal follow-up.',
     visibleToClient: true,
   },
   openai_review_ready: {
     eventType: 'openai',
-    title: 'AI lead review ready',
+    title: 'Lead review ready',
     detail: 'AI lead review is ready to summarize new leads and recommend next actions.',
     visibleToClient: true,
   },
   twilio_verified: {
     eventType: 'sms',
-    title: 'SMS compliance verified',
-    detail: 'SMS follow-up is configured for contacts with recorded consent and required compliance language.',
+    title: 'Text compliance verified',
+    detail: 'Text follow-up is configured for contacts with recorded consent and required compliance language.',
     visibleToClient: true,
   },
   launch_ready: {
@@ -152,12 +154,12 @@ const ACCOUNT_OPERATIONS = {
     },
     eventType: 'launch',
     title: 'Launch-ready setup complete',
-    detail: 'Autovyne marked AI calling, SMS follow-up, CRM sync, workflow automation, and AI lead review active.',
+    detail: 'Autovyne marked call follow-up, text updates, lead tracking, booking flow, and lead review active.',
     visibleToClient: true,
-    notes: 'Full stack marked active from admin operation preset. Confirm SMS consent before sending texts.',
+    notes: 'Full stack marked active from admin operation preset. Confirm text consent before sending texts.',
   },
   sms_crm_ready: {
-    label: 'SMS and CRM ready',
+    label: 'Text and lead tracker ready',
     status: 'setup',
     services: {
       sms_followup: true,
@@ -166,10 +168,10 @@ const ACCOUNT_OPERATIONS = {
       openai_qualification: true,
     },
     eventType: 'sms',
-    title: 'SMS and CRM workflow ready',
-    detail: 'Autovyne marked SMS follow-up, CRM sync, and workflow automation ready for approved contacts.',
+    title: 'Text and lead tracking flow ready',
+    detail: 'Autovyne marked text updates, lead tracking, and owner handoffs ready for approved contacts.',
     visibleToClient: true,
-    notes: 'SMS/CRM marked ready from admin operation preset. Confirm consent before sending texts.',
+    notes: 'Text/lead tracking marked ready from admin operation preset. Confirm consent before sending texts.',
   },
   billing_review: {
     label: 'Needs billing review',
@@ -298,6 +300,23 @@ function mergeServicesForPlan(plan, current = {}, updates = {}) {
 
 async function createSalesDemoAccount() {
   const accessCode = process.env.DEMO_PORTAL_ACCESS_CODE || 'AutovyneDemo2026!';
+  const preferences = preferencesFromBody({
+    service_needs: ['missed_calls', 'text_updates', 'appointment_booking', 'lead_tracker', 'calendar_updates'],
+    update_channels: ['portal', 'email'],
+    lead_channels: ['portal', 'email'],
+    booking_channels: ['portal', 'calendar'],
+    calendar_provider: 'google',
+    calendar_sync_preference: 'send_invites',
+    followup_style: 'appointment_first',
+    followup_approval_mode: 'review_first',
+    followup_stop_when: 'booked',
+    summary_frequency: 'daily',
+    consultation_requested: 'true',
+    consultation_best_time: 'Weekdays after 3 PM',
+    consultation_notes: 'Demo owner wants missed calls captured, appointment requests summarized, and booked customers removed from follow-up.',
+    plan: 'professional',
+    industry: 'hvac',
+  });
   const account = await createOrUpdateAccount({
     businessName: 'Autovyne Demo HVAC',
     contactName: 'Demo Owner',
@@ -316,8 +335,10 @@ async function createSalesDemoAccount() {
       missed_calls_recovered: 14,
       estimated_revenue_recovered: 8400,
     },
+    preferences,
     notes: 'Demo account for sales calls, tutorial walkthroughs, and customer portal previews. Do not use for real customer data.',
   });
+  const summary = preferenceSummary(preferences);
 
   const demoEvents = [
     {
@@ -332,23 +353,28 @@ async function createSalesDemoAccount() {
     },
     {
       eventType: 'ai_calling',
-      title: 'AI calling connected',
-      detail: 'The AI calling workflow is marked active for the demo portal.',
+      title: 'Call follow-up connected',
+      detail: 'The call follow-up workflow is marked active for the demo portal.',
     },
     {
       eventType: 'sms',
-      title: 'SMS follow-up ready',
-      detail: 'SMS follow-up is shown as ready for approved contacts with recorded consent.',
+      title: 'Text follow-up ready',
+      detail: 'Text follow-up is shown as ready for approved contacts with recorded consent.',
     },
     {
       eventType: 'crm',
-      title: 'HubSpot CRM connected',
-      detail: 'Demo lead activity is shown as synced into the CRM workflow.',
+      title: 'Lead tracker connected',
+      detail: 'Demo lead activity is organized in the owner-friendly lead tracker.',
     },
     {
       eventType: 'workflow',
-      title: 'n8n workflow connected',
-      detail: 'Demo automation handoffs are active for call, message, CRM, and portal updates.',
+      title: 'Booking and follow-up flow connected',
+      detail: 'Demo owner handoffs are active for call, message, lead, and portal updates.',
+    },
+    {
+      eventType: 'preferences',
+      title: 'Update preferences saved',
+      detail: `Demo updates go through ${summary.channels}. Calendar: ${summary.calendar}. Follow-up style: ${summary.followup}.`,
     },
     {
       eventType: 'customer_action_request',
@@ -364,6 +390,18 @@ async function createSalesDemoAccount() {
       visibleToClient: true,
     });
   }
+
+  await createCalendarItem({
+    accountId: account.id,
+    title: 'Demo HVAC tune-up request',
+    detail: 'Example customer asked for a next-day service window. Autovyne would send this to the selected calendar path after review.',
+    startsAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+    endsAt: new Date(Date.now() + 25 * 60 * 60 * 1000).toISOString(),
+    source: 'demo',
+    status: 'planned',
+    metadata: { demo: true, customer: 'Jordan Smith' },
+    visibleToClient: true,
+  });
 
   return { account, accessCode };
 }

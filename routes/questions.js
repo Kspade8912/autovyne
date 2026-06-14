@@ -14,7 +14,7 @@ function pageData(overrides = {}) {
     error: null,
     seo: {
       title: 'Ask Autovyne a Question',
-      description: 'Submit a question about Autovyne AI automation, onboarding, integrations, or business workflows.',
+      description: 'Submit a question about Autovyne onboarding, call follow-up, text updates, lead tracking, bookings, or business workflows.',
       ogTitle: 'Ask Autovyne a Question',
       ogDescription: 'Tell us what you want to automate and the Autovyne team will follow up.',
       ogImage: 'https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/generated-images/company_136332/e0fbc7b1-c6a9-410d-b27f-7cae6bf1e794.jpg',

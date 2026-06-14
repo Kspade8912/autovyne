@@ -1,6 +1,7 @@
 const { Router } = require('express');
-const { getAccountById, getAccountByLogin, listAccountEvents, recordAccountEvent } = require('../db/accounts');
+const { getAccountById, getAccountByLogin, listAccountEvents, recordAccountEvent, updateAccountById } = require('../db/accounts');
 const { createClientActionRequest, listClientActionRequests } = require('../db/client-actions');
+const { listCalendarItems } = require('../db/portal-calendar');
 const { getActionDefinition, getActionOptions, customerActionLabel, normalizeActionType } = require('../lib/client-action-requests');
 const { sanitizeString } = require('../lib/security');
 const { getRequestIp } = require('../lib/sms-consent');
@@ -8,13 +9,21 @@ const stripe = require('../services/stripe');
 const { askCustomerAssistant } = require('../services/openai');
 const { createAuditFromClientAction } = require('../services/legal-audit-runner');
 const { buildOnboardingChecklist } = require('../lib/onboarding-checklist');
+const {
+  CALENDAR_PROVIDERS,
+  FOLLOWUP_STYLES,
+  UPDATE_CHANNELS,
+  mergePreferences,
+  preferenceSummary,
+  preferencesFromBody,
+} = require('../lib/business-preferences');
 
 const router = Router();
 
 function seo() {
   return {
     title: 'Client Portal - Autovyne',
-    description: 'Log in to view your Autovyne automation setup, account status, AI calling, SMS, CRM, and workflow activity.',
+    description: 'Log in to view your Autovyne setup, account status, call follow-up, text updates, lead tracking, and booking activity.',
     ogTitle: 'Client Portal - Autovyne',
     ogDescription: 'View your Autovyne account setup and automation activity.',
     ogUrl: 'https://autovyne.com/portal',
@@ -29,11 +38,18 @@ function renderLogin(res, error = null) {
     onboardingChecklist: null,
     events: [],
     actionRequests: [],
+    calendarItems: [],
     actionOptions: [],
     customerActionLabel,
+    preferenceDetails: preferenceSummary({}),
+    updateChannels: UPDATE_CHANNELS,
+    calendarProviders: CALENDAR_PROVIDERS,
+    followupStyles: FOLLOWUP_STYLES,
     error,
     actionError: null,
     actionSuccess: null,
+    preferenceError: null,
+    preferenceSuccess: null,
     seo: seo(),
     assistantQuestion: '',
     assistantResponse: null,
@@ -41,9 +57,10 @@ function renderLogin(res, error = null) {
 }
 
 async function loadPortalData(account, overrides = {}) {
-  const [events, actionRequests] = await Promise.all([
+  const [events, actionRequests, calendarItems] = await Promise.all([
     listAccountEvents(account.id, { visibleOnly: true, limit: 30 }),
     listClientActionRequests(account.id, { limit: 20 }),
+    listCalendarItems(account.id, { visibleOnly: true, limit: 20 }).catch(() => []),
   ]);
 
   return {
@@ -52,11 +69,18 @@ async function loadPortalData(account, overrides = {}) {
     onboardingChecklist: buildOnboardingChecklist(account),
     events,
     actionRequests,
+    calendarItems,
     actionOptions: getActionOptions(),
     customerActionLabel,
+    preferenceDetails: preferenceSummary(account.preferences || {}),
+    updateChannels: UPDATE_CHANNELS,
+    calendarProviders: CALENDAR_PROVIDERS,
+    followupStyles: FOLLOWUP_STYLES,
     error: null,
     actionError: null,
     actionSuccess: null,
+    preferenceError: null,
+    preferenceSuccess: null,
     seo: seo(),
     assistantQuestion: '',
     assistantResponse: null,
@@ -95,11 +119,18 @@ router.post('/login', async (req, res) => {
       onboardingChecklist: null,
       events: [],
       actionRequests: [],
+      calendarItems: [],
       actionOptions: [],
       customerActionLabel,
+      preferenceDetails: preferenceSummary({}),
+      updateChannels: UPDATE_CHANNELS,
+      calendarProviders: CALENDAR_PROVIDERS,
+      followupStyles: FOLLOWUP_STYLES,
       error: 'Invalid email or access code.',
       actionError: null,
       actionSuccess: null,
+      preferenceError: null,
+      preferenceSuccess: null,
       seo: seo(),
       assistantQuestion: '',
       assistantResponse: null,
@@ -154,11 +185,18 @@ router.post('/assistant', async (req, res) => {
       onboardingChecklist: account ? buildOnboardingChecklist(account) : null,
       events,
       actionRequests,
+      calendarItems: [],
       actionOptions: getActionOptions(),
       customerActionLabel,
+      preferenceDetails: preferenceSummary(account?.preferences || {}),
+      updateChannels: UPDATE_CHANNELS,
+      calendarProviders: CALENDAR_PROVIDERS,
+      followupStyles: FOLLOWUP_STYLES,
       error: null,
       actionError: null,
       actionSuccess: null,
+      preferenceError: null,
+      preferenceSuccess: null,
       seo: seo(),
       assistantQuestion,
       assistantResponse: 'The portal assistant could not answer right now. Please use Submit a Question or email kwaun.autovyne@gmail.com.',
@@ -265,6 +303,66 @@ router.post('/actions', async (req, res) => {
   }
 });
 
+router.post('/preferences', async (req, res) => {
+  const accountId = req.signedCookies?.portal_account_id;
+  if (!accountId) return renderLogin(res, 'Log in before updating account preferences.');
+
+  try {
+    const account = await getAccountById(accountId);
+    if (!account) {
+      res.clearCookie('portal_account_id');
+      return renderLogin(res, 'Log in before updating account preferences.');
+    }
+
+    const updates = preferencesFromBody({
+      ...req.body,
+      plan: account.plan,
+      industry: account.industry,
+      consultation_requested: account.preferences?.consultation?.requested ? 'true' : req.body.consultation_requested,
+      service_needs: account.preferences?.consultation?.needs || req.body.service_needs,
+      consultation_notes: account.preferences?.consultation?.notes || '',
+      consultation_best_time: account.preferences?.consultation?.best_time || '',
+    });
+    const preferences = mergePreferences(account.preferences || {}, updates);
+    const updated = await updateAccountById({
+      id: account.id,
+      businessName: account.business_name,
+      contactName: account.contact_name,
+      email: account.email,
+      phone: account.phone,
+      industry: account.industry,
+      status: account.status,
+      plan: account.plan,
+      billingMethod: account.billing_method,
+      accessCode: '',
+      services: account.services || {},
+      metrics: account.metrics || {},
+      preferences,
+      notes: account.notes,
+    });
+    const summary = preferenceSummary(preferences);
+
+    await recordAccountEvent({
+      accountId: account.id,
+      eventType: 'preferences',
+      title: 'Owner update preferences changed',
+      detail: `Updates: ${summary.channels}. Calendar: ${summary.calendar}. Follow-up style: ${summary.followup}. Text delivery still requires valid consent before messages are sent.`,
+      visibleToClient: true,
+    });
+
+    res.render('portal', await loadPortalData(updated, {
+      preferenceSuccess: 'Preferences saved. Autovyne will use these choices when routing updates, bookings, and follow-up.',
+    }));
+  } catch (error) {
+    console.error('[portal] preferences error:', error.message);
+    const account = await getAccountById(accountId).catch(() => null);
+    if (!account) return renderLogin(res, 'Preferences could not be saved right now.');
+    res.status(500).render('portal', await loadPortalData(account, {
+      preferenceError: 'Preferences could not be saved right now. Please try again or email kwaun.autovyne@gmail.com.',
+    }));
+  }
+});
+
 router.post('/billing', async (req, res) => {
   const accountId = req.signedCookies?.portal_account_id;
   if (!accountId) return renderLogin(res, 'Log in before opening billing settings.');
@@ -298,11 +396,18 @@ router.post('/billing', async (req, res) => {
       onboardingChecklist: account ? buildOnboardingChecklist(account) : null,
       events,
       actionRequests,
+      calendarItems: [],
       actionOptions: getActionOptions(),
       customerActionLabel,
+      preferenceDetails: preferenceSummary(account?.preferences || {}),
+      updateChannels: UPDATE_CHANNELS,
+      calendarProviders: CALENDAR_PROVIDERS,
+      followupStyles: FOLLOWUP_STYLES,
       error: 'Billing settings could not open right now. Please email kwaun.autovyne@gmail.com.',
       actionError: null,
       actionSuccess: null,
+      preferenceError: null,
+      preferenceSuccess: null,
       seo: seo(),
       assistantQuestion: '',
       assistantResponse: null,

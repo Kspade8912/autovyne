@@ -129,9 +129,9 @@
         </div>
       </div>
       <form method="POST" action="/admin/accounts/assistant">
-        <label>Quick Prompt</label>
+        <label>Optional Guided Question</label>
         <select class="quick-select" onchange="this.form.assistant_question.value=this.value">
-          <option value="">Choose a guided question</option>
+          <option value="">Choose a guide or type below</option>
           <option value="Give me a simple daily briefing of what needs my attention first.">Daily briefing</option>
           <option value="Which accounts look stuck or need review, and what should I do next?">Find stuck accounts</option>
           <option value="Summarize billing, SMS consent, and automation risks before I start outreach.">Risk check</option>
@@ -223,8 +223,8 @@
             <label>Live Metrics</label>
             <div class="checks">
               <input name="calls_handled" type="number" min="0" placeholder="Calls handled" value="<%= editMetrics.calls_handled || 0 %>">
-              <input name="sms_sent" type="number" min="0" placeholder="SMS sent" value="<%= editMetrics.sms_sent || 0 %>">
-              <input name="crm_leads_synced" type="number" min="0" placeholder="CRM synced" value="<%= editMetrics.crm_leads_synced || 0 %>">
+              <input name="sms_sent" type="number" min="0" placeholder="Texts sent" value="<%= editMetrics.sms_sent || 0 %>">
+              <input name="crm_leads_synced" type="number" min="0" placeholder="Leads tracked" value="<%= editMetrics.crm_leads_synced || 0 %>">
               <input name="missed_calls_recovered" type="number" min="0" placeholder="Recovered calls" value="<%= editMetrics.missed_calls_recovered || 0 %>">
               <input name="estimated_revenue_recovered" type="number" min="0" placeholder="Revenue recovered" value="<%= editMetrics.estimated_revenue_recovered || 0 %>">
             </div>
@@ -233,7 +233,7 @@
               <option value="">Choose a note preset</option>
               <option value="Customer is paid and waiting for automation setup.">Paid and waiting for setup</option>
               <option value="Needs billing review before additional setup work.">Needs billing review</option>
-              <option value="SMS consent must be verified before SMS follow-up.">Verify SMS consent</option>
+              <option value="Text consent must be verified before text follow-up.">Verify text consent</option>
               <option value="Ready for launch-ready review after service checks.">Ready for launch review</option>
             </select>
             <label>Internal Notes</label><textarea name="notes" placeholder="Only Autovyne admins can see this."><%= editAccount ? (editAccount.notes || '') : '' %></textarea>
@@ -293,18 +293,18 @@
           <table class="table">
             <thead><tr><th>Account</th><th>Status</th><th>Billing</th><th>Services</th><th>Metrics</th><th>Actions</th></tr></thead>
             <tbody>
-            <% visibleAccounts.forEach(function(a) { const s = a.services || {}; const m = a.metrics || {}; const enabled = ['ai_calling','sms_followup','crm_sync','n8n_workflows','openai_qualification'].filter(k => s[k]).length; const pct = Math.round((enabled / 5) * 100); %>
+            <% visibleAccounts.forEach(function(a) { const s = a.services || {}; const m = a.metrics || {}; const p = a.preferences || {}; const comm = p.communication || {}; const cal = p.calendar || {}; const follow = p.followup || {}; const updatePref = (comm.update_channels || ['portal']).map(function(channel){ return channel === 'sms' ? 'text' : channel; }).join(', '); const enabled = ['ai_calling','sms_followup','crm_sync','n8n_workflows','openai_qualification'].filter(k => s[k]).length; const pct = Math.round((enabled / 5) * 100); %>
               <tr>
-                <td><strong><%= a.business_name %></strong><br><span class="mini"><%= a.email %><br><%= a.phone || 'No phone saved' %></span></td>
+                <td><strong><%= a.business_name %></strong><br><span class="mini"><%= a.email %><br><%= a.phone || 'No phone saved' %><br>Updates: <%= updatePref || 'portal' %><br>Calendar: <%= cal.provider_label || 'Portal calendar' %><br>Follow-up: <%= follow.style_label || 'Owner review' %></span></td>
                 <td><% if (a.status === 'needs_attention') { %><a class="pill pill-warn" href="/admin/accounts/<%= a.id %>/edit" style="text-decoration:none">needs attention review</a><% } else { %><span class="pill <%= a.status === 'active' ? 'pill-on' : '' %>"><%= a.status.replace(/_/g, ' ') %></span><% } %><br><span class="mini"><%= a.plan %></span></td>
                 <td><span class="pill <%= (a.billing_method || 'automatic') === 'automatic' ? 'pill-on' : '' %>"><%= (a.billing_method || 'automatic') === 'manual' ? 'manual monthly' : 'automatic monthly' %></span></td>
                 <td>
-                  <% [['ai_calling','AI calls'],['sms_followup','SMS'],['crm_sync','CRM'],['n8n_workflows','n8n'],['openai_qualification','OpenAI']].forEach(function(item){ %>
+                  <% [['ai_calling','Calls'],['sms_followup','Texts'],['crm_sync','Leads'],['n8n_workflows','Bookings'],['openai_qualification','Review']].forEach(function(item){ %>
                     <span class="pill <%= s[item[0]] ? 'pill-on' : '' %>"><%= item[1] %></span>
                   <% }); %>
                   <div class="progress"><span style="width:<%= pct %>%"></span></div>
                 </td>
-                <td class="mini">Calls: <%= m.calls_handled || 0 %><br>SMS: <%= m.sms_sent || 0 %><br>CRM: <%= m.crm_leads_synced || 0 %><br>Recovered: $<%= Number(m.estimated_revenue_recovered || 0).toLocaleString() %></td>
+                <td class="mini">Calls: <%= m.calls_handled || 0 %><br>Texts: <%= m.sms_sent || 0 %><br>Leads: <%= m.crm_leads_synced || 0 %><br>Recovered: $<%= Number(m.estimated_revenue_recovered || 0).toLocaleString() %></td>
                 <td>
                   <div class="actions">
                     <a class="btn btn-ghost" href="/admin/accounts/<%= a.id %>/edit">Edit</a>
@@ -331,7 +331,7 @@
           <label>Operation</label>
           <select name="operation" required>
             <option value="start_setup">Start setup - portal active, services being prepared</option>
-            <option value="sms_crm_ready">Mark SMS + CRM workflow ready</option>
+            <option value="sms_crm_ready">Mark text + lead tracker ready</option>
             <option value="launch_full_stack">Launch full stack - mark all services active</option>
             <option value="billing_review">Needs billing review</option>
             <option value="pause_service">Pause service</option>
@@ -342,7 +342,7 @@
             <option value="false">Internal only</option>
           </select>
           <button class="btn" style="margin-top:14px">Run Account Operation</button>
-          <p class="mini">SMS-related operations still require consent proof before any actual SMS outreach.</p>
+          <p class="mini">Text-related operations still require consent proof before any actual text outreach.</p>
         </form>
       </div>
 
@@ -361,13 +361,13 @@
             <option value="business_profile_received">Business profile reviewed</option>
             <option value="scripts_approved">Scripts and rules approved</option>
             <option value="calendar_connected">Booking or routing path connected</option>
-            <option value="ai_calling_connected">AI calling connected</option>
-            <option value="sms_ready">SMS follow-up ready</option>
-            <option value="crm_connected">CRM sync connected</option>
-            <option value="hubspot_connected">HubSpot connected</option>
-            <option value="n8n_connected">n8n workflow connected</option>
-            <option value="openai_review_ready">OpenAI lead review ready</option>
-            <option value="twilio_verified">Twilio/SMS compliance verified</option>
+            <option value="ai_calling_connected">Call follow-up connected</option>
+            <option value="sms_ready">Text follow-up ready</option>
+            <option value="crm_connected">Lead tracker connected</option>
+            <option value="hubspot_connected">Lead hub connected</option>
+            <option value="n8n_connected">Booking and follow-up flow connected</option>
+            <option value="openai_review_ready">Lead review ready</option>
+            <option value="twilio_verified">Text compliance verified</option>
             <option value="launch_ready">Launch-ready check complete</option>
             <option value="customer_approval_received">Customer launch approval received</option>
             <option value="monitoring_started">Launch monitoring started</option>
@@ -390,11 +390,11 @@
           <select name="event_type">
             <option value="update">General update</option>
             <option value="onboarding">Onboarding</option>
-            <option value="ai_calling">AI calling</option>
-            <option value="sms">SMS</option>
-            <option value="crm">CRM</option>
-            <option value="workflow">Workflow</option>
-            <option value="openai">OpenAI</option>
+            <option value="ai_calling">Call follow-up</option>
+            <option value="sms">Text updates</option>
+            <option value="crm">Lead tracker</option>
+            <option value="workflow">Booking and follow-up flow</option>
+            <option value="openai">Lead review</option>
             <option value="portal">Portal</option>
             <option value="launch">Launch</option>
             <option value="billing">Billing</option>

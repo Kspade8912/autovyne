@@ -26,7 +26,7 @@ const demoAccount = {
 const checklist = buildOnboardingChecklist(demoAccount);
 assert.equal(checklist.totalCount, 9);
 assert.ok(checklist.doneCount >= 6);
-assert.ok(checklist.rows.some(row => row.title === 'SMS consent and message rules' && row.status === 'review'));
+assert.ok(checklist.rows.some(row => row.title === 'Text consent and message rules' && row.status === 'review'));
 assert.ok(checklist.manualCount >= 1);
 
 const tasks = buildManualLaunchTasks({

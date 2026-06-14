@@ -13,13 +13,14 @@ async function createSignupOrder({
   portalAccessCodeHash,
   smsConsent,
   onboarding,
+  preferences,
 }) {
   const result = await pool.query(
     `INSERT INTO signup_orders
        (business_name, contact_name, email, phone, industry, website_url,
         current_tools, plan, billing_method, portal_access_code_hash, sms_consent,
-        sms_consent_at, onboarding)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,CASE WHEN $11 THEN NOW() ELSE NULL END,$12)
+        sms_consent_at, onboarding, preferences)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,CASE WHEN $11 THEN NOW() ELSE NULL END,$12,$13)
      RETURNING *`,
     [
       businessName,
@@ -34,6 +35,7 @@ async function createSignupOrder({
       portalAccessCodeHash,
       Boolean(smsConsent),
       JSON.stringify(onboarding || {}),
+      JSON.stringify(preferences || {}),
     ]
   );
   return result.rows[0];

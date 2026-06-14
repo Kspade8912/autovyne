@@ -26,9 +26,9 @@
       <div class="portal-help-grid">
         <div><strong>1. Secure checkout</strong><p>Automatic billing goes through Stripe. Manual billing creates a review request for Autovyne.</p></div>
         <div><strong>2. Portal activation</strong><p>After payment or approval, your client portal opens with your setup status and account activity.</p></div>
-        <div><strong>3. AI setup starts</strong><p>Autovyne connects calling, SMS, CRM, and workflow tools in stages, then updates your portal as each area is ready.</p></div>
+        <div><strong>3. AI setup starts</strong><p>Autovyne connects the CLEAR Stack: Calls, Leads, Engagement, Appointments, and Reporting, then updates your portal as each area is ready.</p></div>
       </div>
-      <p class="portal-muted" style="margin-top:14px">SMS follow-up only starts for contacts with proper consent records. The portal shows progress, not private internal controls.</p>
+      <p class="portal-muted" style="margin-top:14px">Text follow-up only starts for contacts with proper consent records. The portal shows progress, not private internal controls.</p>
     </section>
 
     <section class="portal-card">
@@ -103,10 +103,142 @@
         </div>
         <div class="form-row two-col">
           <div class="form-group"><label for="website_url">Website</label><input id="website_url" name="website_url" placeholder="https://yourbusiness.com"></div>
-          <div class="form-group"><label for="current_tools">Current CRM / Tools</label><input id="current_tools" name="current_tools" placeholder="HubSpot, Jobber, none, etc."></div>
+          <div class="form-group"><label for="current_tools">Current lead, booking, or phone tools</label><input id="current_tools" name="current_tools" placeholder="Example: Jobber, Square, Google Calendar, none"></div>
+        </div>
+        <div class="portal-card" style="margin:18px 0;background:rgba(255,255,255,.035)">
+          <div class="hero-badge">Optional Consultation Builder</div>
+          <h2>Tell Autovyne what your business needs most.</h2>
+          <p class="portal-muted">Pick what applies, or leave it simple and type your own notes below. Autovyne will use this to recommend the best starting setup and push the details into your portal.</p>
+
+          <div class="sms-consent" style="margin-top:14px">
+            <input type="checkbox" id="consultation_requested" name="consultation_requested" value="true">
+            <label for="consultation_requested">I want Autovyne to review this with me before setup.</label>
+          </div>
+
+          <div class="form-group">
+            <label>What do you need help with?</label>
+            <div class="portal-help-grid">
+              <% (serviceNeeds || []).forEach(function(need) { %>
+                <label class="sms-consent" style="align-items:flex-start;margin:0">
+                  <input type="checkbox" name="service_needs" value="<%= need.key %>" data-need-label="<%= need.label %>">
+                  <span><strong><%= need.label %></strong><br><small><%= need.description %></small></span>
+                </label>
+              <% }); %>
+            </div>
+          </div>
+
+          <div id="signup-recommendation" class="portal-empty" style="text-align:left;margin:16px 0">
+            Select one or more needs to see Autovyne's recommended starting setup.
+          </div>
+
+          <div class="form-row two-col">
+            <div class="form-group">
+              <label>Where should account updates go?</label>
+              <div class="portal-help-grid" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr))">
+                <% (updateChannels || []).forEach(function(channel) { %>
+                  <label class="sms-consent" style="margin:0">
+                    <input type="checkbox" name="update_channels" value="<%= channel.key %>" <%= channel.key === 'portal' ? 'checked' : '' %>>
+                    <span><%= channel.label %></span>
+                  </label>
+                <% }); %>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Where should new lead updates go?</label>
+              <div class="portal-help-grid" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr))">
+                <% (updateChannels || []).forEach(function(channel) { %>
+                  <label class="sms-consent" style="margin:0">
+                    <input type="checkbox" name="lead_channels" value="<%= channel.key %>" <%= channel.key === 'portal' ? 'checked' : '' %>>
+                    <span><%= channel.label %></span>
+                  </label>
+                <% }); %>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row two-col">
+            <div class="form-group">
+              <label>Where should booking updates go?</label>
+              <div class="portal-help-grid" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr))">
+                <% (updateChannels || []).forEach(function(channel) { %>
+                  <label class="sms-consent" style="margin:0">
+                    <input type="checkbox" name="booking_channels" value="<%= channel.key %>" <%= channel.key === 'portal' ? 'checked' : '' %>>
+                    <span><%= channel.label %></span>
+                  </label>
+                <% }); %>
+                <label class="sms-consent" style="margin:0">
+                  <input type="checkbox" name="booking_channels" value="calendar">
+                  <span>Calendar</span>
+                </label>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="calendar_provider">Preferred calendar</label>
+              <select id="calendar_provider" name="calendar_provider">
+                <% (calendarProviders || []).forEach(function(provider) { %>
+                  <option value="<%= provider.key %>"><%= provider.label %></option>
+                <% }); %>
+              </select>
+              <span class="form-hint">Autovyne can show appointments in your portal first, then connect Google, Microsoft, Apple, or another calendar during onboarding.</span>
+            </div>
+          </div>
+
+          <div class="form-row two-col">
+            <div class="form-group">
+              <label for="calendar_sync_preference">Calendar handling</label>
+              <select id="calendar_sync_preference" name="calendar_sync_preference">
+                <option value="portal_only">Show bookings in my portal first</option>
+                <option value="send_invites">Send calendar invites when ready</option>
+                <option value="connect_later">Help me connect my calendar later</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="followup_style">Follow-up style</label>
+              <select id="followup_style" name="followup_style">
+                <% (followupStyles || []).forEach(function(style) { %>
+                  <option value="<%= style.key %>"><%= style.label %></option>
+                <% }); %>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row two-col">
+            <div class="form-group">
+              <label for="followup_approval_mode">Before Autovyne changes follow-up rules</label>
+              <select id="followup_approval_mode" name="followup_approval_mode">
+                <option value="review_first">Ask me to review first</option>
+                <option value="approved_rules">Use the rules I already approved</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="followup_stop_when">Stop lead follow-up when</label>
+              <select id="followup_stop_when" name="followup_stop_when">
+                <option value="booked">The customer books or requests no more contact</option>
+                <option value="owner_review">I ask Autovyne to review it</option>
+                <option value="after_three_attempts">After three follow-up attempts</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row two-col">
+            <div class="form-group">
+              <label for="summary_frequency">How often should Autovyne summarize activity?</label>
+              <select id="summary_frequency" name="summary_frequency">
+                <option value="instant">As soon as something important happens</option>
+                <option value="daily" selected>Daily summary</option>
+                <option value="weekly">Weekly summary</option>
+              </select>
+            </div>
+            <div class="form-group"><label for="calendar_timezone">Business time zone</label><input id="calendar_timezone" name="calendar_timezone" placeholder="Example: Central Time"></div>
+          </div>
+
+          <div class="form-row two-col">
+            <div class="form-group"><label for="consultation_best_time">Best time for consultation</label><input id="consultation_best_time" name="consultation_best_time" placeholder="Example: weekdays after 3 PM"></div>
+            <div class="form-group"><label for="consultation_notes">Anything Autovyne should know?</label><textarea id="consultation_notes" name="consultation_notes" rows="3" placeholder="Example: I want calls pushed to my phone, bookings on Google Calendar, and no follow-up after someone books."></textarea></div>
+          </div>
         </div>
         <div class="form-row">
-          <div class="form-group"><label for="onboarding_goal">What should Autovyne automate first?</label><textarea id="onboarding_goal" name="onboarding_goal" rows="5" placeholder="Example: missed calls, SMS follow-up, booking reminders, CRM lead updates"></textarea></div>
+          <div class="form-group"><label for="onboarding_goal">What should Autovyne automate first?</label><textarea id="onboarding_goal" name="onboarding_goal" rows="5" placeholder="Example: missed calls, text follow-up, booking reminders, lead updates"></textarea></div>
         </div>
         <div class="form-row">
           <div class="form-group"><label for="portal_password">Create Portal Password</label><input type="password" id="portal_password" name="portal_password" minlength="8" required><span class="form-hint">You will use this with your email to log into the client portal after payment.</span></div>
@@ -128,6 +260,40 @@
     </section>
   </main>
   <%- include('partials/footer') %>
-  <script>document.getElementById('form-loaded-at')?.setAttribute('value', Date.now());</script>
+  <script>
+    document.getElementById('form-loaded-at')?.setAttribute('value', Date.now());
+    (function() {
+      const box = document.getElementById('signup-recommendation');
+      const planSelect = document.getElementById('plan');
+      const needInputs = Array.from(document.querySelectorAll('input[name="service_needs"]'));
+      if (!box || !needInputs.length) return;
+
+      function recommendedPlan(needs) {
+        const set = new Set(needs);
+        if (set.size >= 5 || set.has('calendar_updates') || set.has('review_followup')) return 'Professional';
+        if (set.has('lead_tracker') && set.has('appointment_booking')) return 'Professional';
+        if (set.has('missed_calls') || set.has('text_updates') || set.has('lead_tracker')) return 'Starter';
+        return 'SMB Bundle';
+      }
+
+      function renderRecommendation() {
+        const selected = needInputs.filter(input => input.checked);
+        if (!selected.length) {
+          box.textContent = "Select one or more needs to see Autovyne's recommended starting setup.";
+          return;
+        }
+        const labels = selected.map(input => input.getAttribute('data-need-label'));
+        const keys = selected.map(input => input.value);
+        const selectedPlan = planSelect?.selectedOptions?.[0]?.textContent || recommendedPlan(keys);
+        box.innerHTML = '<strong>Recommended starting setup:</strong> ' + recommendedPlan(keys) +
+          '<br><span class="portal-muted">You selected ' + labels.join(', ') + '. Autovyne will use this to shape your ' +
+          'Calls, Leads, Engagement, Appointments, and Reporting setup. Current plan selection: ' + selectedPlan + '.</span>';
+      }
+
+      needInputs.forEach(input => input.addEventListener('change', renderRecommendation));
+      planSelect?.addEventListener('change', renderRecommendation);
+      renderRecommendation();
+    })();
+  </script>
 </body>
 </html>

@@ -29,5 +29,7 @@ assert.equal(filteredStarter.n8n_workflows, false);
 const rows = serviceRowsForPlan('starter');
 assert.equal(rows.length, 5);
 assert.equal(rows.find(row => row.key === 'n8n_workflows').included, false);
+assert.equal(rows.find(row => row.key === 'crm_sync').label, 'Lead Tracker');
+assert.equal(rows.find(row => row.key === 'n8n_workflows').label, 'Booking & Follow-up Flow');
 
 console.log('Plan service bundle smoke test passed.');

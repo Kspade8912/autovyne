@@ -34,12 +34,28 @@
   <% } else {
     const services = account.services || {};
     const metrics = account.metrics || {};
+    const preferences = account.preferences || {};
+    const preferenceInfo = typeof preferenceDetails !== 'undefined' ? preferenceDetails : {};
+    const updateChannelChoices = typeof updateChannels !== 'undefined' ? updateChannels : [];
+    const calendarChoices = typeof calendarProviders !== 'undefined' ? calendarProviders : [];
+    const followupChoices = typeof followupStyles !== 'undefined' ? followupStyles : [];
+    const selectedUpdates = preferences.communication && preferences.communication.update_channels ? preferences.communication.update_channels : ['portal'];
+    const selectedLeadChannels = preferences.communication && preferences.communication.lead_channels ? preferences.communication.lead_channels : selectedUpdates;
+    const selectedBookingChannels = preferences.communication && preferences.communication.booking_channels ? preferences.communication.booking_channels : ['portal'];
+    const selectedCalendar = preferences.calendar && preferences.calendar.provider ? preferences.calendar.provider : 'portal';
+    const selectedCalendarSync = preferences.calendar && preferences.calendar.sync_preference ? preferences.calendar.sync_preference : 'portal_only';
+    const selectedFollowup = preferences.followup && preferences.followup.style ? preferences.followup.style : 'owner_review';
+    const selectedApproval = preferences.followup && preferences.followup.approval_mode ? preferences.followup.approval_mode : 'review_first';
+    const selectedStop = preferences.followup && preferences.followup.stop_when ? preferences.followup.stop_when : 'booked';
+    const selectedFrequency = preferences.communication && preferences.communication.summary_frequency ? preferences.communication.summary_frequency : 'daily';
+    const isChecked = (list, key) => (list || []).includes(key);
+    const leadActivity = (events || []).filter(event => ['lead', 'ai_calling', 'sms', 'crm', 'workflow', 'customer_action_request', 'booking', 'calendar', 'preferences', 'onboarding'].includes(event.event_type));
     const serviceRows = [
-      ['AI Calling', services.ai_calling, 'Helps answer missed calls and collect what the customer needs.'],
-      ['SMS Follow-up', services.sms_followup, 'Follows up by text only when SMS consent is recorded.'],
-      ['CRM Sync', services.crm_sync, 'Moves qualified leads and account updates into your CRM.'],
-      ['Automation Workflows', services.n8n_workflows, 'Runs the behind-the-scenes handoffs and notifications.'],
-      ['AI Lead Review', services.openai_qualification, 'Summarizes leads and recommends the next best action.'],
+      ['Call Follow-up', services.ai_calling, 'Helps answer missed calls and collect what the customer needs.'],
+      ['Text Updates', services.sms_followup, 'Follows up by text only when consent is recorded.'],
+      ['Lead Tracker', services.crm_sync, 'Keeps qualified leads and account updates organized.'],
+      ['Booking & Follow-up Flow', services.n8n_workflows, 'Runs the behind-the-scenes handoffs and notifications.'],
+      ['Lead Review', services.openai_qualification, 'Summarizes leads and recommends the next best action.'],
     ];
     const automationRows = [
       {
@@ -59,19 +75,19 @@
       {
         title: 'Lead Pipeline',
         active: services.crm_sync,
-        system: 'CRM sync',
+        system: 'Lead tracker',
         doing: 'Keeps lead status, owner follow-up, and customer handoff notes organized.',
         controls: 'Request correction, review a lead, or update routing rules.'
       },
       {
-        title: 'Workflow Engine',
+        title: 'Booking & Follow-up Flow',
         active: services.n8n_workflows,
-        system: 'Automation handoffs',
-        doing: 'Moves updates between the call system, AI, CRM, notifications, and this portal.',
+        system: 'Owner handoffs',
+        doing: 'Moves updates between calls, AI review, owner notifications, calendar choices, and this portal.',
         controls: 'Request a workflow change without logging into another app.'
       },
       {
-        title: 'AI Review',
+        title: 'Lead Review',
         active: services.openai_qualification,
         system: 'AI summary layer',
         doing: 'Summarizes activity and helps Autovyne decide what needs attention next.',
@@ -153,8 +169,8 @@
 
     <section class="portal-grid">
       <article class="portal-card portal-metric"><span>Calls Helped</span><strong><%= Number(metrics.calls_handled || 0).toLocaleString() %></strong><p>Calls Autovyne has handled or assisted.</p></article>
-      <article class="portal-card portal-metric"><span>Texts Sent</span><strong><%= Number(metrics.sms_sent || 0).toLocaleString() %></strong><p>Approved SMS follow-up messages.</p></article>
-      <article class="portal-card portal-metric"><span>Leads Moved</span><strong><%= Number(metrics.crm_leads_synced || 0).toLocaleString() %></strong><p>Leads sent into your CRM workflow.</p></article>
+      <article class="portal-card portal-metric"><span>Texts Sent</span><strong><%= Number(metrics.sms_sent || 0).toLocaleString() %></strong><p>Approved text follow-up messages.</p></article>
+      <article class="portal-card portal-metric"><span>Leads Tracked</span><strong><%= Number(metrics.crm_leads_synced || 0).toLocaleString() %></strong><p>Leads organized for follow-up.</p></article>
       <article class="portal-card portal-metric"><span>Estimated Recovery</span><strong>$<%= Number(metrics.estimated_revenue_recovered || 0).toLocaleString() %></strong><p>Estimated revenue preserved by follow-up.</p></article>
     </section>
 
@@ -168,6 +184,127 @@
         <div><strong>2. Control</strong><p>Use Action Center to block callers, pause follow-up, request reviews, or update rules.</p></div>
         <div><strong>3. Prove</strong><p>Requests are logged with dates so there is a clear account history.</p></div>
       </div>
+    </section>
+
+    <section class="portal-two-col">
+      <article class="portal-card">
+        <h2>Lead & Booking Updates</h2>
+        <p class="portal-muted">Choose how Autovyne should surface important account movement. Text choices are saved as preferences, but texts only send when consent and compliance records allow it.</p>
+        <% if (preferenceError) { %><p class="portal-error"><%= preferenceError %></p><% } %>
+        <% if (preferenceSuccess) { %><p class="portal-success"><%= preferenceSuccess %></p><% } %>
+        <div class="portal-empty" style="text-align:left;margin-bottom:14px">
+          <strong>Current setup:</strong> Updates through <%= preferenceInfo.channels || 'Portal only' %>. Calendar: <%= preferenceInfo.calendar || 'Autovyne portal calendar' %>. Follow-up: <%= preferenceInfo.followup || 'Owner reviews before changes' %>.
+        </div>
+        <form method="POST" action="/portal/preferences" class="portal-form">
+          <label>General account updates</label>
+          <div class="portal-help-grid" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr))">
+            <% updateChannelChoices.forEach(function(channel) { %>
+              <label class="sms-consent" style="margin:0">
+                <input type="checkbox" name="update_channels" value="<%= channel.key %>" <%= isChecked(selectedUpdates, channel.key) ? 'checked' : '' %>>
+                <span><%= channel.label %></span>
+              </label>
+            <% }); %>
+          </div>
+          <label>New lead updates</label>
+          <div class="portal-help-grid" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr))">
+            <% updateChannelChoices.forEach(function(channel) { %>
+              <label class="sms-consent" style="margin:0">
+                <input type="checkbox" name="lead_channels" value="<%= channel.key %>" <%= isChecked(selectedLeadChannels, channel.key) ? 'checked' : '' %>>
+                <span><%= channel.label %></span>
+              </label>
+            <% }); %>
+          </div>
+          <label>Booking updates</label>
+          <div class="portal-help-grid" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr))">
+            <% updateChannelChoices.forEach(function(channel) { %>
+              <label class="sms-consent" style="margin:0">
+                <input type="checkbox" name="booking_channels" value="<%= channel.key %>" <%= isChecked(selectedBookingChannels, channel.key) ? 'checked' : '' %>>
+                <span><%= channel.label %></span>
+              </label>
+            <% }); %>
+            <label class="sms-consent" style="margin:0">
+              <input type="checkbox" name="booking_channels" value="calendar" <%= isChecked(selectedBookingChannels, 'calendar') ? 'checked' : '' %>>
+              <span>Calendar</span>
+            </label>
+          </div>
+          <label for="summary_frequency">Activity summary</label>
+          <select id="summary_frequency" name="summary_frequency">
+            <option value="instant" <%= selectedFrequency === 'instant' ? 'selected' : '' %>>As soon as something important happens</option>
+            <option value="daily" <%= selectedFrequency === 'daily' ? 'selected' : '' %>>Daily summary</option>
+            <option value="weekly" <%= selectedFrequency === 'weekly' ? 'selected' : '' %>>Weekly summary</option>
+          </select>
+          <label for="calendar_provider">Preferred calendar</label>
+          <select id="calendar_provider" name="calendar_provider">
+            <% calendarChoices.forEach(function(provider) { %>
+              <option value="<%= provider.key %>" <%= selectedCalendar === provider.key ? 'selected' : '' %>><%= provider.label %></option>
+            <% }); %>
+          </select>
+          <label for="calendar_sync_preference">Calendar handling</label>
+          <select id="calendar_sync_preference" name="calendar_sync_preference">
+            <option value="portal_only" <%= selectedCalendarSync === 'portal_only' ? 'selected' : '' %>>Show bookings in this portal first</option>
+            <option value="send_invites" <%= selectedCalendarSync === 'send_invites' ? 'selected' : '' %>>Send calendar invites when ready</option>
+            <option value="connect_later" <%= selectedCalendarSync === 'connect_later' ? 'selected' : '' %>>Help me connect my calendar later</option>
+          </select>
+          <label for="followup_style">Follow-up style</label>
+          <select id="followup_style" name="followup_style">
+            <% followupChoices.forEach(function(style) { %>
+              <option value="<%= style.key %>" <%= selectedFollowup === style.key ? 'selected' : '' %>><%= style.label %></option>
+            <% }); %>
+          </select>
+          <label for="followup_approval_mode">Before Autovyne changes follow-up rules</label>
+          <select id="followup_approval_mode" name="followup_approval_mode">
+            <option value="review_first" <%= selectedApproval === 'review_first' ? 'selected' : '' %>>Ask me to review first</option>
+            <option value="approved_rules" <%= selectedApproval === 'approved_rules' ? 'selected' : '' %>>Use rules I already approved</option>
+          </select>
+          <label for="followup_stop_when">Stop follow-up when</label>
+          <select id="followup_stop_when" name="followup_stop_when">
+            <option value="booked" <%= selectedStop === 'booked' ? 'selected' : '' %>>The customer books or requests no more contact</option>
+            <option value="owner_review" <%= selectedStop === 'owner_review' ? 'selected' : '' %>>I ask Autovyne to review it</option>
+            <option value="after_three_attempts" <%= selectedStop === 'after_three_attempts' ? 'selected' : '' %>>After three follow-up attempts</option>
+          </select>
+          <button class="btn-primary" type="submit">Save Preferences</button>
+        </form>
+      </article>
+
+      <article class="portal-card">
+        <h2>Portal Calendar</h2>
+        <p class="portal-muted">Appointments and setup milestones can appear here first. Google, Microsoft, Apple, and other calendar apps can be connected during onboarding after Autovyne reviews the account rules.</p>
+        <% if ((calendarItems || []).length) { %>
+          <div class="portal-service-list">
+            <% calendarItems.forEach(function(item) { %>
+              <div class="portal-service">
+                <div>
+                  <strong><%= item.title %></strong>
+                  <p><%= item.detail || 'Calendar item saved by Autovyne.' %></p>
+                  <small><%= item.starts_at ? new Date(item.starts_at).toLocaleString() : 'No time set yet' %><%= item.source ? ` - ${item.source}` : '' %></small>
+                </div>
+                <span class="portal-pill <%= item.status === 'confirmed' ? 'portal-pill-on' : 'portal-pill-off' %>"><%= String(item.status || 'planned').replace(/_/g, ' ') %></span>
+              </div>
+            <% }); %>
+          </div>
+        <% } else { %>
+          <div class="portal-empty">No portal calendar items yet. When booking or setup milestones are added, they will show here.</div>
+        <% } %>
+
+        <h2 style="margin-top:22px">Lead Activity Inbox</h2>
+        <p class="portal-muted">This is the business-owner view of who called, what happened, and what Autovyne is doing next. Sensitive call details stay limited.</p>
+        <% if (leadActivity.length) { %>
+          <div class="portal-timeline">
+            <% leadActivity.slice(0, 8).forEach(function(event) { %>
+              <div class="portal-event">
+                <span></span>
+                <div>
+                  <strong><%= event.title %></strong>
+                  <p><%= event.detail || String(event.event_type || 'update').replace(/_/g, ' ') %></p>
+                  <small><%= new Date(event.created_at).toLocaleString() %></small>
+                </div>
+              </div>
+            <% }); %>
+          </div>
+        <% } else { %>
+          <div class="portal-empty">No lead or booking activity is visible yet. Once calls, messages, or bookings come through, Autovyne will summarize them here.</div>
+        <% } %>
+      </article>
     </section>
 
     <section class="portal-card">
@@ -301,17 +438,18 @@
 
       <article class="portal-card">
         <h2>Autovyne Helper</h2>
-        <p class="portal-muted">Ask simple questions about your account status, setup progress, control requests, billing visibility, or recent updates. This helper cannot change settings or send messages.</p>
+        <p class="portal-muted">Use the optional guided questions or type your own question about account status, setup progress, control requests, billing visibility, or recent updates. This helper cannot change settings or send messages.</p>
         <form method="POST" action="/portal/assistant" class="portal-form">
-          <label for="assistant_question">Question</label>
+          <label for="assistant_question">Optional guided question</label>
           <select onchange="this.form.assistant_question.value=this.value">
-            <option value="">Choose a common question</option>
+            <option value="">Choose a guide or type below</option>
             <option value="What is my current account status?">What is my current account status?</option>
             <option value="What has Autovyne finished so far?">What has Autovyne finished so far?</option>
             <option value="What is still being set up?">What is still being set up?</option>
             <option value="Which Action Center request should I submit?">Which Action Center request should I submit?</option>
             <option value="Who do I contact if something needs to change?">Who do I contact if something needs to change?</option>
           </select>
+          <label for="assistant_question">Your own question</label>
           <textarea id="assistant_question" name="assistant_question" rows="3" placeholder="Example: What is still being set up?"><%= assistantQuestion || '' %></textarea>
           <button class="btn-primary" type="submit">Ask Helper</button>
         </form>
@@ -329,12 +467,12 @@
           <div><strong>Questions</strong><p>Send setup or support questions through the site.</p><a class="portal-secondary-btn" href="/questions" style="display:inline-block;text-decoration:none;margin-top:8px">Submit a Question</a></div>
           <div><strong>Email</strong><p>Reach Autovyne directly for billing or onboarding help.</p><a class="portal-secondary-btn" href="mailto:kwaun.autovyne@gmail.com" style="display:inline-block;text-decoration:none;margin-top:8px">Email Support</a></div>
         </div>
-        <p class="portal-muted" style="margin-top:16px">For privacy and SMS compliance, phone/SMS updates only happen when the right consent records are in place.</p>
+        <p class="portal-muted" style="margin-top:16px">For privacy and text-message compliance, phone or text updates only happen when the right consent records are in place.</p>
       </article>
 
       <article class="portal-card">
         <h2>Helper Limits</h2>
-        <p class="portal-muted">For safety, the customer helper only explains what is visible in this portal. It cannot update billing, change SMS consent, edit workflows, or start/stop automation by itself. Use Action Center for account control requests and Autovyne will review them.</p>
+        <p class="portal-muted">For safety, the customer helper only explains what is visible in this portal. It cannot update billing, change text consent, edit workflows, or start/stop automation by itself. Use Action Center for account control requests and Autovyne will review them.</p>
       </article>
     </section>
 

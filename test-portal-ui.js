@@ -23,5 +23,9 @@ assert(
 assert(themeCss.includes('.portal-app-body'), 'Portal app body styling is missing.');
 assert(themeCss.includes('.portal-app-nav'), 'Portal app navigation styling is missing.');
 assert(themeCss.includes('.portal-shell-app'), 'Compact portal shell styling is missing.');
+assert(portalView.includes('Lead & Booking Updates'), 'Portal should expose owner update preferences.');
+assert(portalView.includes('Portal Calendar'), 'Portal should include the internal calendar view.');
+assert(portalView.includes('Lead Activity Inbox'), 'Portal should include customer-visible lead activity.');
+assert(portalView.includes('Choose a guide or type below'), 'Portal assistant should support guided and custom questions.');
 
 console.log('Portal UI smoke test passed.');

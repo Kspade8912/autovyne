@@ -35,6 +35,15 @@ function defaultMetrics(input = {}) {
   };
 }
 
+function defaultPreferences(input = {}) {
+  return {
+    consultation: input.consultation || {},
+    communication: input.communication || {},
+    calendar: input.calendar || {},
+    followup: input.followup || {},
+  };
+}
+
 function normalizeBillingMethod(value) {
   return value === 'manual' ? 'manual' : 'automatic';
 }
@@ -51,17 +60,19 @@ async function createOrUpdateAccount({
   accessCode,
   services,
   metrics,
+  preferences,
   notes,
 }) {
   const normalizedEmail = normalizeEmail(email);
   const serviceJson = defaultServices(services);
   const metricJson = defaultMetrics(metrics);
+  const preferenceJson = defaultPreferences(preferences);
   const codeHash = hashAccessCode(accessCode);
 
   const result = await pool.query(
     `INSERT INTO client_accounts
-       (business_name, contact_name, email, phone, industry, status, plan, billing_method, access_code_hash, services, metrics, notes)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
+       (business_name, contact_name, email, phone, industry, status, plan, billing_method, access_code_hash, services, metrics, preferences, notes)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
      ON CONFLICT (email) DO UPDATE SET
        business_name = EXCLUDED.business_name,
        contact_name = EXCLUDED.contact_name,
@@ -73,6 +84,7 @@ async function createOrUpdateAccount({
        access_code_hash = EXCLUDED.access_code_hash,
        services = EXCLUDED.services,
        metrics = EXCLUDED.metrics,
+       preferences = EXCLUDED.preferences,
        notes = EXCLUDED.notes,
        updated_at = NOW()
      RETURNING *`,
@@ -88,6 +100,7 @@ async function createOrUpdateAccount({
       codeHash,
       JSON.stringify(serviceJson),
       JSON.stringify(metricJson),
+      JSON.stringify(preferenceJson),
       notes || null,
     ]
   );
@@ -107,11 +120,14 @@ async function updateAccountById({
   accessCode,
   services,
   metrics,
+  preferences,
   notes,
 }) {
   const normalizedEmail = normalizeEmail(email);
   const serviceJson = defaultServices(services);
   const metricJson = defaultMetrics(metrics);
+  const hasNewPreferences = preferences !== undefined;
+  const preferenceJson = hasNewPreferences ? defaultPreferences(preferences) : null;
   const hasNewAccessCode = String(accessCode || '').trim().length > 0;
 
   const result = await pool.query(
@@ -127,7 +143,8 @@ async function updateAccountById({
        access_code_hash = CASE WHEN $10::BOOLEAN THEN $11 ELSE access_code_hash END,
        services = $12,
        metrics = $13,
-       notes = $14,
+       preferences = CASE WHEN $14::BOOLEAN THEN $15 ELSE preferences END,
+       notes = $16,
        updated_at = NOW()
      WHERE id = $1
      RETURNING *`,
@@ -145,6 +162,8 @@ async function updateAccountById({
       hasNewAccessCode ? hashAccessCode(accessCode) : null,
       JSON.stringify(serviceJson),
       JSON.stringify(metricJson),
+      hasNewPreferences,
+      hasNewPreferences ? JSON.stringify(preferenceJson) : null,
       notes || null,
     ]
   );
@@ -163,6 +182,7 @@ async function createOrUpdateAccountWithHash({
   accessCodeHash,
   services,
   metrics,
+  preferences,
   notes,
   stripeCustomerId,
   stripeCheckoutSessionId,
@@ -173,13 +193,14 @@ async function createOrUpdateAccountWithHash({
   const normalizedEmail = normalizeEmail(email);
   const serviceJson = defaultServices(services);
   const metricJson = defaultMetrics(metrics);
+  const preferenceJson = defaultPreferences(preferences);
 
   const result = await pool.query(
     `INSERT INTO client_accounts
        (business_name, contact_name, email, phone, industry, status, plan, billing_method, access_code_hash,
-        services, metrics, notes, stripe_customer_id, stripe_checkout_session_id,
+        services, metrics, preferences, notes, stripe_customer_id, stripe_checkout_session_id,
         stripe_subscription_id, paid_at, activated_at)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18)
      ON CONFLICT (email) DO UPDATE SET
        business_name = EXCLUDED.business_name,
        contact_name = EXCLUDED.contact_name,
@@ -191,6 +212,7 @@ async function createOrUpdateAccountWithHash({
        access_code_hash = EXCLUDED.access_code_hash,
        services = EXCLUDED.services,
        metrics = EXCLUDED.metrics,
+       preferences = EXCLUDED.preferences,
        notes = EXCLUDED.notes,
        stripe_customer_id = EXCLUDED.stripe_customer_id,
        stripe_checkout_session_id = EXCLUDED.stripe_checkout_session_id,
@@ -211,6 +233,7 @@ async function createOrUpdateAccountWithHash({
       accessCodeHash,
       JSON.stringify(serviceJson),
       JSON.stringify(metricJson),
+      JSON.stringify(preferenceJson),
       notes || null,
       stripeCustomerId || null,
       stripeCheckoutSessionId || null,

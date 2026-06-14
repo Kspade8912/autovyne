@@ -21,6 +21,14 @@ const {
 const { createRateLimiter, sanitizeString, validateSubmission } = require('../lib/security');
 const { normalizeIndustry } = require('../lib/industry-ai-profiles');
 const { SMS_CONSENT_TEXT, getRequestIp, hasSmsConsent } = require('../lib/sms-consent');
+const {
+  CALENDAR_PROVIDERS,
+  FOLLOWUP_STYLES,
+  SERVICE_NEEDS,
+  UPDATE_CHANNELS,
+  preferenceSummary,
+  preferencesFromBody,
+} = require('../lib/business-preferences');
 const n8n = require('../services/n8n');
 const stripe = require('../services/stripe');
 
@@ -47,17 +55,17 @@ const PLAN_DETAILS = {
   'smb-bundle': {
     price: '$149/mo',
     bestFor: 'Small local teams that want the full starter automation stack without a launch fee.',
-    includes: 'AI calling, consent-aware SMS follow-up, CRM sync, workflow automation, AI lead review, and guided onboarding.',
+    includes: 'Call follow-up, consent-aware text updates, lead tracker, owner alerts, lead review, and guided onboarding.',
   },
   starter: {
     price: '$299/mo',
-    bestFor: 'Businesses that want missed-call capture, SMS follow-up, CRM logging, and AI lead review.',
-    includes: 'Core AI calling, consent-aware SMS follow-up, CRM sync, AI lead review, and portal visibility.',
+    bestFor: 'Businesses that want missed-call capture, text updates, lead tracking, and lead review.',
+    includes: 'Call follow-up, consent-aware text updates, lead tracker, lead review, and portal visibility.',
   },
   professional: {
     price: '$599/mo',
-    bestFor: 'Businesses that want the full managed workflow across calls, SMS, CRM, and n8n automations.',
-    includes: 'Full automation stack, workflow handoffs, booking/follow-up support, customer portal controls, and monitoring.',
+    bestFor: 'Businesses that want the full managed workflow across calls, updates, booking, and lead tracking.',
+    includes: 'Full automation stack, booking/follow-up support, customer portal controls, and monitoring.',
   },
   enterprise: {
     price: '$1199/mo',
@@ -81,6 +89,10 @@ function pageData(overrides = {}) {
     account: null,
     plans: PLAN_LABELS,
     planDetails: PLAN_DETAILS,
+    serviceNeeds: SERVICE_NEEDS,
+    updateChannels: UPDATE_CHANNELS,
+    calendarProviders: CALENDAR_PROVIDERS,
+    followupStyles: FOLLOWUP_STYLES,
     billingLabel,
     manualBilling: false,
     selectedPlan: 'professional',
@@ -90,7 +102,7 @@ function pageData(overrides = {}) {
       title: 'Sign Up - Autovyne',
       description: 'Start Autovyne onboarding, pay securely, and activate your AI automation portal.',
       ogTitle: 'Sign Up - Autovyne',
-      ogDescription: 'Sign up for Autovyne AI calling, SMS follow-up, CRM sync, and onboarding automation.',
+      ogDescription: 'Sign up for Autovyne call follow-up, text updates, lead tracking, and onboarding automation.',
       ogUrl: 'https://autovyne.com/signup',
       canonical: 'https://autovyne.com/signup',
     },
@@ -106,6 +118,33 @@ function publicSignupError(error, data) {
     return 'Payment setup needs Autovyne review. Please choose manual monthly billing or email kwaun.autovyne@gmail.com.';
   }
   return 'Signup could not be started. Please try again or email kwaun.autovyne@gmail.com.';
+}
+
+async function recordPreferenceEvents(account, preferences = {}) {
+  const summary = preferenceSummary(preferences);
+  const selectedNeeds = preferences.consultation?.needs || [];
+
+  if (preferences.consultation?.requested || selectedNeeds.length) {
+    await recordAccountEvent({
+      accountId: account.id,
+      eventType: 'consultation',
+      title: 'Consultation preferences received',
+      detail: summary.recommendation,
+      metadata: {
+        needs: selectedNeeds,
+        best_time: preferences.consultation?.best_time || null,
+      },
+      visibleToClient: true,
+    });
+  }
+
+  await recordAccountEvent({
+    accountId: account.id,
+    eventType: 'preferences',
+    title: 'Update preferences saved',
+    detail: `Autovyne will show account updates through ${summary.channels}. Calendar preference: ${summary.calendar}. Follow-up style: ${summary.followup}.`,
+    visibleToClient: true,
+  });
 }
 
 async function activatePaidOrder(order, session = {}) {
@@ -138,6 +177,7 @@ async function activatePaidOrder(order, session = {}) {
     accessCodeHash: order.portal_access_code_hash,
     services,
     metrics: {},
+    preferences: order.preferences || {},
     notes: 'Auto-created after successful paid signup. Portal is active; automation setup is queued for Autovyne.',
     stripeCustomerId: session.customer?.id || session.customer || order.stripe_customer_id,
     stripeCheckoutSessionId: session.id || order.stripe_checkout_session_id,
@@ -158,7 +198,7 @@ async function activatePaidOrder(order, session = {}) {
     accountId: account.id,
     eventType: 'onboarding',
     title: 'Onboarding started',
-    detail: 'Autovyne is preparing AI calling, SMS follow-up, CRM sync, and workflow automation for this account.',
+    detail: 'Autovyne is preparing call follow-up, text updates, lead tracking, and owner-friendly workflow support for this account.',
     visibleToClient: true,
   });
 
@@ -169,6 +209,8 @@ async function activatePaidOrder(order, session = {}) {
     detail: 'Autovyne will turn on each automation area after it is connected and checked.',
     visibleToClient: true,
   });
+
+  await recordPreferenceEvents(account, order.preferences || {});
 
   const activatedOrder = await markSignupActivated(order.id, account.id);
   n8n.sendPaidSignupEvent({ order: activatedOrder || order, account }).catch(error => {
@@ -199,6 +241,7 @@ async function createManualBillingAccount(order) {
     accessCodeHash: order.portal_access_code_hash,
     services,
     metrics: {},
+    preferences: order.preferences || {},
     notes: 'Manual monthly billing requested during signup. Do not start paid setup until payment is handled.',
     activatedAt: new Date().toISOString(),
   });
@@ -210,6 +253,8 @@ async function createManualBillingAccount(order) {
     detail: 'Autovyne received this signup without automatic card payments. Internal billing follow-up is required before paid setup begins.',
     visibleToClient: true,
   });
+
+  await recordPreferenceEvents(account, order.preferences || {});
 
   const manualOrder = await markSignupManualBilling(order.id, account.id);
   n8n.sendManualSignupEvent({ order: manualOrder || order, account }).catch(error => {
@@ -337,6 +382,8 @@ router.post('/', limiter, async (req, res) => {
     smsConsent: hasSmsConsent(req.body.sms_consent),
     acceptedTerms: req.body.accept_terms === 'true',
   };
+  const preferences = preferencesFromBody({ ...req.body, plan: data.plan, industry: data.industry });
+  const summary = preferenceSummary(preferences);
 
   if (!data.businessName || !data.contactName || !data.email || !data.industry) {
     return res.status(400).render('signup', pageData({ error: 'Please fill in your business, contact, email, and industry.', selectedPlan: data.plan, selectedBillingMethod: data.billingMethod }));
@@ -367,7 +414,9 @@ router.post('/', limiter, async (req, res) => {
         billing_method: data.billingMethod,
         accepted_terms_at: new Date().toISOString(),
         minimum_service_months: 1,
+        consultation_summary: summary,
       },
+      preferences,
     });
 
     await recordSmsConsent({

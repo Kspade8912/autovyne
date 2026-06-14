@@ -13,6 +13,16 @@
   <%- include('partials/nav') %>
   <main class="portal-shell portal-login">
     <section class="portal-card portal-login-card">
+      <%
+        const prefs = order && order.preferences ? order.preferences : {};
+        const recommendation = prefs.consultation && prefs.consultation.recommendation ? prefs.consultation.recommendation : null;
+        const updateChannels = prefs.communication && prefs.communication.update_channels ? prefs.communication.update_channels : ['portal'];
+        const channelLabel = updateChannels.map(function(channel) {
+          return channel === 'sms' ? 'text' : channel;
+        }).join(', ');
+        const calendarLabel = prefs.calendar && prefs.calendar.provider_label ? prefs.calendar.provider_label : 'Autovyne portal calendar';
+        const followupLabel = prefs.followup && prefs.followup.style_label ? prefs.followup.style_label : 'Owner reviews before changes';
+      %>
       <% if (error) { %>
         <div class="hero-badge">Signup Paused</div>
         <h1>Payment was not completed.</h1>
@@ -26,14 +36,24 @@
           <article class="portal-card portal-metric"><span>Email</span><strong style="font-size:1rem"><%= order.email %></strong></article>
           <article class="portal-card portal-metric"><span>Billing</span><strong style="font-size:1rem">Manual monthly</strong></article>
         </div>
+        <div class="portal-card" style="text-align:left;margin:0 0 22px;background:rgba(255,255,255,.035)">
+          <h2>Your setup recommendation</h2>
+          <p class="portal-muted"><%= recommendation ? recommendation.summary : 'Autovyne will review your consultation notes and recommend the best starting setup.' %></p>
+          <p class="portal-muted">Updates: <%= channelLabel %>. Calendar: <%= calendarLabel %>. Follow-up style: <%= followupLabel %>.</p>
+        </div>
         <div class="hero-actions"><a class="btn-primary" href="/portal">Open Client Portal</a></div>
       <% } else { %>
         <div class="hero-badge">Portal Activated</div>
         <h1>Welcome to Autovyne.</h1>
-        <p class="portal-muted">Your monthly subscription payment is confirmed and your client portal is active. Autovyne will now begin connecting AI calling, SMS follow-up, CRM sync, and automation workflows. Log in with your email and the portal password you created during signup.</p>
+        <p class="portal-muted">Your monthly subscription payment is confirmed and your client portal is active. Autovyne will now begin connecting call follow-up, text updates, lead tracking, booking support, and reporting. Log in with your email and the portal password you created during signup.</p>
         <div class="portal-grid" style="grid-template-columns:1fr 1fr;margin:22px 0;">
           <article class="portal-card portal-metric"><span>Email</span><strong style="font-size:1rem"><%= order.email %></strong></article>
           <article class="portal-card portal-metric"><span>Plan</span><strong><%= order.plan %></strong></article>
+        </div>
+        <div class="portal-card" style="text-align:left;margin:0 0 22px;background:rgba(255,255,255,.035)">
+          <h2>Your setup recommendation</h2>
+          <p class="portal-muted"><%= recommendation ? recommendation.summary : 'Autovyne will review your consultation notes and recommend the best starting setup.' %></p>
+          <p class="portal-muted">Updates: <%= channelLabel %>. Calendar: <%= calendarLabel %>. Follow-up style: <%= followupLabel %>.</p>
         </div>
         <div class="hero-actions"><a class="btn-primary" href="/portal">Open Client Portal</a></div>
       <% } %>

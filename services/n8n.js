@@ -90,6 +90,7 @@ async function sendPaidSignupEvent({ order, account }) {
         plan: order.plan,
         billing_method: order.billing_method || 'automatic',
         onboarding: order.onboarding || {},
+        preferences: order.preferences || {},
         paid_at: order.paid_at,
       },
       account: {
@@ -127,6 +128,7 @@ async function sendManualSignupEvent({ order, account }) {
         plan: order.plan,
         billing_method: 'manual',
         onboarding: order.onboarding || {},
+        preferences: order.preferences || {},
       },
       account: {
         id: account.id,
