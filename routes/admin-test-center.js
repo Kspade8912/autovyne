@@ -1,4 +1,5 @@
 const { Router } = require('express');
+const crypto = require('crypto');
 const { hasAdminSession } = require('../lib/admin-auth');
 const { getConfigurationStatus } = require('../services/integrations');
 const { getAdminSnapshot, listAccounts } = require('../db/accounts');
@@ -20,9 +21,21 @@ async function checkHttp({ label, path, method = 'GET', body = null, expect = 20
   const url = `${publicBaseUrl()}${path}`;
   const started = Date.now();
   try {
+    const headers = body ? { 'Content-Type': 'application/x-www-form-urlencoded' } : undefined;
+    if (path.startsWith('/twilio/') && body && process.env.TWILIO_AUTH_TOKEN) {
+      const params = new URLSearchParams(body);
+      const signedBody = Array.from(params.keys())
+        .sort()
+        .map(key => `${key}${params.get(key)}`)
+        .join('');
+      headers['X-Twilio-Signature'] = crypto
+        .createHmac('sha1', process.env.TWILIO_AUTH_TOKEN)
+        .update(url + signedBody)
+        .digest('base64');
+    }
     const response = await fetch(url, {
       method,
-      headers: body ? { 'Content-Type': 'application/x-www-form-urlencoded' } : undefined,
+      headers,
       body,
     });
     const text = await response.text();

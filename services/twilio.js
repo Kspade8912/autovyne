@@ -1,5 +1,9 @@
 const { fetchJson } = require('../lib/http');
 
+function publicBaseUrl() {
+  return (process.env.PUBLIC_BASE_URL || 'https://autovyne.com').replace(/\/+$/, '');
+}
+
 async function logIntegrationIncident(payload) {
   try {
     const { recordIntegrationIncident } = require('../db/integration-incidents');
@@ -10,16 +14,31 @@ async function logIntegrationIncident(payload) {
 }
 
 function isConfigured() {
+  return Boolean(isAccountConfigured() && isSenderConfigured());
+}
+
+function isAccountConfigured() {
   return Boolean(
     process.env.TWILIO_ACCOUNT_SID &&
-    process.env.TWILIO_AUTH_TOKEN &&
-    (process.env.TWILIO_PHONE_NUMBER || process.env.TWILIO_MESSAGING_SERVICE_SID)
+    process.env.TWILIO_AUTH_TOKEN
   );
+}
+
+function isSenderConfigured() {
+  return Boolean(process.env.TWILIO_PHONE_NUMBER || process.env.TWILIO_MESSAGING_SERVICE_SID);
+}
+
+function defaultStatusCallbackUrl() {
+  return `${publicBaseUrl()}/twilio/status`;
 }
 
 function authHeader() {
   const token = Buffer.from(`${process.env.TWILIO_ACCOUNT_SID}:${process.env.TWILIO_AUTH_TOKEN}`).toString('base64');
   return `Basic ${token}`;
+}
+
+function messageEndpoint() {
+  return `https://api.twilio.com/2010-04-01/Accounts/${encodeURIComponent(process.env.TWILIO_ACCOUNT_SID)}/Messages.json`;
 }
 
 async function sendSms({ to, body, smsConsent, statusCallbackUrl }) {
@@ -41,10 +60,10 @@ async function sendSms({ to, body, smsConsent, statusCallbackUrl }) {
   } else {
     params.set('From', process.env.TWILIO_PHONE_NUMBER);
   }
-  if (statusCallbackUrl) params.set('StatusCallback', statusCallbackUrl);
+  params.set('StatusCallback', statusCallbackUrl || process.env.TWILIO_STATUS_CALLBACK_URL || defaultStatusCallbackUrl());
 
   try {
-    return await fetchJson(`https://api.twilio.com/2010-04-01/Accounts/${encodeURIComponent(process.env.TWILIO_ACCOUNT_SID)}/Messages.json`, {
+    return await fetchJson(messageEndpoint(), {
       method: 'POST',
       headers: {
         Authorization: authHeader(),
@@ -68,4 +87,76 @@ async function sendSms({ to, body, smsConsent, statusCallbackUrl }) {
   }
 }
 
-module.exports = { isConfigured, sendSms };
+async function validateAccount() {
+  if (!isAccountConfigured()) {
+    return { ready: false, detail: 'Twilio Account SID/Auth Token are not configured.' };
+  }
+
+  try {
+    const account = await fetchJson(`https://api.twilio.com/2010-04-01/Accounts/${encodeURIComponent(process.env.TWILIO_ACCOUNT_SID)}.json`, {
+      method: 'GET',
+      headers: { Authorization: authHeader() },
+    }, 15000);
+    return {
+      ready: Boolean(account?.sid),
+      sid: account?.sid || null,
+      status: account?.status || null,
+      detail: account?.sid ? `Twilio account responded with status ${account.status || 'unknown'}.` : 'Twilio account response did not include an SID.',
+    };
+  } catch (error) {
+    await logIntegrationIncident({
+      provider: 'twilio',
+      operation: 'account.validate',
+      severity: 'warning',
+      message: error.message,
+      context: { account_sid_present: Boolean(process.env.TWILIO_ACCOUNT_SID) },
+    });
+    return { ready: false, detail: error.message };
+  }
+}
+
+async function sendDiagnosticSms() {
+  const to = process.env.TWILIO_TEST_TO_NUMBER;
+  if (!to) {
+    return {
+      ready: false,
+      skipped: true,
+      reason: 'missing_twilio_test_to_number',
+      detail: 'Set TWILIO_TEST_TO_NUMBER to your own opted-in test phone before sending a live diagnostic SMS.',
+    };
+  }
+
+  if (process.env.TWILIO_TEST_SMS_CONSENT !== 'true') {
+    return {
+      ready: false,
+      skipped: true,
+      reason: 'missing_test_sms_consent_flag',
+      detail: 'Set TWILIO_TEST_SMS_CONSENT=true only after the test phone owner has consented to receive the diagnostic message.',
+    };
+  }
+
+  const result = await sendSms({
+    to,
+    body: 'Autovyne diagnostic: Twilio verified sender is connected. Reply HELP for help or STOP to opt out.',
+    smsConsent: true,
+  });
+
+  return {
+    ready: Boolean(result?.sid),
+    sid: result?.sid || null,
+    status: result?.status || null,
+    detail: result?.sid
+      ? `Diagnostic SMS accepted by Twilio with status ${result.status || 'queued'}.`
+      : 'Twilio did not return a message SID.',
+  };
+}
+
+module.exports = {
+  defaultStatusCallbackUrl,
+  isAccountConfigured,
+  isConfigured,
+  isSenderConfigured,
+  sendDiagnosticSms,
+  sendSms,
+  validateAccount,
+};

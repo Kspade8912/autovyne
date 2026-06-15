@@ -78,6 +78,10 @@ function getConfigurationStatus() {
       accountConfigured: Boolean(process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN),
       senderConfigured: Boolean(process.env.TWILIO_PHONE_NUMBER || process.env.TWILIO_MESSAGING_SERVICE_SID),
       messagingServiceConfigured: Boolean(process.env.TWILIO_MESSAGING_SERVICE_SID),
+      statusCallbackConfigured: Boolean(process.env.TWILIO_STATUS_CALLBACK_URL || process.env.PUBLIC_BASE_URL),
+      statusCallbackUrl: process.env.TWILIO_STATUS_CALLBACK_URL || (process.env.PUBLIC_BASE_URL ? `${process.env.PUBLIC_BASE_URL.replace(/\/+$/, '')}/twilio/status` : null),
+      testRecipientConfigured: Boolean(process.env.TWILIO_TEST_TO_NUMBER),
+      testConsentConfirmed: process.env.TWILIO_TEST_SMS_CONSENT === 'true',
     },
   };
 }

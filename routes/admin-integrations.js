@@ -6,6 +6,7 @@ const hubspot = require('../services/hubspot');
 const { getConfigurationStatus } = require('../services/integrations');
 const n8n = require('../services/n8n');
 const stripe = require('../services/stripe');
+const twilio = require('../services/twilio');
 
 const router = Router();
 
@@ -71,6 +72,22 @@ function flattenStatus(status) {
       ready: Boolean(status.twilio?.senderConfigured),
       detail: 'Requires a Twilio phone number or Messaging Service SID.',
       nextAction: status.twilio?.senderConfigured ? 'SMS can use the configured sender after consent checks.' : 'Add TWILIO_PHONE_NUMBER or TWILIO_MESSAGING_SERVICE_SID in Render.',
+    },
+    {
+      group: 'SMS',
+      name: 'Twilio Status Callback',
+      ready: Boolean(status.twilio?.statusCallbackConfigured),
+      detail: status.twilio?.statusCallbackUrl || 'Uses PUBLIC_BASE_URL + /twilio/status by default.',
+      nextAction: status.twilio?.statusCallbackConfigured ? 'Add this URL in Twilio messaging webhook/status callback settings.' : 'Set PUBLIC_BASE_URL or TWILIO_STATUS_CALLBACK_URL in Render.',
+    },
+    {
+      group: 'SMS',
+      name: 'Twilio Test Recipient',
+      ready: Boolean(status.twilio?.testRecipientConfigured && status.twilio?.testConsentConfirmed),
+      detail: status.twilio?.testRecipientConfigured ? 'A dedicated diagnostic test number is configured.' : 'No diagnostic test number is configured.',
+      nextAction: status.twilio?.testRecipientConfigured && status.twilio?.testConsentConfirmed
+        ? 'You can run Send Twilio Test SMS.'
+        : 'Set TWILIO_TEST_TO_NUMBER and TWILIO_TEST_SMS_CONSENT=true only for your own opted-in test phone.',
     },
   ];
 }
@@ -160,6 +177,20 @@ router.post('/diagnostics/:provider', async (req, res) => {
         provider: 'Stripe Prices',
         ...(await stripe.validateConfiguredPrices()),
         detail: 'Checked each configured monthly Price ID through Stripe.',
+      };
+    } else if (provider === 'twilio-account') {
+      const result = await twilio.validateAccount();
+      diagnosticResult = {
+        provider: 'Twilio Account',
+        ready: Boolean(result.ready),
+        detail: result.detail,
+      };
+    } else if (provider === 'twilio-sms') {
+      const result = await twilio.sendDiagnosticSms();
+      diagnosticResult = {
+        provider: 'Twilio Diagnostic SMS',
+        ready: Boolean(result.ready),
+        detail: result.detail,
       };
     } else {
       diagnosticResult = {

@@ -112,6 +112,7 @@ const lead = {
   assert.equal(typeof status.stripe.webhookConfigured, 'boolean');
   assert.equal(typeof status.twilio.accountConfigured, 'boolean');
   assert.equal(status.twilio.configured, true);
+  assert.equal(status.twilio.statusCallbackUrl, null);
 
   requests.length = 0;
   const skippedSms = await twilio.sendSms({
@@ -135,6 +136,7 @@ const lead = {
   const twilioBody = new URLSearchParams(twilioRequest.options.body);
   assert.equal(twilioBody.get('To'), '+15555550100');
   assert.equal(twilioBody.get('From'), '+15555550000');
+  assert.equal(twilioBody.get('StatusCallback'), 'https://autovyne.com/twilio/status');
 
   const adminAnswer = await askAdminAssistant({
     question: 'What needs attention?',

@@ -85,12 +85,14 @@
     <section class="card">
       <span class="badge">Deep Diagnostics</span>
       <h2>Run provider checks</h2>
-      <p class="mini">These buttons perform safe launch checks. HubSpot creates/updates a diagnostic contact, n8n sends a diagnostic webhook event, Stripe checks configured Price IDs, and Supabase verifies required tables/RLS. Secret values are never displayed.</p>
+      <p class="mini">These buttons perform safe launch checks. HubSpot creates/updates a diagnostic contact, n8n sends a diagnostic webhook event, Stripe checks configured Price IDs, Twilio validates the account or sends only to your configured opted-in test number, and Supabase verifies required tables/RLS. Secret values are never displayed.</p>
       <div class="actions">
         <form method="POST" action="/admin/integrations/diagnostics/supabase"><button class="btn" type="submit">Check Supabase Schema</button></form>
         <form method="POST" action="/admin/integrations/diagnostics/hubspot"><button class="btn btn-dark" type="submit">Send HubSpot Test</button></form>
         <form method="POST" action="/admin/integrations/diagnostics/n8n"><button class="btn btn-dark" type="submit">Send n8n Test</button></form>
         <form method="POST" action="/admin/integrations/diagnostics/stripe-prices"><button class="btn btn-dark" type="submit">Validate Stripe Prices</button></form>
+        <form method="POST" action="/admin/integrations/diagnostics/twilio-account"><button class="btn btn-dark" type="submit">Validate Twilio Account</button></form>
+        <form method="POST" action="/admin/integrations/diagnostics/twilio-sms"><button class="btn btn-dark" type="submit">Send Twilio Test SMS</button></form>
       </div>
     </section>
 

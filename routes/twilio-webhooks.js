@@ -9,6 +9,7 @@ const router = Router();
 const STOP_WORDS = new Set(['STOP', 'STOPALL', 'UNSUBSCRIBE', 'CANCEL', 'END', 'QUIT']);
 const HELP_WORDS = new Set(['HELP', 'INFO']);
 const START_WORDS = new Set(['START', 'UNSTOP', 'YES']);
+const DELIVERY_STATUSES = new Set(['queued', 'accepted', 'sent', 'delivered', 'undelivered', 'failed', 'receiving', 'received', 'read']);
 
 function twiml(message) {
   return `<?xml version="1.0" encoding="UTF-8"?><Response><Message>${escapeXml(message)}</Message></Response>`;
@@ -76,6 +77,7 @@ router.post('/sms', async (req, res) => {
       toPhone: req.body.To,
       body,
       eventType,
+      direction: 'inbound',
       rawPayload: req.body,
     });
 
@@ -115,6 +117,34 @@ router.post('/sms', async (req, res) => {
   } catch (error) {
     console.error('[twilio-webhook] inbound sms error:', error.message);
     return res.status(500).send(twiml('Autovyne could not process this message right now.'));
+  }
+});
+
+router.post('/status', async (req, res) => {
+  if (!validateTwilioSignature(req)) {
+    return res.status(403).json({ error: 'invalid_twilio_signature' });
+  }
+
+  const messageStatus = String(req.body.MessageStatus || req.body.SmsStatus || '').toLowerCase();
+  const eventType = DELIVERY_STATUSES.has(messageStatus) ? `status_${messageStatus}` : 'status_update';
+
+  try {
+    await recordSmsWebhookEvent({
+      messageSid: req.body.MessageSid || req.body.SmsSid || req.body.SmsMessageSid,
+      fromPhone: req.body.From,
+      toPhone: req.body.To,
+      body: req.body.Body || null,
+      eventType,
+      direction: 'outbound',
+      messageStatus,
+      errorCode: req.body.ErrorCode || null,
+      errorMessage: req.body.ErrorMessage || null,
+      rawPayload: req.body,
+    });
+    return res.status(204).end();
+  } catch (error) {
+    console.error('[twilio-webhook] status callback error:', error.message);
+    return res.status(500).json({ error: 'status_callback_failed' });
   }
 });
 
