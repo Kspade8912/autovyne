@@ -75,7 +75,9 @@ function getConfigurationStatus() {
     },
     twilio: {
       configured: twilio.isConfigured(),
-      accountConfigured: Boolean(process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN),
+      accountConfigured: twilio.isAccountConfigured(),
+      authMode: twilio.authCredentials().mode,
+      webhookValidationConfigured: Boolean(process.env.TWILIO_AUTH_TOKEN),
       senderConfigured: Boolean(process.env.TWILIO_PHONE_NUMBER || process.env.TWILIO_MESSAGING_SERVICE_SID),
       messagingServiceConfigured: Boolean(process.env.TWILIO_MESSAGING_SERVICE_SID),
       statusCallbackConfigured: Boolean(process.env.TWILIO_STATUS_CALLBACK_URL || process.env.PUBLIC_BASE_URL),

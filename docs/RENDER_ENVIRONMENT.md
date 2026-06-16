@@ -32,7 +32,7 @@ Render generates these values automatically from the Blueprint.
 
 Each outside provider should get a separate private key, for example:
 
-- Calling provider: `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, or the selected provider's equivalent.
+- Calling provider: `TWILIO_ACCOUNT_SID`, `TWILIO_API_KEY`, `TWILIO_API_SECRET`, and `TWILIO_AUTH_TOKEN` for webhook signature validation, or the selected provider's equivalent.
 - CRM: provider-specific private token.
 - Lead enrichment: provider-specific private token.
 

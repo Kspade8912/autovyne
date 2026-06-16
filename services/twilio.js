@@ -18,10 +18,7 @@ function isConfigured() {
 }
 
 function isAccountConfigured() {
-  return Boolean(
-    process.env.TWILIO_ACCOUNT_SID &&
-    process.env.TWILIO_AUTH_TOKEN
-  );
+  return Boolean(process.env.TWILIO_ACCOUNT_SID && authCredentials().configured);
 }
 
 function isSenderConfigured() {
@@ -32,8 +29,31 @@ function defaultStatusCallbackUrl() {
   return `${publicBaseUrl()}/twilio/status`;
 }
 
+function authCredentials() {
+  if (process.env.TWILIO_API_KEY && process.env.TWILIO_API_SECRET) {
+    return {
+      configured: true,
+      username: process.env.TWILIO_API_KEY,
+      password: process.env.TWILIO_API_SECRET,
+      mode: 'api_key',
+    };
+  }
+
+  if (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN) {
+    return {
+      configured: true,
+      username: process.env.TWILIO_ACCOUNT_SID,
+      password: process.env.TWILIO_AUTH_TOKEN,
+      mode: 'auth_token',
+    };
+  }
+
+  return { configured: false, username: '', password: '', mode: 'missing' };
+}
+
 function authHeader() {
-  const token = Buffer.from(`${process.env.TWILIO_ACCOUNT_SID}:${process.env.TWILIO_AUTH_TOKEN}`).toString('base64');
+  const credentials = authCredentials();
+  const token = Buffer.from(`${credentials.username}:${credentials.password}`).toString('base64');
   return `Basic ${token}`;
 }
 
@@ -89,7 +109,7 @@ async function sendSms({ to, body, smsConsent, statusCallbackUrl }) {
 
 async function validateAccount() {
   if (!isAccountConfigured()) {
-    return { ready: false, detail: 'Twilio Account SID/Auth Token are not configured.' };
+    return { ready: false, detail: 'Twilio Account SID plus Auth Token or API Key credentials are not configured.' };
   }
 
   try {
@@ -109,7 +129,10 @@ async function validateAccount() {
       operation: 'account.validate',
       severity: 'warning',
       message: error.message,
-      context: { account_sid_present: Boolean(process.env.TWILIO_ACCOUNT_SID) },
+      context: {
+        account_sid_present: Boolean(process.env.TWILIO_ACCOUNT_SID),
+        auth_mode: authCredentials().mode,
+      },
     });
     return { ready: false, detail: error.message };
   }
@@ -152,6 +175,7 @@ async function sendDiagnosticSms() {
 }
 
 module.exports = {
+  authCredentials,
   defaultStatusCallbackUrl,
   isAccountConfigured,
   isConfigured,

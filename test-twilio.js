@@ -96,6 +96,16 @@ function responseRecorder() {
   assert.equal(requests[0].url, 'https://api.twilio.com/2010-04-01/Accounts/AC_unit.json');
 
   requests.length = 0;
+  process.env.TWILIO_API_KEY = 'SK_unit';
+  process.env.TWILIO_API_SECRET = 'twilio_api_secret';
+  assert.equal(twilio.authCredentials().mode, 'api_key');
+  await twilio.sendSms({ to: '+15555550123', body: 'With API key', smsConsent: true });
+  const apiAuth = requests[0].options.headers.Authorization.replace(/^Basic\s+/i, '');
+  assert.equal(Buffer.from(apiAuth, 'base64').toString('utf8'), 'SK_unit:twilio_api_secret');
+  delete process.env.TWILIO_API_KEY;
+  delete process.env.TWILIO_API_SECRET;
+
+  requests.length = 0;
   delete process.env.TWILIO_TEST_TO_NUMBER;
   delete process.env.TWILIO_TEST_SMS_CONSENT;
   const skippedDiagnostic = await twilio.sendDiagnosticSms();

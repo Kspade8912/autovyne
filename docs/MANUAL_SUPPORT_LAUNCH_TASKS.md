@@ -6,7 +6,7 @@ Use this list for work that software can guide, but cannot fully finish without 
 
 1. **Twilio toll-free and sender readiness**
    - Confirm toll-free verification is approved.
-   - Confirm Render has `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, and either `TWILIO_PHONE_NUMBER` or `TWILIO_MESSAGING_SERVICE_SID`.
+   - Confirm Render has `TWILIO_ACCOUNT_SID`, either `TWILIO_API_KEY`/`TWILIO_API_SECRET` or `TWILIO_AUTH_TOKEN` for outbound API calls, `TWILIO_AUTH_TOKEN` for webhook signature validation, and either `TWILIO_PHONE_NUMBER` or `TWILIO_MESSAGING_SERVICE_SID`.
    - Send only consent-backed SMS. Test STOP and HELP before live volume.
 
 2. **Custom domain HTTPS**

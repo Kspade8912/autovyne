@@ -37,7 +37,8 @@ Render must have these configured for launch:
 - `STRIPE_PRICE_PROFESSIONAL`
 - `STRIPE_PRICE_ENTERPRISE`
 - `TWILIO_ACCOUNT_SID`
-- `TWILIO_AUTH_TOKEN`
+- `TWILIO_AUTH_TOKEN` for webhook signature verification
+- `TWILIO_API_KEY` and `TWILIO_API_SECRET` for outbound REST API calls, or `TWILIO_AUTH_TOKEN` for the legacy outbound path
 - `TWILIO_PHONE_NUMBER` or `TWILIO_MESSAGING_SERVICE_SID`
 - `PUBLIC_BASE_URL=https://autovyne.com`
 

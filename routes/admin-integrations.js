@@ -63,8 +63,17 @@ function flattenStatus(status) {
       group: 'SMS',
       name: 'Twilio Account',
       ready: Boolean(status.twilio?.accountConfigured),
-      detail: 'Requires TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN.',
-      nextAction: status.twilio?.accountConfigured ? 'Twilio account credentials are present.' : 'Add Twilio Account SID and Auth Token in Render.',
+      detail: status.twilio?.authMode === 'api_key'
+        ? 'Using Twilio API Key credentials for outbound REST API calls.'
+        : 'Requires TWILIO_ACCOUNT_SID plus TWILIO_AUTH_TOKEN, or TWILIO_API_KEY plus TWILIO_API_SECRET.',
+      nextAction: status.twilio?.accountConfigured ? 'Twilio account credentials are present.' : 'Add Twilio Account SID and either Auth Token or API Key credentials in Render.',
+    },
+    {
+      group: 'SMS',
+      name: 'Twilio Webhook Validation',
+      ready: Boolean(status.twilio?.webhookValidationConfigured),
+      detail: 'Requires TWILIO_AUTH_TOKEN so inbound SMS and status callbacks can be verified.',
+      nextAction: status.twilio?.webhookValidationConfigured ? 'Twilio webhook signature validation is available.' : 'Add TWILIO_AUTH_TOKEN in Render before relying on live inbound Twilio webhooks.',
     },
     {
       group: 'SMS',
