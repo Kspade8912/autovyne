@@ -110,6 +110,29 @@
 
 .ai-widget-form select option { background: #12141c; color: #fff; }
 .ai-widget-form textarea { resize: vertical; min-height: 72px; }
+.ai-widget-chips {
+  display: flex;
+  gap: 7px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+.ai-widget-chip {
+  flex: 0 0 auto;
+  border: 1px solid rgba(0,232,123,0.18);
+  border-radius: 999px;
+  background: rgba(0,232,123,0.08);
+  color: #dfffee;
+  cursor: pointer;
+  font: 700 .72rem 'Space Grotesk', system-ui, sans-serif;
+  max-width: 220px;
+  overflow: hidden;
+  padding: 8px 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ai-widget-chip:hover {
+  border-color: rgba(0,232,123,0.44);
+}
 .ai-widget-actions { display: grid; grid-template-columns: 1fr 1.4fr; gap: 9px; }
 .ai-widget-actions button {
   border: 0;

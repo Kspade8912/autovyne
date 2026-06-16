@@ -27,6 +27,11 @@
           <option value="<%= prompt %>"><%= prompt %></option>
         <% }); %>
       </select>
+      <div class="ai-widget-chips" aria-label="Suggested assistant questions">
+        <% (widgetPrompts || []).slice(0, 4).forEach(function(prompt) { %>
+          <button type="button" class="ai-widget-chip" data-prompt="<%= prompt %>"><%= prompt %></button>
+        <% }); %>
+      </div>
       <label for="<%= widgetId %>-input">Your own question</label>
       <textarea id="<%= widgetId %>-input" class="ai-widget-input" rows="3" placeholder="Type your own question..."></textarea>
       <div class="ai-widget-actions">

@@ -53,7 +53,43 @@ function renderLogin(res, error = null) {
     seo: seo(),
     assistantQuestion: '',
     assistantResponse: null,
+    autonomyPlan: null,
   });
+}
+
+function buildClientAutonomyPlan(account, events = [], actionRequests = [], calendarItems = []) {
+  const services = account?.services || {};
+  const prefs = account?.preferences || {};
+  const communication = prefs.communication || {};
+  const followup = prefs.followup || {};
+  const calendar = prefs.calendar || {};
+  const canRun = [
+    services.openai_qualification ? 'Summarize new lead and call activity for owner review.' : null,
+    services.crm_sync ? 'Organize qualified leads in the lead tracker.' : null,
+    services.n8n_workflows ? 'Route booking, reminder, and owner-update handoffs.' : null,
+    services.ai_calling ? 'Capture call intent and prepare handoff notes.' : null,
+    services.sms_followup ? 'Prepare text follow-up only where consent records allow it.' : null,
+  ].filter(Boolean);
+  const needsApproval = [
+    'Sending or changing SMS follow-up when consent is unclear.',
+    'Blocking callers, stopping follow-up, or changing account rules.',
+    'Changing billing, privacy, legal, or cancellation-related items.',
+    'Publishing sensitive call details or customer personal information.',
+  ];
+  const updateChannels = (communication.update_channels || ['portal']).map(channel => channel === 'sms' ? 'text' : channel);
+  const recentSignals = events.slice(0, 5).map(event => event.title);
+  const openRequests = actionRequests.filter(request => ['submitted', 'in_review'].includes(request.status));
+  return {
+    canRun,
+    needsApproval,
+    updateChannels,
+    summaryFrequency: communication.summary_frequency || 'daily',
+    calendarLabel: calendar.provider_label || 'Autovyne portal calendar',
+    followupLabel: followup.style_label || 'Owner review before changes',
+    openRequestCount: openRequests.length,
+    calendarCount: calendarItems.length,
+    recentSignals,
+  };
 }
 
 async function loadPortalData(account, overrides = {}) {
@@ -84,6 +120,7 @@ async function loadPortalData(account, overrides = {}) {
     seo: seo(),
     assistantQuestion: '',
     assistantResponse: null,
+    autonomyPlan: buildClientAutonomyPlan(account, events, actionRequests, calendarItems),
     ...overrides,
   };
 }
@@ -134,6 +171,7 @@ router.post('/login', async (req, res) => {
       seo: seo(),
       assistantQuestion: '',
       assistantResponse: null,
+      autonomyPlan: null,
     });
 
     res.cookie('portal_account_id', String(account.id), {
@@ -200,6 +238,7 @@ router.post('/assistant', async (req, res) => {
       seo: seo(),
       assistantQuestion,
       assistantResponse: 'The portal assistant could not answer right now. Please use Submit a Question or email kwaun.autovyne@gmail.com.',
+      autonomyPlan: account ? buildClientAutonomyPlan(account, events, actionRequests, []) : null,
     });
   }
 });
@@ -411,6 +450,7 @@ router.post('/billing', async (req, res) => {
       seo: seo(),
       assistantQuestion: '',
       assistantResponse: null,
+      autonomyPlan: account ? buildClientAutonomyPlan(account, events, actionRequests, []) : null,
     });
   }
 });

@@ -50,6 +50,7 @@
     const selectedFrequency = preferences.communication && preferences.communication.summary_frequency ? preferences.communication.summary_frequency : 'daily';
     const isChecked = (list, key) => (list || []).includes(key);
     const leadActivity = (events || []).filter(event => ['lead', 'ai_calling', 'sms', 'crm', 'workflow', 'customer_action_request', 'booking', 'calendar', 'preferences', 'onboarding'].includes(event.event_type));
+    const autonomy = autonomyPlan || { canRun: [], needsApproval: [], updateChannels: ['portal'], summaryFrequency: 'daily', calendarLabel: 'Autovyne portal calendar', followupLabel: 'Owner review before changes', openRequestCount: 0, calendarCount: 0, recentSignals: [] };
     const serviceRows = [
       ['Call Follow-up', services.ai_calling, 'Helps answer missed calls and collect what the customer needs.'],
       ['Text Updates', services.sms_followup, 'Follows up by text only when consent is recorded.'],
@@ -183,6 +184,30 @@
         <div><strong>1. Watch</strong><p>See calls, texts, lead movement, and recovered value without logging into separate tools.</p></div>
         <div><strong>2. Control</strong><p>Use Action Center to block callers, pause follow-up, request reviews, or update rules.</p></div>
         <div><strong>3. Prove</strong><p>Requests are logged with dates so there is a clear account history.</p></div>
+      </div>
+    </section>
+
+    <section class="portal-card">
+      <h2>Autonomous AI Work Plan</h2>
+      <p class="portal-muted">Autovyne is built to do the background work for you, then show the useful business version here. Risky items still wait for review so your account stays controlled and compliant.</p>
+      <div class="portal-automation-grid">
+        <article class="portal-automation-card">
+          <div class="portal-automation-top"><div><span>Runs in background</span><strong>AI can handle</strong></div><span class="portal-pill portal-pill-on"><%= autonomy.canRun.length %> tasks</span></div>
+          <% if (autonomy.canRun.length) { %>
+            <ul class="portal-compact-list"><% autonomy.canRun.slice(0, 5).forEach(function(item) { %><li><%= item %></li><% }); %></ul>
+          <% } else { %>
+            <p>Autovyne will show active autonomous tasks here after setup starts.</p>
+          <% } %>
+        </article>
+        <article class="portal-automation-card">
+          <div class="portal-automation-top"><div><span>Safety gate</span><strong>Needs approval</strong></div><span class="portal-pill portal-pill-off">Protected</span></div>
+          <ul class="portal-compact-list"><% autonomy.needsApproval.slice(0, 4).forEach(function(item) { %><li><%= item %></li><% }); %></ul>
+        </article>
+        <article class="portal-automation-card">
+          <div class="portal-automation-top"><div><span>Daily visibility</span><strong>Reports & updates</strong></div><span class="portal-pill portal-pill-on"><%= autonomy.summaryFrequency %></span></div>
+          <p>Updates through <%= autonomy.updateChannels.join(', ') %>. Calendar: <%= autonomy.calendarLabel %>. Follow-up style: <%= autonomy.followupLabel %>.</p>
+          <small><%= autonomy.openRequestCount %> open control request(s), <%= autonomy.calendarCount %> portal calendar item(s).</small>
+        </article>
       </div>
     </section>
 

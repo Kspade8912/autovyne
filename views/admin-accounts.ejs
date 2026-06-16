@@ -57,6 +57,9 @@
     .slice(0, 5);
   const setupPercent = accountsList.length ? Math.round((readyAccounts / accountsList.length) * 100) : 0;
   const legalReviewCount = (snap.legalAudits || []).filter(audit => audit.status === 'needs_admin_review').length;
+  const reports = opsReports || [];
+  const reviewRows = customerReviews || [];
+  const latestOpsReport = generatedOpsReport || reports[0] || null;
   const editAccount = selectedEditAccount || null;
   const editMetrics = editAccount ? (editAccount.metrics || {}) : {};
   const formAction = editAccount ? `/admin/accounts/account/${editAccount.id}` : '/admin/accounts';
@@ -118,6 +121,57 @@
             </tbody>
           </table>
         </div>
+      <% } %>
+    </section>
+
+    <section class="card assistant">
+      <div class="section-title">
+        <div>
+          <h2>Autonomous Daily Ops Report</h2>
+          <p class="mini">Generates the owner brief Autovyne should follow today: what can run automatically, what needs approval, what to audit, and what to prep before cold calling.</p>
+        </div>
+        <form method="POST" action="/admin/accounts/ops-report">
+          <button class="btn" type="submit">Generate Daily Report</button>
+        </form>
+      </div>
+      <% if (latestOpsReport) {
+        const reportMetrics = latestOpsReport.metrics || {};
+        const reportPriorities = latestOpsReport.priorities || [];
+        const reportManual = latestOpsReport.manual_support || [];
+        const reportAudit = latestOpsReport.audit_tasks || [];
+        const reportCold = latestOpsReport.cold_calling_tasks || [];
+      %>
+        <div class="health-grid">
+          <div class="health"><span class="mini">Accounts</span><strong><%= reportMetrics.accounts_total || 0 %></strong><p class="mini"><%= reportMetrics.accounts_active || 0 %> active, <%= reportMetrics.accounts_setup || 0 %> in setup, <%= reportMetrics.accounts_review || 0 %> review.</p></div>
+          <div class="health"><span class="mini">Priority Items</span><strong class="<%= reportPriorities.length ? 'warn' : 'accent' %>"><%= reportPriorities.length %></strong><p class="mini"><%= latestOpsReport.summary %></p></div>
+          <div class="health"><span class="mini">Manual Support</span><strong class="<%= reportManual.length ? 'warn' : 'accent' %>"><%= reportManual.length %></strong><p class="mini">Items the AI should not complete without approval.</p></div>
+        </div>
+        <% if (latestOpsReport.ai_narrative) { %>
+          <div class="assistant-answer"><%= latestOpsReport.ai_narrative %></div>
+        <% } %>
+        <% if (reportPriorities.length) { %>
+          <div class="table-wrap" style="margin-top:12px">
+            <table class="table">
+              <thead><tr><th>Priority</th><th>Why it matters</th><th>Open</th></tr></thead>
+              <tbody>
+                <% reportPriorities.slice(0, 6).forEach(function(item) { %>
+                  <tr>
+                    <td><span class="pill <%= item.severity === 'high' ? 'pill-warn' : '' %>"><%= item.severity %></span><br><strong><%= item.title %></strong></td>
+                    <td class="mini"><%= item.detail %></td>
+                    <td><a class="btn btn-ghost" href="<%= item.href || '/admin/accounts' %>">Review</a></td>
+                  </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+        <% } %>
+        <div class="health-grid" style="margin-top:12px">
+          <div class="health"><span class="mini">Audit watch</span><p class="mini"><%= reportAudit.slice(0, 2).join(' ') || 'No audit tasks generated.' %></p></div>
+          <div class="health"><span class="mini">Cold call prep</span><p class="mini"><%= reportCold.slice(0, 2).join(' ') || 'No outreach tasks generated.' %></p></div>
+          <div class="health"><span class="mini">Generated</span><p class="mini"><%= latestOpsReport.created_at ? new Date(latestOpsReport.created_at).toLocaleString() : 'This session' %></p></div>
+        </div>
+      <% } else { %>
+        <p class="mini">No autonomous report has been generated yet. Click the button once each morning before outreach.</p>
       <% } %>
     </section>
 
@@ -317,6 +371,72 @@
             </tbody>
           </table>
         </div>
+      </div>
+    </section>
+
+    <section class="recent" id="customer-reviews">
+      <div class="card">
+        <div class="section-title">
+          <div>
+            <h2>Verified Homepage Reviews</h2>
+            <p class="mini">Replace fake/static testimonials with reviews from signed-up customers who actually used Autovyne. Only approved reviews show publicly.</p>
+          </div>
+        </div>
+        <form method="POST" action="/admin/accounts/reviews">
+          <label>Connected Account</label>
+          <select name="account_id">
+            <option value="">No account selected</option>
+            <% accountsList.forEach(function(a){ %><option value="<%= a.id %>"><%= a.business_name %></option><% }); %>
+          </select>
+          <label>Business Name</label>
+          <input name="business_name" placeholder="Used if no account is selected">
+          <label>Reviewer Name</label>
+          <input name="reviewer_name" placeholder="Example: Kwaun, owner">
+          <label>Reviewer Role</label>
+          <input name="reviewer_role" placeholder="Example: Owner">
+          <label>Rating</label>
+          <select name="rating">
+            <option value="">No rating</option>
+            <option value="5">5 / 5</option>
+            <option value="4">4 / 5</option>
+            <option value="3">3 / 5</option>
+            <option value="2">2 / 5</option>
+            <option value="1">1 / 5</option>
+          </select>
+          <label>Customer Quote</label>
+          <textarea name="quote" required placeholder="Paste the exact review the customer gave permission to use."></textarea>
+          <label>Outcome Summary</label>
+          <textarea name="outcome_summary" placeholder="Example: Calls, bookings, or support experience they specifically mentioned."></textarea>
+          <label>Public Status</label>
+          <select name="approved">
+            <option value="false">Pending - do not show yet</option>
+            <option value="true">Approved - show on homepage</option>
+          </select>
+          <button class="btn" style="margin-top:14px">Save Review</button>
+        </form>
+      </div>
+
+      <div class="card">
+        <div class="section-title"><h2>Review Queue</h2><p class="mini">Approved rows power the public homepage proof section.</p></div>
+        <% if (reviewRows.length) { %>
+          <% reviewRows.slice(0, 8).forEach(function(review) { %>
+            <div class="event">
+              <strong><%= review.business_name %></strong>
+              <p class="mini"><%= review.status %><%= review.rating ? ` - ${review.rating}/5` : '' %><%= review.reviewer_name ? ` - ${review.reviewer_name}` : '' %></p>
+              <p class="mini"><%= review.quote %></p>
+              <% if (review.outcome_summary) { %><p class="mini"><%= review.outcome_summary %></p><% } %>
+              <form method="POST" action="/admin/accounts/reviews/<%= review.id %>/status" style="margin-top:8px">
+                <select name="status">
+                  <option value="pending" <%= review.status === 'pending' ? 'selected' : '' %>>Pending</option>
+                  <option value="approved" <%= review.status === 'approved' ? 'selected' : '' %>>Approved</option>
+                </select>
+                <button class="btn btn-secondary" style="margin-top:8px">Update Status</button>
+              </form>
+            </div>
+          <% }); %>
+        <% } else { %>
+          <p class="mini">No customer reviews saved yet. The homepage will show an honest verified-review empty state.</p>
+        <% } %>
       </div>
     </section>
 

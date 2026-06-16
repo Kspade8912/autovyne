@@ -23,6 +23,9 @@ const {
 const { preferenceSummary, preferencesFromBody } = require('../lib/business-preferences');
 const { askAdminAssistant } = require('../services/openai');
 const { getConfigurationStatus } = require('../services/integrations');
+const { listAutonomousOpsReports } = require('../db/autonomous-ops-reports');
+const { createCustomerReview, listCustomerReviews, updateCustomerReviewStatus } = require('../db/customer-reviews');
+const { generateAutonomousOpsReport } = require('../services/autonomous-ops');
 
 const router = Router();
 
@@ -233,9 +236,11 @@ function accountMatchesFilters(account, filters) {
 }
 
 async function pageData(overrides = {}) {
-  const [accounts, snapshot] = await Promise.all([
+  const [accounts, snapshot, opsReports, customerReviews] = await Promise.all([
     listAccounts(),
     getAdminSnapshot(),
+    listAutonomousOpsReports({ limit: 5 }).catch(() => []),
+    listCustomerReviews({ limit: 20 }).catch(() => []),
   ]);
   const filters = overrides.filters || normalizeFilters();
   const filteredAccounts = accounts.filter(account => accountMatchesFilters(account, filters));
@@ -250,6 +255,9 @@ async function pageData(overrides = {}) {
     selectedAccount: null,
     selectedEditAccount: null,
     selectedEvents: [],
+    opsReports,
+    customerReviews,
+    generatedOpsReport: null,
     assistantQuestion: '',
     assistantResponse: null,
     industryProfiles: INDUSTRY_AI_PROFILES,
@@ -282,6 +290,13 @@ function accountInput(body) {
     },
     notes: sanitizeString(body.notes),
   };
+}
+
+function cleanReviewText(value) {
+  return sanitizeString(value)
+    .replace(/&quot;/g, '"')
+    .replace(/&#x27;/g, "'")
+    .replace(/&amp;/g, '&');
 }
 
 function mergeServices(current = {}, updates = {}) {
@@ -645,6 +660,72 @@ router.post('/assistant', async (req, res) => {
       assistantQuestion,
       assistantResponse: 'The admin assistant could not answer right now. Check Integration Health and try again.',
     }));
+  }
+});
+
+router.post('/ops-report', async (req, res) => {
+  if (!isAuthorized(req)) return res.status(401).redirect('/admin/accounts');
+
+  try {
+    const generatedOpsReport = await generateAutonomousOpsReport({ persist: true });
+    res.render('admin-accounts', await pageData({
+      success: 'Autonomous daily operations report generated.',
+      generatedOpsReport,
+    }));
+  } catch (error) {
+    console.error('[admin-accounts] ops report error:', error.message);
+    res.status(500).render('admin-accounts', await pageData({
+      error: 'Autonomous report could not be generated right now.',
+    }));
+  }
+});
+
+router.post('/reviews', async (req, res) => {
+  if (!isAuthorized(req)) return res.status(401).redirect('/admin/accounts');
+
+  try {
+    const accountId = req.body.account_id ? parseInt(req.body.account_id, 10) : null;
+    const account = accountId ? await getAccountById(accountId) : null;
+    const businessName = cleanReviewText(req.body.business_name) || account?.business_name;
+    const quote = cleanReviewText(req.body.quote);
+
+    if (!businessName || !quote || quote.length < 12) {
+      return res.status(400).render('admin-accounts', await pageData({
+        error: 'Review needs a business name and a real customer quote.',
+      }));
+    }
+
+    await createCustomerReview({
+      accountId: account?.id || null,
+      businessName,
+      reviewerName: cleanReviewText(req.body.reviewer_name),
+      reviewerRole: cleanReviewText(req.body.reviewer_role),
+      quote,
+      rating: Number(req.body.rating || 0) || null,
+      outcomeSummary: cleanReviewText(req.body.outcome_summary),
+      status: req.body.approved === 'true' ? 'approved' : 'pending',
+      source: 'admin',
+    });
+
+    res.render('admin-accounts', await pageData({ success: 'Customer review saved. Approved reviews appear on the homepage.' }));
+  } catch (error) {
+    console.error('[admin-accounts] review save error:', error.message);
+    res.status(500).render('admin-accounts', await pageData({ error: 'Customer review could not be saved.' }));
+  }
+});
+
+router.post('/reviews/:id/status', async (req, res) => {
+  if (!isAuthorized(req)) return res.status(401).redirect('/admin/accounts');
+
+  try {
+    await updateCustomerReviewStatus({
+      id: parseInt(req.params.id, 10),
+      status: sanitizeString(req.body.status) === 'approved' ? 'approved' : 'pending',
+    });
+    res.redirect('/admin/accounts#customer-reviews');
+  } catch (error) {
+    console.error('[admin-accounts] review status error:', error.message);
+    res.status(500).render('admin-accounts', await pageData({ error: 'Customer review status could not be updated.' }));
   }
 });
 

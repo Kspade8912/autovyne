@@ -286,6 +286,7 @@ async function askCustomerAssistant({ question, account, events, actionRequests 
 }
 
 module.exports = {
+  askAssistant,
   askAdminAssistant,
   askCustomerAssistant,
   askLegalAuditAssistant,

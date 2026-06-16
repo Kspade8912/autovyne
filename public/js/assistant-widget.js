@@ -14,6 +14,7 @@
     const close = widget.querySelector('.ai-widget-close');
     const form = widget.querySelector('.ai-widget-form');
     const prompt = widget.querySelector('.ai-widget-prompt');
+    const chips = widget.querySelectorAll('.ai-widget-chip');
     const input = widget.querySelector('.ai-widget-input');
     const voice = widget.querySelector('.ai-widget-voice');
     const send = widget.querySelector('.ai-widget-send');
@@ -33,6 +34,19 @@
     prompt.addEventListener('change', function () {
       if (prompt.value) input.value = prompt.value;
       input.focus();
+    });
+
+    chips.forEach(function (chip) {
+      chip.addEventListener('click', function () {
+        input.value = chip.getAttribute('data-prompt') || chip.textContent.trim();
+        input.focus();
+      });
+    });
+
+    input.addEventListener('keydown', function (event) {
+      if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
+        form.requestSubmit();
+      }
     });
 
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;

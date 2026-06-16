@@ -9,6 +9,7 @@ const cookieParser = require('cookie-parser');
 const { buildLandingContext } = require('./lib/landing-context');
 const { createRateLimiter } = require('./lib/security');
 const { startLegalAuditMonitor } = require('./services/legal-audit-runner');
+const { listApprovedCustomerReviews } = require('./db/customer-reviews');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -103,9 +104,14 @@ app.get('/health', (req, res) => {
 app.use(express.static(path.join(__dirname, 'public'), { index: false }));
 
 // ── Routes ────────────────────────────────────────────────────────────────────
-app.get('/', (_req, res) => {
+app.get('/', async (_req, res) => {
+  const customerReviews = await listApprovedCustomerReviews({ limit: 6 }).catch(error => {
+    console.error('[homepage] reviews fallback:', error.message);
+    return [];
+  });
   res.render('layout', {
     ...buildLandingContext(),
+    customerReviews,
     seo: {
       title: 'Autovyne — AI Automation for Local Businesses',
       description: 'AI automation that captures every lead. Chatbots, voice receptionists, scheduling — built for local businesses.',

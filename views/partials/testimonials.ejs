@@ -1,113 +1,151 @@
-<!-- TESTIMONIALS SECTION -->
+<%
+  const reviews = typeof customerReviews !== 'undefined' ? customerReviews : [];
+%>
 <section class="testimonials-section">
   <div class="testimonials-inner">
     <div class="testimonials-header">
-      <div class="testimonials-label">Real Results</div>
-      <h2>What Business Owners Are Saying</h2>
+      <div class="testimonials-label">Verified Customer Proof</div>
+      <h2>Real customer reviews will live here after customers use Autovyne.</h2>
+      <p>Autovyne only shows approved reviews from signed-up users or customers with real service activity. No canned quotes, no pretend case studies.</p>
     </div>
-    <div class="testimonials-grid">
-      <div class="testimonial-card">
-        <div class="testimonial-quote">"We were missing 6 calls a week after hours. Autovyne captured every single one. $18K in new revenue in the first 3 months."</div>
-        <div class="testimonial-attr">
-          <span class="testimonial-name">Brandon</span>
-          <span class="testimonial-sep">—</span>
-          <span class="testimonial-role">Owner, Independence HVAC</span>
-        </div>
+
+    <% if (reviews.length) { %>
+      <div class="testimonials-grid">
+        <% reviews.forEach(function(review) { %>
+          <article class="testimonial-card">
+            <div class="testimonial-proof-row">
+              <span>Verified review</span>
+              <% if (review.rating) { %><strong><%= review.rating %>/5</strong><% } %>
+            </div>
+            <div class="testimonial-quote">"<%= review.quote %>"</div>
+            <% if (review.outcome_summary) { %><p class="testimonial-outcome"><%= review.outcome_summary %></p><% } %>
+            <div class="testimonial-attr">
+              <span class="testimonial-name"><%= review.reviewer_name || review.business_name %></span>
+              <span class="testimonial-sep">-</span>
+              <span class="testimonial-role"><%= review.reviewer_role || review.business_name %></span>
+            </div>
+          </article>
+        <% }); %>
       </div>
-      <div class="testimonial-card">
-        <div class="testimonial-quote">"I was skeptical at first. 90 days in, I've got 14 new jobs I wouldn't have gotten. Worth every penny."</div>
-        <div class="testimonial-attr">
-          <span class="testimonial-name">Mark</span>
-          <span class="testimonial-sep">—</span>
-          <span class="testimonial-role">Owner, Overland Park Plumbing</span>
-        </div>
+    <% } else { %>
+      <div class="proof-empty-grid">
+        <article class="testimonial-card proof-card">
+          <div class="testimonial-proof-row"><span>What shows here</span><strong>Live</strong></div>
+          <h3>Approved customer reviews</h3>
+          <p>Once a real customer signs up, uses the service, and gives permission, their review can be approved from the admin side and shown here.</p>
+        </article>
+        <article class="testimonial-card proof-card">
+          <div class="testimonial-proof-row"><span>Tracked inside portal</span><strong>Clear</strong></div>
+          <h3>Calls, texts, leads, bookings</h3>
+          <p>The portal is built to show business owners what activity Autovyne is handling without forcing them to manage technical apps.</p>
+        </article>
+        <article class="testimonial-card proof-card">
+          <div class="testimonial-proof-row"><span>Owner promise</span><strong>Honest</strong></div>
+          <h3>No fake social proof</h3>
+          <p>This space is reserved for current, past, or present users with real Autovyne history. Until then, the site says exactly that.</p>
+        </article>
       </div>
-      <div class="testimonial-card">
-        <div class="testimonial-quote">"Setup was 20 minutes. First missed call captured that night. It's been running perfectly since."</div>
-        <div class="testimonial-attr">
-          <span class="testimonial-name">Tina</span>
-          <span class="testimonial-sep">—</span>
-          <span class="testimonial-role">Owner, KC Metro Electric</span>
-        </div>
-      </div>
-    </div>
+    <% } %>
   </div>
 </section>
 
 <style>
-/* ---- TESTIMONIALS ---- */
 .testimonials-section {
-  padding: 100px 24px;
-  background: var(--bg-subtle);
+  padding: 94px 24px;
+  background:
+    radial-gradient(circle at 18% 12%, rgba(0,232,123,0.12), transparent 32%),
+    linear-gradient(180deg, var(--bg-subtle), #08080d);
 }
 .testimonials-inner {
   max-width: var(--max-w);
   margin: 0 auto;
 }
 .testimonials-header {
+  max-width: 760px;
+  margin: 0 auto 44px;
   text-align: center;
-  margin-bottom: 56px;
 }
 .testimonials-label {
   display: inline-block;
   font-family: var(--font-display);
-  font-size: 0.78rem;
-  font-weight: 600;
+  font-size: 0.76rem;
+  font-weight: 700;
   letter-spacing: 1.5px;
   text-transform: uppercase;
   color: var(--accent);
-  margin-bottom: 16px;
+  margin-bottom: 14px;
 }
 .testimonials-header h2 {
   font-family: var(--font-display);
-  font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+  font-size: clamp(1.8rem, 3.5vw, 2.7rem);
+  line-height: 1.08;
   font-weight: 700;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.03em;
+  margin: 0;
 }
-.testimonials-grid {
+.testimonials-header p {
+  color: var(--fg-muted);
+  line-height: 1.65;
+  margin: 16px auto 0;
+}
+.testimonials-grid,
+.proof-empty-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
+  gap: 20px;
 }
 .testimonial-card {
-  background: var(--bg-card);
-  border: 1px solid rgba(255,255,255,0.07);
-  border-radius: 16px;
-  padding: 36px 32px;
+  background: rgba(18,20,28,0.86);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 18px;
+  padding: 26px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  transition: border-color 0.25s ease, transform 0.2s ease;
+  gap: 16px;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.24);
 }
-.testimonial-card:hover {
-  border-color: rgba(0,232,123,0.2);
-  transform: translateY(-3px);
+.testimonial-proof-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+}
+.testimonial-proof-row span {
+  color: var(--fg-muted);
+  font-size: .72rem;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.testimonial-proof-row strong {
+  color: var(--accent);
+  font-size: .8rem;
 }
 .testimonial-quote {
-  font-size: 1rem;
-  line-height: 1.7;
   color: var(--fg);
-  font-style: normal;
-  flex: 1;
+  font-size: 1rem;
+  line-height: 1.65;
 }
-.testimonial-quote::before {
-  content: '\u201C';
-  display: block;
+.testimonial-outcome,
+.proof-card p {
+  color: var(--fg-muted);
+  line-height: 1.6;
+  margin: 0;
+}
+.proof-card h3 {
   font-family: var(--font-display);
-  font-size: 3rem;
-  font-weight: 700;
-  color: var(--accent);
-  opacity: 0.4;
-  line-height: 1;
-  margin-bottom: 8px;
+  font-size: 1.2rem;
+  margin: 0;
+  letter-spacing: -0.02em;
 }
 .testimonial-attr {
   display: flex;
   align-items: center;
   gap: 6px;
   flex-wrap: wrap;
-  padding-top: 16px;
+  padding-top: 14px;
   border-top: 1px solid rgba(255,255,255,0.07);
+  margin-top: auto;
 }
 .testimonial-name {
   font-family: var(--font-display);
@@ -115,16 +153,14 @@
   font-weight: 700;
   color: var(--fg);
 }
-.testimonial-sep {
-  color: var(--fg-muted);
-  font-size: 0.85rem;
-}
+.testimonial-sep,
 .testimonial-role {
-  font-size: 0.85rem;
   color: var(--fg-muted);
+  font-size: 0.85rem;
 }
 @media (max-width: 900px) {
-  .testimonials-grid { grid-template-columns: 1fr; }
+  .testimonials-grid,
+  .proof-empty-grid { grid-template-columns: 1fr; }
   .testimonials-section { padding: 72px 20px; }
 }
 </style>

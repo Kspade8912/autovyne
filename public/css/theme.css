@@ -1298,6 +1298,15 @@ body {
   font-size: 0.8rem;
   line-height: 1.5;
 }
+.portal-compact-list {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--fg-muted);
+  font-size: 0.8rem;
+  line-height: 1.5;
+  display: grid;
+  gap: 6px;
+}
 .portal-automation-card small {
   display: block;
   margin-top: 12px;
