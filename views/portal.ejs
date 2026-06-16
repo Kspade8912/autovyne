@@ -175,7 +175,7 @@
       <article class="portal-card portal-metric"><span>Estimated Recovery</span><strong>$<%= Number(metrics.estimated_revenue_recovered || 0).toLocaleString() %></strong><p>Estimated revenue preserved by follow-up.</p></article>
     </section>
 
-    <section class="portal-card portal-help-card">
+    <section class="portal-card portal-help-card" data-portal-fold-title="Automation Command Center">
       <div>
         <h2>Automation Command Center</h2>
         <p class="portal-muted">You do not need to download or manage the technical apps. This portal shows what each system is doing in plain English and gives you a safe place to request changes.</p>
@@ -187,7 +187,7 @@
       </div>
     </section>
 
-    <section class="portal-card">
+    <section class="portal-card" data-portal-fold-title="Autonomous AI Work Plan">
       <h2>Autonomous AI Work Plan</h2>
       <p class="portal-muted">Autovyne is built to do the background work for you, then show the useful business version here. Risky items still wait for review so your account stays controlled and compliant.</p>
       <div class="portal-automation-grid">
@@ -211,7 +211,7 @@
       </div>
     </section>
 
-    <section class="portal-two-col">
+    <section class="portal-two-col" data-portal-fold-title="Lead, Booking & Calendar Updates">
       <article class="portal-card">
         <h2>Lead & Booking Updates</h2>
         <p class="portal-muted">Choose how Autovyne should surface important account movement. Text choices are saved as preferences, but texts only send when consent and compliance records allow it.</p>
@@ -332,7 +332,7 @@
       </article>
     </section>
 
-    <section class="portal-card">
+    <section class="portal-card" data-portal-fold-title="Behind-the-Scenes Automation">
       <h2>What Is Running Behind the Scenes</h2>
       <p class="portal-muted">These are the jobs Autovyne is handling for your account. The outside apps stay behind the curtain; this is the business-owner version.</p>
       <div class="portal-automation-grid">
@@ -352,7 +352,7 @@
       </div>
     </section>
 
-    <section class="portal-two-col">
+    <section class="portal-two-col" data-portal-fold-title="Action Center & Control Requests">
       <article class="portal-card">
         <h2>Action Center</h2>
         <p class="portal-muted">Send Autovyne a safe control request without touching the technical apps. Blocking a caller, pausing follow-up, or changing rules requires review so your account stays compliant.</p>
@@ -404,7 +404,7 @@
       </article>
     </section>
 
-    <section class="portal-two-col">
+    <section class="portal-two-col" data-portal-fold-title="Automation Setup & Onboarding Checklist">
       <article class="portal-card">
         <h2>Your Automation Setup</h2>
         <p class="portal-muted">Plain-English status for each piece of the system.</p>
@@ -439,7 +439,7 @@
       </article>
     </section>
 
-    <section class="portal-two-col">
+    <section class="portal-two-col" data-portal-fold-title="Recent Updates & Autovyne Helper">
       <article class="portal-card">
         <h2>Recent Autovyne Updates</h2>
         <p class="portal-muted">Updates Autovyne has marked visible for your account.</p>
@@ -484,7 +484,7 @@
       </article>
     </section>
 
-    <section class="portal-two-col">
+    <section class="portal-two-col" data-portal-fold-title="Support & Helper Limits">
       <article class="portal-card">
         <h2>Need Autovyne?</h2>
         <p class="portal-muted">Use this if something looks wrong, your phone number changes, or you want Autovyne to update the automation.</p>
@@ -501,7 +501,7 @@
       </article>
     </section>
 
-    <section class="portal-card portal-help-card">
+    <section class="portal-card portal-help-card" data-portal-fold-title="Compliance-Minded Controls">
       <div>
         <h2>Compliance-Minded Controls</h2>
         <p class="portal-muted">Autovyne keeps technical and sensitive details in the background. This portal gives you the useful version: status, activity, owner requests, and results.</p>
@@ -540,6 +540,22 @@
         'What activity happened recently?'
       ]
     }) %>
+    <script>
+      (function() {
+        const sections = document.querySelectorAll('[data-portal-fold-title]');
+        sections.forEach(function(section, index) {
+          if (section.closest('.portal-dashboard-fold')) return;
+          const details = document.createElement('details');
+          details.className = 'portal-dashboard-fold';
+          if (index < 2) details.open = true;
+          const summary = document.createElement('summary');
+          summary.textContent = section.getAttribute('data-portal-fold-title') || 'Portal Section';
+          section.parentNode.insertBefore(details, section);
+          details.appendChild(summary);
+          details.appendChild(section);
+        });
+      })();
+    </script>
     <script src="/js/assistant-widget.js"></script>
   <% } %>
 </body>
