@@ -95,9 +95,20 @@ const lead = {
   assert.equal(n8nBody.industry_profile.defining_trait, 'Urgency-first dispatcher');
 
   requests.length = 0;
-  await processNewLead({ ...lead, sms_consent: false });
+  const liveLeadResult = await processNewLead(lead);
+  const liveTwilioRequest = requests.find(request => request.url.includes('api.twilio.com'));
+  assert.ok(liveTwilioRequest);
+  assert.equal(liveLeadResult.steps.find(step => step.name === 'twilio').status, 'sent');
+  const liveSmsBody = new URLSearchParams(liveTwilioRequest.options.body);
+  assert.equal(liveSmsBody.get('To'), '+15555550100');
+  assert.ok(liveSmsBody.get('Body').includes('Autovyne received your Example HVAC audit request'));
+
+  requests.length = 0;
+  const optedOutResult = await processNewLead({ ...lead, sms_consent: false });
   const optedOutHubspot = JSON.parse(requests.find(request => request.url.includes('hubapi.com')).options.body);
   const optedOutN8n = JSON.parse(requests.find(request => request.url.includes('n8n.example')).options.body);
+  assert.equal(requests.some(request => request.url.includes('api.twilio.com')), false);
+  assert.equal(optedOutResult.steps.find(step => step.name === 'twilio').status, 'skipped');
   assert.equal(optedOutHubspot.inputs[0].properties.phone, undefined);
   assert.equal(optedOutN8n.sms_eligible, false);
   assert.equal(optedOutN8n.lead.phone, null);

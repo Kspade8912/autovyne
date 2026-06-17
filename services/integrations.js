@@ -16,6 +16,7 @@ async function logIntegrationIncident(payload) {
 async function runStep(name, fn, context = {}) {
   try {
     const result = await fn();
+    if (result?.skipped) return { name, status: 'skipped', reason: result.reason || 'skipped' };
     return { name, status: result ? 'sent' : 'skipped' };
   } catch (error) {
     console.error(`[integrations] ${name} error:`, error.message);
@@ -35,12 +36,13 @@ async function processNewLead(lead) {
   const automationLead = lead.sms_consent
     ? lead
     : { ...lead, phone: null, sms_eligible: false };
+  const smsEligible = Boolean(lead.sms_consent && lead.phone);
 
   const incidentContext = {
     operation: 'lead.created',
     lead_id: lead.id || null,
     industry: lead.industry || null,
-    sms_eligible: Boolean(automationLead.sms_eligible ?? automationLead.sms_consent),
+    sms_eligible: smsEligible,
   };
 
   const openaiResult = await runStep('openai', async () => {
@@ -48,13 +50,18 @@ async function processNewLead(lead) {
     return qualification;
   }, incidentContext);
 
-  const [hubspotResult, n8nResult] = await Promise.all([
+  const [hubspotResult, n8nResult, twilioResult] = await Promise.all([
     runStep('hubspot', () => hubspot.upsertLead(automationLead), incidentContext),
     runStep('n8n', () => n8n.sendLeadEvent(automationLead, qualification), incidentContext),
+    runStep('twilio', () => twilio.sendSms({
+      to: lead.phone,
+      body: `Autovyne received your ${lead.business_name || 'business'} audit request. We will review missed-call recovery opportunities and follow up with next steps. Reply HELP for help or STOP to opt out.`,
+      smsConsent: smsEligible,
+    }), incidentContext),
   ]);
 
-  console.log('[integrations] lead processed:', lead.id, openaiResult.status, hubspotResult.status, n8nResult.status);
-  return { qualification, steps: [openaiResult, hubspotResult, n8nResult] };
+  console.log('[integrations] lead processed:', lead.id, openaiResult.status, hubspotResult.status, n8nResult.status, twilioResult.status);
+  return { qualification, steps: [openaiResult, hubspotResult, n8nResult, twilioResult] };
 }
 
 function getConfigurationStatus() {
